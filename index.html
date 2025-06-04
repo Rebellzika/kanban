@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Kanban Board Pro</title>
+    <title>Meu Kanban Board Pro - Compartilhado</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter Font -->
@@ -11,266 +11,271 @@
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body, html { /* Adicionado html aqui para text-size-adjust */
+        body, html {
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #f0f2f5; /* Light gray background */
-            -webkit-text-size-adjust: 100%; /* Mantido para compatibilidade */
-            text-size-adjust: 100%; /* Adicionado para compatibilidade moderna */
+            background-color: #f3f4f6;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
         .kanban-column {
-            min-width: 280px;
-            max-width: 320px;
-            flex-shrink: 0; /* Prevent columns from shrinking below min-width */
+            min-width: 300px;
+            max-width: 340px;
+            flex-shrink: 0;
+            border: 2px solid transparent;
+            transition: background-color 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
         }
         .kanban-card {
             cursor: grab;
-            transition: transform 0.1s ease-in-out, box-shadow 0.2s ease;
-            position: relative; /* For priority badge */
+            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.25s ease, background-color 0.25s ease;
+            position: relative;
+            border: 1px solid #e5e7eb;
+        }
+        .kanban-card:hover {
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.12), 0 6px 12px -8px rgba(0, 0, 0, 0.08);
+            transform: translateY(-3px) scale(1.01);
         }
         .kanban-card:active {
             cursor: grabbing;
+            transform: scale(0.97);
         }
         .kanban-card.dragging {
-            opacity: 0.5;
-            border: 2px dashed #9ca3af; /* Gray-400 */
+            opacity: 0.75;
+            transform: scale(1.03) rotate(2deg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            border-color: transparent;
         }
-        .kanban-column.drag-over { /* Aplicado à coluna inteira agora */
-            background-color: #e0e7ff; /* Indigo-100 */
-            border: 2px dashed #6366f1; /* Indigo-500 */
+        .kanban-column.drag-over {
+            background-color: #e0e7ff;
+            border-color: #a5b4fc;
         }
-        /* Custom scrollbar for columns */
-        .kanban-column-content::-webkit-scrollbar {
-            width: 8px;
+        .kanban-column-content::-webkit-scrollbar { width: 8px; }
+        .kanban-column-content::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 10px; }
+        .kanban-column-content::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
+        .kanban-column-content::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.65); }
+        .modal-content { animation: fadeInScaleModal 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
+        @keyframes fadeInScaleModal {
+            from { opacity: 0; transform: translateY(25px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .kanban-column-content::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        .kanban-column-content::-webkit-scrollbar-thumb {
-            background: #a1a1aa; /* Gray-400 */
-            border-radius: 10px;
-        }
-        .kanban-column-content::-webkit-scrollbar-thumb:hover {
-            background: #71717a; /* Gray-500 */
-        }
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.6);
-        }
-        .modal-content {
-            animation: fadeInScale 0.3s ease-out forwards;
-        }
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        .toast-container {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1000;
-        }
-        .toast {
-            animation: slideInRight 0.5s ease-out forwards, fadeOut 3s forwards 2s;
-        }
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
-        }
+        .toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 1000; }
+        .toast { animation: slideInRightToast 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards, fadeOutToast 0.5s ease-in forwards 3.5s; }
+        @keyframes slideInRightToast { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOutToast { from { opacity: 1; } to { opacity: 0; } }
+        .truncate-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+        .column-title-text { max-width: 130px; }
+        .task-title-text { max-width: 190px; font-weight: 500; }
+        .priority-icon { width: 1em; height: 1em; }
+        .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease; border: 2px solid transparent; }
+        .color-swatch.selected { transform: scale(1.15); box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor; }
+        .board-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .board-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .task-blocked { border-left-color: #ef4444 !important; background-color: #fee2e2; }
+        .task-blocked .task-title-text::before { content: "\f023"; font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 6px; color: #dc2626; }
+        .task-completed { border-left-color: #22c55e !important; background-color: #f0fdf4; opacity: 0.8; }
+        .task-completed .task-title-text { text-decoration: line-through; color: #52525b; }
+        .task-completed .task-title-text::before { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 6px; color: #16a34a; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
-    <!-- Loading overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <!-- Overlay de Carregamento Global -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-[100]">
         <div class="flex flex-col items-center">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
-            <p class="mt-4 text-white text-lg">Carregando...</p>
+            <svg class="animate-spin h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-4 text-white text-lg font-medium">Carregando...</p>
         </div>
     </div>
 
-    <!-- Toast Container for Notifications -->
+    <!-- Container para Toasts (Notificações) -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <!-- Login/Register Section -->
-    <div id="authSection" class="flex flex-grow items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-105">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8" id="authTitle">Bem-vindo ao Meu Kanban</h2>
-            <div class="space-y-4">
+    <!-- Seção de Autenticação -->
+    <div id="authSection" class="flex flex-grow items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-4">
+        <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-[1.02]">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8" id="authTitle">Bem-vindo ao Kanban Pro</h2>
+            <div class="space-y-5">
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="email" autocomplete="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="seu.email@exemplo.com">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="email" autocomplete="email" class="mt-1 block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400" placeholder="seu.email@exemplo.com">
                 </div>
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
-                    <input type="password" id="password" autocomplete="current-password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="********">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                    <input type="password" id="password" autocomplete="current-password" class="mt-1 block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400" placeholder="Sua senha">
                 </div>
-                <button id="authButton" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out font-semibold text-lg">
+                <button id="authButton" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-4 rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-150 ease-in-out font-semibold text-lg transform hover:scale-105">
                     Entrar
                 </button>
             </div>
-            <p id="authError" class="text-red-600 text-sm mt-4 text-center hidden"></p>
+            <p id="authError" class="text-red-500 text-sm mt-4 text-center hidden"></p>
         </div>
     </div>
 
-    <!-- Kanban Section -->
+    <!-- Seção de Gerenciamento de Quadros -->
+    <div id="boardManagementSection" class="flex-grow p-6 hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Meus Quadros Kanban</h1>
+            <button id="logoutButtonTop" class="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition duration-150 ease-in-out">
+                <i class="fas fa-sign-out-alt mr-2"></i>Sair
+            </button>
+        </div>
+        <button id="showCreateBoardModalButton" class="mb-6 bg-green-500 text-white px-6 py-2.5 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition duration-150 ease-in-out font-medium">
+            <i class="fas fa-plus mr-2"></i>Criar Novo Quadro
+        </button>
+        <div id="boardListContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Cards de quadros -->
+        </div>
+        <p id="noBoardsMessage" class="text-center text-gray-500 mt-10 hidden">Você ainda não tem quadros. Crie um novo para começar!</p>
+    </div>
+
+    <!-- Seção Principal do Kanban -->
     <div id="kanbanSection" class="flex flex-col flex-grow hidden">
-        <header class="bg-white shadow-md p-4 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <h1 class="text-2xl font-bold text-gray-800">Meu Kanban Board Pro</h1>
-            <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-                <input type="text" id="taskSearchInput" placeholder="Pesquisar tarefas..." class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-full sm:w-48">
-                <label for="filterPriority" class="sr-only">Filtrar por Prioridade</label> <!-- Adicionado label para acessibilidade -->
-                <select id="filterPriority" class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-full sm:w-32">
+        <header class="bg-white shadow-md p-4 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 sm:space-x-4">
+            <div class="flex items-center space-x-3">
+                <button id="backToBoardsButton" class="text-indigo-600 hover:text-indigo-800" title="Voltar para Meus Quadros">
+                    <i class="fas fa-arrow-left fa-lg"></i>
+                </button>
+                <h1 id="currentBoardNameDisplay" class="text-2xl font-bold text-gray-800 truncate-text max-w-xs sm:max-w-sm md:max-w-md" title="Nome do Quadro">Carregando...</h1>
+                <button id="showManageMembersModalButton" class="ml-2 bg-blue-500 text-white px-3 py-1.5 rounded-md shadow-sm hover:bg-blue-600 text-xs font-medium hidden" title="Gerenciar Membros">
+                    <i class="fas fa-users mr-1"></i>Membros
+                </button>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+                <input type="text" id="taskSearchInput" placeholder="Pesquisar tarefas..." class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-full sm:w-52">
+                <select id="filterPriority" class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-full sm:w-auto">
                     <option value="">Todas Prioridades</option>
                     <option value="low">Baixa</option>
                     <option value="medium">Média</option>
                     <option value="high">Alta</option>
                 </select>
-                <span id="userIdDisplay" class="text-gray-600 text-sm truncate">ID do Usuário: Carregando...</span>
-                <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition duration-150 ease-in-out w-full sm:w-auto">
-                    Sair
+                <div class="flex items-center space-x-2">
+                    <span id="userIdDisplay" class="text-gray-600 text-sm truncate-text max-w-[100px] sm:max-w-[150px]" title="ID do Usuário">ID: Carregando...</span>
+                    <button id="showEditProfileModalButton" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded-md" title="Editar meu nome de exibição">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                </div>
+                <button id="logoutButtonKanban" class="bg-red-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-150 ease-in-out w-full sm:w-auto">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
                 </button>
             </div>
         </header>
-
-        <main class="flex-grow p-6 overflow-x-auto">
-            <div id="kanbanBoard" class="flex flex-nowrap space-x-6 h-full items-start pb-4">
-                <!-- Kanban Columns will be rendered here by JavaScript -->
+        <div class="p-5 pb-2">
+             <button id="showAddColumnModalButton" class="bg-purple-600 text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-150 ease-in-out font-medium">
+                <i class="fas fa-plus mr-2"></i>Adicionar Nova Coluna
+            </button>
+        </div>
+        <main class="flex-grow p-5 pt-0 overflow-x-auto">
+            <div id="kanbanBoard" class="flex flex-nowrap space-x-6 h-full items-start pb-5">
+                <!-- Colunas do Kanban -->
             </div>
         </main>
-
-        <!-- Add Task Modal -->
-        <div id="addTaskModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden">
-            <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6">Adicionar Nova Tarefa</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label for="taskTitle" class="block text-sm font-medium text-gray-700">Título da Tarefa</label>
-                        <input type="text" id="taskTitle" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Título da Tarefa">
-                    </div>
-                    <div>
-                        <label for="taskDescription" class="block text-sm font-medium text-gray-700">Descrição (Opcional)</label>
-                        <textarea id="taskDescription" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Detalhes da tarefa"></textarea>
-                    </div>
-                    <div>
-                        <label for="taskPriority" class="block text-sm font-medium text-gray-700">Prioridade</label>
-                        <select id="taskPriority" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            <option value="low">Baixa</option>
-                            <option value="medium" selected>Média</option>
-                            <option value="high">Alta</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="taskDueDate" class="block text-sm font-medium text-gray-700">Data de Vencimento (Opcional)</label>
-                        <input type="date" id="taskDueDate" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                    <div class="flex justify-end space-x-4">
-                        <button id="cancelAddTask" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
-                            Cancelar
-                        </button>
-                        <button id="confirmAddTask" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
-                            Adicionar Tarefa
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Edit/Delete Task Modal -->
-        <div id="editTaskModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden">
-            <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6">Editar Tarefa</h3>
-                <input type="hidden" id="editTaskId">
-                <div class="space-y-4">
-                    <div>
-                        <label for="editTaskTitle" class="block text-sm font-medium text-gray-700">Título da Tarefa</label>
-                        <input type="text" id="editTaskTitle" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="editTaskDescription" class="block text-sm font-medium text-gray-700">Descrição (Opcional)</label>
-                        <textarea id="editTaskDescription" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
-                    </div>
-                    <div>
-                        <label for="editTaskPriority" class="block text-sm font-medium text-gray-700">Prioridade</label>
-                        <select id="editTaskPriority" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            <option value="low">Baixa</option>
-                            <option value="medium">Média</option>
-                            <option value="high">Alta</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="editTaskDueDate" class="block text-sm font-medium text-gray-700">Data de Vencimento (Opcional)</label>
-                        <input type="date" id="editTaskDueDate" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                    <div class="flex justify-end space-x-4">
-                        <button id="deleteTaskButton" class="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition duration-150 ease-in-out">
-                            Excluir
-                        </button>
-                        <button id="cancelEditTask" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
-                            Cancelar
-                        </button>
-                        <button id="saveEditTask" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
-                            Salvar Alterações
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+
+    <!-- Modais (Estrutura HTML dos modais mantida como antes) -->
+    <div id="editProfileModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Editar Meu Nome de Exibição</h3><div class="space-y-4"><div><label for="myDisplayNameInput" class="block text-sm font-medium text-gray-700 mb-1">Seu Nome de Exibição</label><input type="text" id="myDisplayNameInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Como você quer ser chamado"></div><div class="flex justify-end space-x-4 pt-2"><button id="cancelEditProfileButton" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmEditProfileButton" class="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600 font-medium">Salvar Nome</button></div></div></div></div>
+    <div id="createBoardModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Criar Novo Quadro Kanban</h3><div class="space-y-4"><div><label for="newBoardNameInput" class="block text-sm font-medium text-gray-700 mb-1">Nome do Quadro</label><input type="text" id="newBoardNameInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Ex: Projeto Alpha"></div><div class="flex justify-end space-x-4 pt-2"><button id="cancelCreateBoardButton" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmCreateBoardButton" class="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600 font-medium">Criar Quadro</button></div></div></div></div>
+    <div id="editBoardModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Editar Nome do Quadro</h3><input type="hidden" id="editBoardIdInput"><div class="space-y-4"><div><label for="currentBoardNameStatic" class="block text-sm font-medium text-gray-700 mb-1">Nome Atual</label><p id="currentBoardNameStatic" class="mt-1 block w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg sm:text-sm truncate"></p></div><div><label for="newBoardNameEditInput" class="block text-sm font-medium text-gray-700 mb-1">Novo Nome</label><input type="text" id="newBoardNameEditInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Digite o novo nome"></div><div class="flex justify-end space-x-4 pt-2"><button id="cancelEditBoardButton" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmEditBoardButton" class="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 font-medium">Salvar</button></div></div></div></div>
+    <div id="deleteBoardConfirmModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content"><h3 class="text-2xl font-bold text-red-700 mb-4"><i class="fas fa-exclamation-triangle mr-2"></i>Confirmar Exclusão</h3><input type="hidden" id="deleteBoardIdInputConfirm"><input type="hidden" id="deleteBoardNameActualConfirm"><p class="text-gray-700 mb-2">Excluir quadro: <strong id="deleteBoardNameDisplayConfirm" class="font-semibold text-gray-800"></strong>?</p><p class="text-sm text-gray-600 mb-4">Ação <strong class="text-red-600">irreversível</strong>.</p><div class="mb-5"><label for="deleteBoardNameConfirmInput" class="block text-sm font-medium text-gray-700 mb-1">Confirme digitando o nome do quadro:</label><input type="text" id="deleteBoardNameConfirmInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm" placeholder="Nome do quadro"><p id="deleteBoardConfirmError" class="text-red-500 text-xs mt-1 hidden">Nome não corresponde.</p></div><div class="flex justify-end space-x-4 pt-3"><button id="cancelDeleteBoardConfirmButton" class="bg-gray-300 text-gray-800 py-2 px-5 rounded-lg shadow-sm hover:bg-gray-400 font-medium">Cancelar</button><button id="confirmDeleteBoardFinalButton" class="bg-red-600 text-white py-2 px-5 rounded-lg shadow-md hover:bg-red-700 font-medium">Excluir</button></div></div></div>
+    <div id="manageMembersModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[60] hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg modal-content"><div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-bold text-gray-800">Gerenciar Membros</h3><button id="closeManageMembersModalButton" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button></div><input type="hidden" id="manageMembersBoardIdInput"><div class="mb-6 border-b border-gray-200 pb-6"><label for="newMemberIdInput" class="block text-sm font-medium text-gray-700 mb-1">Adicionar Membro (UID)</label><div class="flex space-x-2"><input type="text" id="newMemberIdInput" class="flex-grow mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="UID do novo membro"><button id="addMemberButton" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 font-medium">Adicionar</button></div><p class="text-xs text-gray-500 mt-1">Peça ao usuário o "ID do Usuário" (cabeçalho).</p></div><div id="createUserSection" class="mb-4 hidden"><h4 class="text-lg font-semibold text-gray-700 mb-3 pt-4 border-t border-gray-200">Criar Novo Usuário (Admin)</h4><p class="text-xs text-blue-600 bg-blue-50 p-2 rounded-md mb-3"><i class="fas fa-info-circle mr-1"></i>Como administrador, crie uma nova conta.</p><div class="space-y-3"><div><label for="newMemberCreateEmailInput" class="block text-sm font-medium text-gray-700 mb-1">Email Novo Usuário</label><input type="email" id="newMemberCreateEmailInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="novo.usuario@exemplo.com"></div><div><label for="newMemberCreatePasswordInput" class="block text-sm font-medium text-gray-700 mb-1">Senha Novo Usuário</label><input type="password" id="newMemberCreatePasswordInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Mínimo 6 caracteres"></div><button id="createUserAndAddMemberButton" class="w-full bg-green-500 text-white px-4 py-2.5 rounded-lg shadow-md hover:bg-green-600 font-medium"><i class="fas fa-user-plus mr-2"></i>Criar e Adicionar</button></div></div><div><h4 class="text-lg font-medium text-gray-700 mb-2 pt-4 border-t border-gray-200">Membros Atuais:</h4><ul id="memberListContainer" class="space-y-2 max-h-48 overflow-y-auto bg-gray-50 p-3 rounded-md"></ul></div></div></div>
+    <div id="addTaskModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Adicionar Tarefa</h3><div class="space-y-4"><div><label for="taskTitle" class="block text-sm font-medium text-gray-700 mb-1">Título</label><input type="text" id="taskTitle" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Ex: Nova funcionalidade"></div><div><label for="taskDescription" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label><textarea id="taskDescription" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Detalhes..."></textarea></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="taskPriority" class="block text-sm font-medium text-gray-700 mb-1">Prioridade</label><select id="taskPriority" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"><option value="low">Baixa</option><option value="medium" selected>Média</option><option value="high">Alta</option></select></div><div><label for="taskDueDate" class="block text-sm font-medium text-gray-700 mb-1">Vencimento</label><input type="date" id="taskDueDate" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></div></div><div class="flex justify-end space-x-4 pt-2"><button id="cancelAddTask" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmAddTask" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 font-medium">Adicionar</button></div></div></div></div>
+    <div id="editTaskModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Editar Tarefa</h3><input type="hidden" id="editTaskId"><div class="space-y-4"><div><label for="editTaskTitle" class="block text-sm font-medium text-gray-700 mb-1">Título</label><input type="text" id="editTaskTitle" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></div><div><label for="editTaskDescription" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label><textarea id="editTaskDescription" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="editTaskPriority" class="block text-sm font-medium text-gray-700 mb-1">Prioridade</label><select id="editTaskPriority" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"><option value="low">Baixa</option><option value="medium">Média</option><option value="high">Alta</option></select></div><div><label for="editTaskDueDate" class="block text-sm font-medium text-gray-700 mb-1">Vencimento</label><input type="date" id="editTaskDueDate" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></div></div><div class="mt-4"><p class="text-sm font-medium text-gray-700 mb-1">Responsável: <span id="editTaskAssignedToDisplay" class="font-normal text-gray-600"></span></p><p id="editTaskAssignedAtDisplay" class="text-xs text-gray-500"></p></div><div id="editTaskCompletedDisplayContainer" class="mt-2 hidden"><p class="text-sm font-medium text-green-700">Concluída em: <span id="editTaskCompletedAtDisplay" class="font-normal"></span></p></div><div class="flex justify-between items-center pt-2"><button id="deleteTaskButton" class="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-700 font-medium"><i class="fas fa-trash-alt mr-2"></i>Excluir</button><div class="space-x-4"><button id="cancelEditTask" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="saveEditTask" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 font-medium">Salvar</button></div></div></div></div></div>
+    <div id="addColumnModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Nova Coluna</h3><div class="space-y-4"><div><label for="newColumnTitleInput" class="block text-sm font-medium text-gray-700 mb-1">Título</label><input type="text" id="newColumnTitleInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Ex: Revisão"></div><div class="flex justify-end space-x-4 pt-2"><button id="cancelAddColumnButton" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmAddColumnButton" class="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 font-medium">Adicionar</button></div></div></div></div>
+    <div id="editColumnModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Editar Coluna</h3><input type="hidden" id="editColumnIdInput"><div class="space-y-5"><div><label for="editColumnTitleInput" class="block text-sm font-medium text-gray-700 mb-1">Novo Título</label><input type="text" id="editColumnTitleInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Novo Título"></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Cor</label><div id="editColumnColorPicker" class="flex flex-wrap gap-2 mt-1"></div><input type="hidden" id="editColumnColorInput"></div><div class="flex justify-end space-x-4 pt-3"><button id="cancelEditColumnButton" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="saveEditColumnButton" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 font-medium">Salvar</button></div></div></div></div>
 
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, serverTimestamp, orderBy, writeBatch, arrayUnion, arrayRemove, setLogLevel, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Configuration (provided by the user)
-        const firebaseConfig = {
+        // --- Variáveis Globais & Configuração do Firebase ---
+        let app;
+        let db;
+        let auth;
+        let userProfilesCollectionRef; 
+
+        const firebaseConfigFromGlobal = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const appIdFromGlobal = typeof __app_id !== 'undefined' ? __app_id : 'default-kanban-app-id';
+
+        const fallbackFirebaseConfig = {
             apiKey: "AIzaSyCJEuO5Su5yNYlLr800WPnCBICs8uO3xpc",
             authDomain: "kanban-1ad54.firebaseapp.com",
             projectId: "kanban-1ad54",
             storageBucket: "kanban-1ad54.firebasestorage.app",
             messagingSenderId: "1096522810322",
-            appId: "1:1096522810322:web:cf5c53903a117f51de7e0b",
-            measurementId: "G-FGCGPQ9QP0"
+            appId: "1:1096522810322:web:cf5c53903a117f51de7e0b"
         };
+        const finalFirebaseConfig = firebaseConfigFromGlobal || fallbackFirebaseConfig;
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        try {
+            app = initializeApp(finalFirebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            setLogLevel('debug');
+            console.log("Firebase inicializado com sucesso. App ID em uso:", appIdFromGlobal);
+            userProfilesCollectionRef = collection(db, `artifacts/${appIdFromGlobal}/userProfiles`);
+        } catch (error) {
+            console.error("Erro Crítico ao inicializar Firebase:", error);
+            document.getElementById('loadingOverlay')?.classList.add('hidden');
+            if (typeof showMessageModal === "function") {
+                 showMessageModal("Erro Crítico de Conexão", "Não foi possível conectar ao sistema. Verifique sua conexão com a internet e tente recarregar a página. Se o problema persistir, contate o suporte.\n\nDetalhes: " + error.message, "error");
+            } else {
+                alert("Erro Crítico: Não foi possível conectar ao sistema. Verifique o console para mais detalhes.");
+            }
+            throw error; 
+        }
 
-        // Global variables for UI elements
+        // --- Seletores de Elementos da UI ---
         const authSection = document.getElementById('authSection');
-        const kanbanSection = document.getElementById('kanbanSection');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const authButton = document.getElementById('authButton');
-        const authTitle = document.getElementById('authTitle');
         const authError = document.getElementById('authError');
-        const logoutButton = document.getElementById('logoutButton');
+        const boardManagementSection = document.getElementById('boardManagementSection');
+        const boardListContainer = document.getElementById('boardListContainer');
+        const noBoardsMessage = document.getElementById('noBoardsMessage');
+        const showCreateBoardModalButton = document.getElementById('showCreateBoardModalButton');
+        const createBoardModal = document.getElementById('createBoardModal');
+        const newBoardNameInput = document.getElementById('newBoardNameInput');
+        const confirmCreateBoardButton = document.getElementById('confirmCreateBoardButton');
+        const cancelCreateBoardButton = document.getElementById('cancelCreateBoardButton');
+        const logoutButtonTop = document.getElementById('logoutButtonTop');
+        const editBoardModal = document.getElementById('editBoardModal');
+        const editBoardIdInput = document.getElementById('editBoardIdInput');
+        const currentBoardNameStatic = document.getElementById('currentBoardNameStatic');
+        const newBoardNameEditInput = document.getElementById('newBoardNameEditInput');
+        const confirmEditBoardButton = document.getElementById('confirmEditBoardButton');
+        const cancelEditBoardButton = document.getElementById('cancelEditBoardButton');
+        const deleteBoardConfirmModal = document.getElementById('deleteBoardConfirmModal');
+        const deleteBoardIdInputConfirm = document.getElementById('deleteBoardIdInputConfirm');
+        const deleteBoardNameActualConfirm = document.getElementById('deleteBoardNameActualConfirm');
+        const deleteBoardNameDisplayConfirm = document.getElementById('deleteBoardNameDisplayConfirm');
+        const deleteBoardNameConfirmInput = document.getElementById('deleteBoardNameConfirmInput');
+        const deleteBoardConfirmError = document.getElementById('deleteBoardConfirmError');
+        const confirmDeleteBoardFinalButton = document.getElementById('confirmDeleteBoardFinalButton');
+        const cancelDeleteBoardConfirmButton = document.getElementById('cancelDeleteBoardConfirmButton');
+        const manageMembersModal = document.getElementById('manageMembersModal');
+        const manageMembersBoardIdInput = document.getElementById('manageMembersBoardIdInput');
+        const newMemberIdInput = document.getElementById('newMemberIdInput'); 
+        const addMemberButton = document.getElementById('addMemberButton'); 
+        const memberListContainer = document.getElementById('memberListContainer');
+        const closeManageMembersModalButton = document.getElementById('closeManageMembersModalButton');
+        const createUserSection = document.getElementById('createUserSection'); 
+        const newMemberCreateEmailInput = document.getElementById('newMemberCreateEmailInput');
+        const newMemberCreatePasswordInput = document.getElementById('newMemberCreatePasswordInput');
+        const createUserAndAddMemberButton = document.getElementById('createUserAndAddMemberButton');
+        const kanbanSection = document.getElementById('kanbanSection');
+        const backToBoardsButton = document.getElementById('backToBoardsButton');
+        const currentBoardNameDisplay = document.getElementById('currentBoardNameDisplay');
+        const showManageMembersModalButton = document.getElementById('showManageMembersModalButton');
+        const logoutButtonKanban = document.getElementById('logoutButtonKanban');
         const userIdDisplay = document.getElementById('userIdDisplay');
-        const kanbanBoard = document.getElementById('kanbanBoard');
+        const taskSearchInput = document.getElementById('taskSearchInput');
+        const filterPrioritySelect = document.getElementById('filterPriority');
         const addTaskModal = document.getElementById('addTaskModal');
         const taskTitleInput = document.getElementById('taskTitle');
         const taskDescriptionInput = document.getElementById('taskDescription');
@@ -284,574 +289,1252 @@
         const editTaskDescriptionInput = document.getElementById('editTaskDescription');
         const editTaskPriorityInput = document.getElementById('editTaskPriority');
         const editTaskDueDateInput = document.getElementById('editTaskDueDate');
+        const editTaskAssignedToDisplay = document.getElementById('editTaskAssignedToDisplay');
+        const editTaskAssignedAtDisplay = document.getElementById('editTaskAssignedAtDisplay');
+        const editTaskCompletedDisplayContainer = document.getElementById('editTaskCompletedDisplayContainer');
+        const editTaskCompletedAtDisplay = document.getElementById('editTaskCompletedAtDisplay');
         const cancelEditTaskButton = document.getElementById('cancelEditTask');
         const saveEditTaskButton = document.getElementById('saveEditTask');
         const deleteTaskButton = document.getElementById('deleteTaskButton');
+        const showAddColumnModalButton = document.getElementById('showAddColumnModalButton');
+        const addColumnModal = document.getElementById('addColumnModal');
+        const newColumnTitleInput = document.getElementById('newColumnTitleInput');
+        const confirmAddColumnButton = document.getElementById('confirmAddColumnButton');
+        const cancelAddColumnButton = document.getElementById('cancelAddColumnButton');
+        const editColumnModal = document.getElementById('editColumnModal');
+        const editColumnIdInput = document.getElementById('editColumnIdInput');
+        const editColumnTitleInput = document.getElementById('editColumnTitleInput');
+        const editColumnColorPicker = document.getElementById('editColumnColorPicker');
+        const editColumnColorInput = document.getElementById('editColumnColorInput');
+        const saveEditColumnButton = document.getElementById('saveEditColumnButton');
+        const cancelEditColumnButton = document.getElementById('cancelEditColumnButton');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const toastContainer = document.getElementById('toastContainer');
-        const taskSearchInput = document.getElementById('taskSearchInput');
-        const filterPrioritySelect = document.getElementById('filterPriority');
+        const showEditProfileModalButton = document.getElementById('showEditProfileModalButton');
+        const editProfileModal = document.getElementById('editProfileModal');
+        const myDisplayNameInput = document.getElementById('myDisplayNameInput');
+        const confirmEditProfileButton = document.getElementById('confirmEditProfileButton');
+        const cancelEditProfileButton = document.getElementById('cancelEditProfileButton');
 
-        // Kanban board data structure
-        const columns = [
-            { id: 'todo', title: 'A Fazer', color: 'bg-blue-500' },
-            { id: 'in-progress', title: 'Em Andamento', color: 'bg-yellow-500' },
-            { id: 'done', title: 'Concluído', color: 'bg-green-500' }
+        // --- Estado da Aplicação ---
+        let currentUserId = null;
+        let currentUserEmail = null; 
+        let currentUserDisplayName = null; 
+        let isCurrentUserAdmin = false; // Nova flag para status de administrador
+        let activeBoardId = null;
+        let activeBoardData = null;
+        let boardsCollectionRef = null;
+        let columnsCollectionRef = null;
+        let tasksCollectionRef = null;
+        let unsubscribeBoardsSnapshot = null;
+        let unsubscribeTasksSnapshot = null;
+        let unsubscribeColumnsSnapshot = null;
+        let allTasks = [];
+        let userColumns = [];
+        let userBoards = [];
+
+        const defaultColumnColors = [
+            'bg-sky-500', 'bg-amber-500', 'bg-emerald-500', 'bg-purple-500', 'bg-pink-500',
+            'bg-teal-500', 'bg-rose-500', 'bg-lime-500', 'bg-cyan-500', 'bg-fuchsia-500',
+            'bg-slate-500', 'bg-orange-500', 'bg-red-500', 'bg-yellow-500', 'bg-green-500', 'bg-blue-500'
         ];
 
-        let currentUserId = null;
-        let tasksCollectionRef = null;
-        let unsubscribeSnapshot = null; // To store the unsubscribe function for Firestore listener
+        // --- Funções Utilitárias ---
+        function showLoading() { loadingOverlay?.classList.remove('hidden'); }
+        function hideLoading() { loadingOverlay?.classList.add('hidden'); }
 
-        // Helper function to show loading overlay
-        function showLoading() {
-            loadingOverlay.classList.remove('hidden');
-        }
-
-        // Helper function to hide loading overlay
-        function hideLoading() {
-            loadingOverlay.classList.add('hidden');
-        }
-
-        // Function to display toast notifications
-        function showToast(message, type = 'success') {
+        function showToast(message, type = 'success', duration = 3500) {
+            if (!toastContainer) return;
             const toastElement = document.createElement('div');
-            toastElement.classList.add('toast', 'p-4', 'rounded-lg', 'shadow-lg', 'mb-3', 'flex', 'items-center', 'space-x-3');
-
-            let bgColor = 'bg-green-500';
-            let icon = '<i class="fas fa-check-circle"></i>';
-            if (type === 'error') {
-                bgColor = 'bg-red-500';
-                icon = '<i class="fas fa-times-circle"></i>';
-            } else if (type === 'info') {
-                bgColor = 'bg-blue-500';
-                icon = '<i class="fas fa-info-circle"></i>';
+            toastElement.className = `toast p-4 rounded-lg shadow-xl mb-3 flex items-center space-x-3 text-white text-sm font-medium`;
+            let iconHtml = '';
+            switch (type) {
+                case 'success': toastElement.classList.add('bg-green-500'); iconHtml = '<i class="fas fa-check-circle fa-lg"></i>'; break;
+                case 'error': toastElement.classList.add('bg-red-500'); iconHtml = '<i class="fas fa-times-circle fa-lg"></i>'; break;
+                case 'info': toastElement.classList.add('bg-blue-500'); iconHtml = '<i class="fas fa-info-circle fa-lg"></i>'; break;
+                default: toastElement.classList.add('bg-gray-700'); iconHtml = '<i class="fas fa-bell fa-lg"></i>';
             }
-
-            toastElement.classList.add(bgColor, 'text-white');
-            toastElement.innerHTML = `${icon} <span>${message}</span>`;
+            toastElement.innerHTML = `${iconHtml} <span>${message}</span>`;
             toastContainer.appendChild(toastElement);
-
             setTimeout(() => {
-                toastElement.remove();
-            }, 3500); // Toast disappears after 3.5 seconds
+                toastElement.style.animation = 'fadeOutToast 0.5s ease-in forwards';
+                setTimeout(() => toastElement.remove(), 500);
+            }, duration);
         }
 
-        // Function to display messages in a modal (instead of alert)
-        function showMessageModal(title, message, type = 'info') {
-            const modalId = `messageModal-${Date.now()}`; // Unique ID for each modal
+        function showMessageModal(title, message, type = 'info', onConfirm = null, confirmText = 'Ok', showCancel = false, cancelText = 'Cancelar') {
+            const modalId = `messageModal-${Date.now()}`;
+            let buttonsHtml = `<button id="confirmBtn-${modalId}" class="bg-indigo-600 text-white py-2 px-5 rounded-lg shadow-md hover:bg-indigo-700 font-medium transition-colors">${confirmText}</button>`;
+            if (showCancel) {
+                buttonsHtml = `<button id="cancelBtn-${modalId}" class="bg-gray-200 text-gray-700 py-2 px-5 rounded-lg shadow-sm hover:bg-gray-300 font-medium transition-colors">${cancelText}</button> ${buttonsHtml}`;
+            }
             const modalHtml = `
-                <div id="${modalId}" class="fixed inset-0 modal-overlay flex items-center justify-center z-50">
-                    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm modal-content">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">${title}</h3>
-                        <p class="text-gray-700 mb-6">${message}</p>
-                        <div class="flex justify-end">
-                            <button id="close${modalId}" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
-                                Ok
-                            </button>
-                        </div>
+                <div id="${modalId}" class="fixed inset-0 modal-overlay flex items-center justify-center z-[70] p-4">
+                    <div class="bg-white p-7 rounded-xl shadow-2xl w-full max-w-md modal-content">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">${title}</h3>
+                        <p class="text-gray-600 mb-7 text-sm whitespace-pre-wrap">${message}</p>
+                        <div class="flex justify-end space-x-3">${buttonsHtml}</div>
                     </div>
-                </div>
-            `;
+                </div>`;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
-            document.getElementById(`close${modalId}`).addEventListener('click', () => {
-                document.getElementById(modalId).remove();
+            const confirmButton = document.getElementById(`confirmBtn-${modalId}`);
+            const cancelButton = document.getElementById(`cancelBtn-${modalId}`);
+            const closeModal = () => document.getElementById(modalId)?.remove();
+            confirmButton.addEventListener('click', () => { if (onConfirm) onConfirm(); closeModal(); });
+            if (showCancel && cancelButton) { cancelButton.addEventListener('click', closeModal); }
+        }
+
+        function populateColorPicker(container, currentColorClass, inputTarget) {
+            if (!container) return;
+            container.innerHTML = '';
+            defaultColumnColors.forEach(colorClass => {
+                const swatch = document.createElement('div');
+                swatch.className = `color-swatch ${colorClass}`;
+                if (colorClass === currentColorClass) { swatch.classList.add('selected'); }
+                swatch.addEventListener('click', () => {
+                    if (inputTarget) inputTarget.value = colorClass;
+                    container.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+                    swatch.classList.add('selected');
+                });
+                container.appendChild(swatch);
             });
         }
+        
+        // Atualiza o perfil do usuário, incluindo a flag isAdmin e displayName
+        async function updateUserProfileAndActivity() {
+            if (!currentUserId || !userProfilesCollectionRef || !currentUserEmail) {
+                console.warn("updateUserProfileAndActivity: Dados do usuário incompletos.");
+                isCurrentUserAdmin = false; // Garante que não seja admin se não puder ler/escrever perfil
+                return;
+            }
+            isCurrentUserAdmin = false; // Reseta a flag de admin antes de ler/escrever
+            try {
+                const userProfileRef = doc(userProfilesCollectionRef, currentUserId);
+                const profileSnap = await getDoc(userProfileRef);
+                let dataToSet = {
+                    email: currentUserEmail, 
+                    lastBoardAccess: serverTimestamp()
+                };
+                let needsUpdate = false;
 
-        // --- Authentication Logic ---
+                if (profileSnap.exists()) {
+                    const profileData = profileSnap.data();
+                    
+                    // Trata o displayName (se for array ou string com espaços)
+                    let finalDisplayName = currentUserEmail; // Fallback inicial
+                    if (Array.isArray(profileData.displayName) && profileData.displayName.length > 0) {
+                        finalDisplayName = profileData.displayName.join(" ").trim(); // Junta se for array
+                    } else if (typeof profileData.displayName === 'string' && profileData.displayName.trim() !== '') {
+                        finalDisplayName = profileData.displayName.trim();
+                    }
+                    
+                    if (currentUserDisplayName !== finalDisplayName) {
+                        currentUserDisplayName = finalDisplayName;
+                        // Não precisa definir dataToSet.displayName aqui se já estiver correto no DB
+                    }
+                     if (profileData.displayName !== currentUserDisplayName) { // Se o que está no DB é diferente do que temos (ou precisa ser limpo)
+                        dataToSet.displayName = currentUserDisplayName;
+                        needsUpdate = true;
+                    }
+
+
+                    isCurrentUserAdmin = profileData.isAdmin === true; 
+                    
+                    // Se o campo isAdmin não existir, define como false no DB
+                    if (typeof profileData.isAdmin === 'undefined') {
+                        dataToSet.isAdmin = false;
+                        isCurrentUserAdmin = false; // Garante que a variável local reflita isso
+                        needsUpdate = true;
+                    }
+
+                } else {
+                    // Perfil não existe, cria com displayName sendo o email e isAdmin false por padrão
+                    currentUserDisplayName = currentUserEmail; // Define o nome de exibição inicial
+                    dataToSet.displayName = currentUserDisplayName;
+                    dataToSet.isAdmin = false; 
+                    isCurrentUserAdmin = false;
+                    needsUpdate = true; // Precisa criar o documento
+                }
+                
+                // Só escreve no DB se houver algo para atualizar ou se o doc não existir
+                if (needsUpdate || !profileSnap.exists()) {
+                    await setDoc(userProfileRef, dataToSet, { merge: true });
+                    console.log("Perfil do usuário criado/atualizado no Firestore. Admin:", isCurrentUserAdmin, "Nome:", currentUserDisplayName);
+                } else {
+                    console.log("Perfil do usuário lido do Firestore. Admin:", isCurrentUserAdmin, "Nome:", currentUserDisplayName);
+                }
+
+
+                if (userIdDisplay) {
+                     userIdDisplay.title = `Seu ID: ${currentUserId}\nNome: ${currentUserDisplayName}${isCurrentUserAdmin ? ' (Admin)' : ''}`;
+                }
+
+            } catch (error) {
+                console.error("Erro ao atualizar/ler perfil do usuário:", error);
+                currentUserDisplayName = currentUserEmail; // Fallback
+                isCurrentUserAdmin = false; // Fallback
+            }
+        }
+
+
+        // --- Lógica de Autenticação ---
         onAuthStateChanged(auth, async (user) => {
             showLoading();
             if (user) {
                 currentUserId = user.uid;
-                userIdDisplay.textContent = `ID do Usuário: ${currentUserId}`;
-                authSection.classList.add('hidden');
-                kanbanSection.classList.remove('hidden');
+                currentUserEmail = user.email; 
+                currentUserDisplayName = user.email; // Define um valor inicial antes de ler o perfil
+                
+                await updateUserProfileAndActivity(); // Lê/Cria perfil, incluindo a flag isAdmin
 
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                // Using private data path for authenticated users
-                tasksCollectionRef = collection(db, `artifacts/${appId}/users/${currentUserId}/tasks`);
-
-                // Listen for real-time updates to tasks
-                if (unsubscribeSnapshot) {
-                    unsubscribeSnapshot(); // Unsubscribe previous listener if exists
+                if (userIdDisplay) {
+                    userIdDisplay.textContent = `ID: ${currentUserId.substring(0,8)}...`; 
                 }
-                unsubscribeSnapshot = onSnapshot(tasksCollectionRef, (snapshot) => {
-                    let tasks = [];
-                    snapshot.forEach(doc => {
-                        tasks.push({ id: doc.id, ...doc.data() });
-                    });
-                    applyFiltersAndRender(tasks); // Apply filters after fetching
-                    hideLoading();
-                }, (error) => {
-                    console.error("Erro ao obter tarefas em tempo real:", error);
-                    showMessageModal('Erro', 'Não foi possível carregar as tarefas. Tente novamente mais tarde.', 'error');
-                    hideLoading();
-                });
-
+                boardsCollectionRef = collection(db, `artifacts/${appIdFromGlobal}/boards`);
+                authSection?.classList.add('hidden');
+                boardManagementSection?.classList.remove('hidden');
+                kanbanSection?.classList.add('hidden');
+                loadUserBoards(); // Carrega os quadros após o perfil ser processado
             } else {
                 currentUserId = null;
-                authSection.classList.remove('hidden');
-                kanbanSection.classList.add('hidden');
-                if (unsubscribeSnapshot) {
-                    unsubscribeSnapshot(); // Unsubscribe if user logs out
-                }
+                currentUserEmail = null;
+                currentUserDisplayName = null; 
+                isCurrentUserAdmin = false; 
+                activeBoardId = null;
+                activeBoardData = null;
+                authSection?.classList.remove('hidden');
+                boardManagementSection?.classList.add('hidden');
+                kanbanSection?.classList.add('hidden');
+                if (unsubscribeBoardsSnapshot) unsubscribeBoardsSnapshot();
+                if (unsubscribeTasksSnapshot) unsubscribeTasksSnapshot();
+                if (unsubscribeColumnsSnapshot) unsubscribeColumnsSnapshot();
+                unsubscribeBoardsSnapshot = null; unsubscribeTasksSnapshot = null; unsubscribeColumnsSnapshot = null;
+                allTasks = []; userColumns = []; userBoards = [];
+                if(kanbanBoard) kanbanBoard.innerHTML = '';
+                if(boardListContainer) boardListContainer.innerHTML = '';
                 hideLoading();
             }
         });
 
-        // Handle Login button click (only login functionality remains)
-        authButton.addEventListener('click', async () => {
+        const handleLogin = async () => {
             const email = emailInput.value.trim();
             const password = passwordInput.value.trim();
-
-            if (!email || !password) {
-                authError.textContent = 'Por favor, preencha email e senha.';
-                authError.classList.remove('hidden');
-                return;
-            }
-
-            // Basic email format validation
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                authError.textContent = 'Formato de email inválido.';
-                authError.classList.remove('hidden');
-                return;
-            }
-
-            // Password strength validation (still good practice to validate)
-            if (password.length < 6) {
-                authError.textContent = 'A senha deve ter pelo menos 6 caracteres.';
-                authError.classList.remove('hidden');
-                return;
-            }
-
+            if (!email || !password) { authError.textContent = 'Preencha email e senha.'; authError.classList.remove('hidden'); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { authError.textContent = 'Email inválido.'; authError.classList.remove('hidden'); return; }
+            if (password.length < 6) { authError.textContent = 'Senha curta (mínimo 6 caracteres).'; authError.classList.remove('hidden'); return; }
             showLoading();
+            authError.classList.add('hidden');
             try {
                 await signInWithEmailAndPassword(auth, email, password);
+                // onAuthStateChanged irá lidar com a atualização do perfil e UI
                 showToast('Login bem-sucedido!', 'success');
-                authError.classList.add('hidden');
             } catch (error) {
-                console.error("Erro de autenticação:", error);
-                let errorMessage = 'Ocorreu um erro. Tente novamente.';
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                    errorMessage = 'Email ou senha inválidos.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'Formato de email inválido.';
-                } else if (error.code === 'auth/too-many-requests') {
-                    errorMessage = 'Muitas tentativas. Tente novamente mais tarde.';
-                }
-                authError.textContent = errorMessage;
-                authError.classList.remove('hidden');
-                showToast('Erro de autenticação!', 'error');
-            } finally {
+                let errorMessage = 'Erro ao entrar.';
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') errorMessage = 'Email ou senha inválidos.';
+                else if (error.code === 'auth/invalid-email') errorMessage = 'Formato de email inválido.';
+                else if (error.code === 'auth/too-many-requests') errorMessage = 'Muitas tentativas. Tente mais tarde.';
+                else if (error.code === 'auth/user-disabled') errorMessage = 'Usuário desabilitado.';
+                authError.textContent = errorMessage; authError.classList.remove('hidden');
+                showToast(`Erro no login: ${errorMessage}`, 'error');
+                console.error("Erro de login:", error.code, error.message);
                 hideLoading();
             }
-        });
+        };
+        authButton?.addEventListener('click', handleLogin);
+        emailInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+        passwordInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
 
-        // Logout
-        logoutButton.addEventListener('click', async () => {
+        const handleLogout = async () => {
             showLoading();
             try {
                 await signOut(auth);
                 showToast('Logout realizado com sucesso!', 'info');
             } catch (error) {
                 console.error("Erro ao fazer logout:", error);
-                showMessageModal('Erro', 'Não foi possível fazer logout. Tente novamente.', 'error');
+                showMessageModal('Erro de Logout', 'Não foi possível fazer logout. Tente novamente.', 'error');
+                hideLoading();
+            }
+        };
+        logoutButtonTop?.addEventListener('click', handleLogout);
+        logoutButtonKanban?.addEventListener('click', handleLogout);
+
+        // --- Gerenciamento de Nome de Exibição (Perfil) ---
+        showEditProfileModalButton?.addEventListener('click', () => {
+            if (myDisplayNameInput && currentUserDisplayName) {
+                myDisplayNameInput.value = currentUserDisplayName;
+            }
+            editProfileModal?.classList.remove('hidden');
+            myDisplayNameInput?.focus();
+        });
+
+        cancelEditProfileButton?.addEventListener('click', () => {
+            editProfileModal?.classList.add('hidden');
+        });
+
+        confirmEditProfileButton?.addEventListener('click', async () => {
+            const newName = myDisplayNameInput.value.trim();
+            if (!newName) {
+                showMessageModal('Atenção', 'O nome de exibição não pode ser vazio.', 'info');
+                myDisplayNameInput.focus();
+                return;
+            }
+            if (newName.length > 50) { 
+                 showMessageModal('Atenção', 'O nome de exibição é muito longo (máx 50 caracteres).', 'info');
+                myDisplayNameInput.focus();
+                return;
+            }
+
+            showLoading();
+            try {
+                const userProfileRef = doc(userProfilesCollectionRef, currentUserId);
+                await setDoc(userProfileRef, { displayName: newName }, { merge: true });
+                currentUserDisplayName = newName; 
+                showToast("Nome de exibição atualizado!", "success");
+                editProfileModal?.classList.add('hidden');
+                if (userIdDisplay) { 
+                    userIdDisplay.title = `Seu ID: ${currentUserId}\nNome: ${currentUserDisplayName}${isCurrentUserAdmin ? ' (Admin)' : ''}`;
+                }
+                // Atualizar UI onde o nome do usuário atual é exibido (ex: proprietário de quadros, membros)
+                if(activeBoardId) { 
+                    const board = userBoards.find(b => b.id === activeBoardId);
+                    if(board && board.owner === currentUserId) { 
+                        activeBoardData.ownerDisplayName = currentUserDisplayName;
+                    }
+                     renderBoardList(userBoards); // Re-renderiza a lista de quadros
+                    if (activeBoardData && activeBoardData.members.includes(currentUserId)) { // Re-renderiza modal de membros se aberto e usuário é membro
+                        openManageMembersModal(activeBoardId, activeBoardData.name, activeBoardData.owner, activeBoardData.members);
+                    }
+                } else {
+                     renderBoardList(userBoards); // Se nenhum quadro ativo, apenas re-renderiza a lista de quadros
+                }
+            } catch (error) {
+                console.error("Erro ao salvar nome de exibição:", error);
+                showMessageModal('Erro ao Salvar', `Não foi possível salvar o nome. Detalhes: ${error.message}`, 'error');
             } finally {
                 hideLoading();
             }
         });
 
-        // --- Kanban Board Rendering and Logic ---
 
-        let allTasks = []; // Store all tasks fetched from Firestore
+        // --- Gerenciamento de Quadros (Boards) ---
+        showCreateBoardModalButton?.addEventListener('click', () => {
+            if (newBoardNameInput) newBoardNameInput.value = '';
+            createBoardModal?.classList.remove('hidden');
+            newBoardNameInput?.focus();
+        });
+        cancelCreateBoardButton?.addEventListener('click', () => createBoardModal?.classList.add('hidden'));
+        confirmCreateBoardButton?.addEventListener('click', async () => {
+            const boardName = newBoardNameInput.value.trim();
+            if (!boardName) {
+                showMessageModal('Atenção', 'O nome do quadro não pode ser vazio.', 'info');
+                newBoardNameInput.focus();
+                return;
+            }
+            if (!currentUserId || !boardsCollectionRef) {
+                showMessageModal('Erro de Autenticação', 'Usuário não autenticado ou referência de quadros não pronta.', 'error');
+                return;
+            }
+            showLoading();
+            try {
+                const newBoardRef = await addDoc(boardsCollectionRef, {
+                    name: boardName,
+                    owner: currentUserId,
+                    ownerDisplayName: currentUserDisplayName, 
+                    members: [currentUserId], 
+                    createdAt: serverTimestamp()
+                });
+                createBoardModal?.classList.add('hidden');
+                showToast(`Quadro "${boardName}" criado com sucesso!`, 'success');
+            } catch (error) {
+                console.error("Erro ao criar novo quadro:", error);
+                showMessageModal('Erro ao Criar Quadro', `Não foi possível criar o quadro. Detalhes: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+        function loadUserBoards() {
+            if (!currentUserId || !boardsCollectionRef) {
+                console.warn("loadUserBoards chamado sem currentUserId ou boardsCollectionRef.");
+                hideLoading();
+                return;
+            }
+            if (unsubscribeBoardsSnapshot) unsubscribeBoardsSnapshot(); 
+            showLoading();
+            const q = query(boardsCollectionRef, where("members", "array-contains", currentUserId));
+            unsubscribeBoardsSnapshot = onSnapshot(q, (snapshot) => {
+                userBoards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                userBoards.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                renderBoardList(userBoards);
+                hideLoading();
+            }, (error) => {
+                console.error("Erro ao carregar quadros do usuário:", error);
+                showMessageModal('Erro ao Carregar Quadros', `Não foi possível carregar seus quadros. Detalhes: ${error.message}`, 'error');
+                if (boardListContainer) boardListContainer.innerHTML = '<p class="text-red-500 text-center col-span-full">Erro ao carregar quadros.</p>';
+                noBoardsMessage?.classList.remove('hidden');
+                hideLoading();
+            });
+        }
+        function renderBoardList(boards) {
+             if (!boardListContainer) return;
+            boardListContainer.innerHTML = ''; 
+            if (boards.length === 0) {
+                noBoardsMessage?.classList.remove('hidden');
+            } else {
+                noBoardsMessage?.classList.add('hidden');
+                boards.forEach(board => {
+                    const isOwner = board.owner === currentUserId;
+                    const card = document.createElement('div');
+                    card.className = 'board-card bg-white p-5 rounded-xl shadow-lg hover:shadow-xl transition-all flex flex-col justify-between min-h-[180px]';
 
-        function applyFiltersAndRender(tasks) {
-            allTasks = tasks; // Update the global tasks array
-            let filteredTasks = [...tasks]; // Create a copy to filter
+                    const createdDate = board.createdAt?.toDate ? board.createdAt.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Data N/A';
+                    
+                    let ownerDisplay = 'Desconhecido';
+                    if (isOwner) {
+                        ownerDisplay = currentUserDisplayName || 'Você (Admin)';
+                    } else {
+                        ownerDisplay = board.ownerDisplayName || (board.owner ? board.owner.substring(0, 8) + '...' : 'Desconhecido');
+                    }
 
+
+                    card.innerHTML = `
+                        <div>
+                            <h3 class="text-xl font-semibold text-indigo-700 mb-2 truncate" title="${board.name}">${board.name}</h3>
+                            <p class="text-xs text-gray-500 mb-1">Membros: ${board.members.length}</p>
+                            <p class="text-xs text-gray-500 mb-1" title="Proprietário UID: ${board.owner || 'N/A'}">Proprietário: ${ownerDisplay}</p>
+                            <p class="text-xs text-gray-500 mb-3">Criado em: ${createdDate}</p>
+                        </div>
+                        <div class="mt-auto pt-3 border-t border-gray-100 flex flex-col space-y-2 sm:flex-row sm:justify-between sm:items-center sm:space-y-0">
+                            <button class="select-board-button w-full sm:w-auto bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 transition-colors">
+                                <i class="fas fa-sign-in-alt mr-1"></i>Abrir Quadro
+                            </button>
+                            ${isOwner ? `
+                                <div class="flex space-x-2 justify-center sm:justify-end mt-2 sm:mt-0">
+                                    <button class="edit-board-button text-blue-600 hover:text-blue-800 p-1.5 rounded-md hover:bg-blue-100 transition-colors" data-board-id="${board.id}" data-board-name="${board.name}" title="Editar Nome do Quadro">
+                                        <i class="fas fa-edit fa-fw"></i>
+                                    </button>
+                                    <button class="manage-board-members-button text-green-600 hover:text-green-800 p-1.5 rounded-md hover:bg-green-100 transition-colors" data-board-id="${board.id}" title="Gerenciar Membros">
+                                        <i class="fas fa-users fa-fw"></i>
+                                    </button>
+                                    <button class="delete-board-button text-red-600 hover:text-red-800 p-1.5 rounded-md hover:bg-red-100 transition-colors" data-board-id="${board.id}" data-board-name="${board.name}" title="Excluir Quadro">
+                                        <i class="fas fa-trash-alt fa-fw"></i>
+                                    </button>
+                                </div>
+                            ` : `
+                                <div class="flex justify-center sm:justify-end mt-2 sm:mt-0">
+                                     <button class="manage-board-members-button text-green-600 hover:text-green-800 p-1.5 rounded-md hover:bg-green-100 transition-colors" data-board-id="${board.id}" title="Ver Membros">
+                                        <i class="fas fa-users fa-fw"></i>
+                                    </button>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                    card.querySelector('.select-board-button').addEventListener('click', () => setActiveBoard(board.id, board));
+                    const editBtn = card.querySelector('.edit-board-button');
+                    if (editBtn) { editBtn.addEventListener('click', (e) => { e.stopPropagation(); openEditBoardModal(e.currentTarget.dataset.boardId, e.currentTarget.dataset.boardName); }); }
+                    const deleteBtn = card.querySelector('.delete-board-button');
+                    if (deleteBtn) { deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); openDeleteBoardConfirmModal(e.currentTarget.dataset.boardId, e.currentTarget.dataset.boardName); }); }
+                    const membersBtn = card.querySelector('.manage-board-members-button');
+                     if (membersBtn) { membersBtn.addEventListener('click', (e) => { e.stopPropagation(); const targetBoard = userBoards.find(b => b.id === e.currentTarget.dataset.boardId); if (targetBoard) { openManageMembersModal(targetBoard.id, targetBoard.name, targetBoard.owner, targetBoard.members); } }); }
+                    boardListContainer.appendChild(card);
+                });
+            }
+        }
+        function openEditBoardModal(boardId, currentName) { 
+            if (!editBoardModal || !editBoardIdInput || !currentBoardNameStatic || !newBoardNameEditInput) return;
+            editBoardIdInput.value = boardId;
+            currentBoardNameStatic.textContent = currentName;
+            currentBoardNameStatic.title = currentName;
+            newBoardNameEditInput.value = currentName;
+            editBoardModal.classList.remove('hidden');
+            newBoardNameEditInput.focus();
+            newBoardNameEditInput.select();
+        }
+        cancelEditBoardButton?.addEventListener('click', () => editBoardModal.classList.add('hidden'));
+        confirmEditBoardButton?.addEventListener('click', async () => { 
+            const boardId = editBoardIdInput.value;
+            const newName = newBoardNameEditInput.value.trim();
+            if (!newName) { showMessageModal('Atenção', 'O novo nome do quadro não pode ser vazio.', 'info'); newBoardNameEditInput.focus(); return; }
+            if (!boardId || !boardsCollectionRef) { showMessageModal('Erro', 'ID do quadro ou referência da coleção não encontrados.', 'error'); return; }
+            showLoading();
+            const boardRef = doc(boardsCollectionRef, boardId);
+            try {
+                await updateDoc(boardRef, { name: newName });
+                showToast('Nome do quadro atualizado!', 'success');
+                editBoardModal.classList.add('hidden');
+            } catch (error) { console.error("Erro ao atualizar nome do quadro:", error); showMessageModal('Erro ao Atualizar', `Não foi possível atualizar. Detalhes: ${error.message}`, 'error');
+            } finally { hideLoading(); }
+        });
+        function openDeleteBoardConfirmModal(boardId, boardName) { 
+            if (!deleteBoardConfirmModal || !deleteBoardIdInputConfirm || !deleteBoardNameActualConfirm || !deleteBoardNameDisplayConfirm || !deleteBoardNameConfirmInput) return;
+            deleteBoardIdInputConfirm.value = boardId;
+            deleteBoardNameActualConfirm.value = boardName;
+            deleteBoardNameDisplayConfirm.textContent = boardName;
+            deleteBoardNameConfirmInput.value = '';
+            deleteBoardConfirmError.classList.add('hidden');
+            deleteBoardConfirmModal.classList.remove('hidden');
+            deleteBoardNameConfirmInput.focus();
+        }
+        cancelDeleteBoardConfirmButton?.addEventListener('click', () => deleteBoardConfirmModal.classList.add('hidden'));
+        confirmDeleteBoardFinalButton?.addEventListener('click', async () => { 
+            const boardId = deleteBoardIdInputConfirm.value;
+            const actualName = deleteBoardNameActualConfirm.value;
+            const typedName = deleteBoardNameConfirmInput.value.trim();
+            if (typedName !== actualName) { deleteBoardConfirmError.textContent = 'O nome digitado não corresponde.'; deleteBoardConfirmError.classList.remove('hidden'); deleteBoardNameConfirmInput.focus(); return; }
+            deleteBoardConfirmError.classList.add('hidden');
+            if (!boardId || !boardsCollectionRef) { showMessageModal('Erro', 'ID do quadro ou ref. não encontrados.', 'error'); return; }
+            showLoading();
+            const boardRef = doc(boardsCollectionRef, boardId);
+            try {
+                const tasksPath = `artifacts/${appIdFromGlobal}/boards/${boardId}/tasks`;
+                const tasksQuery = query(collection(db, tasksPath));
+                const tasksSnapshot = await getDocs(tasksQuery);
+                const taskBatch = writeBatch(db);
+                tasksSnapshot.forEach(taskDoc => taskBatch.delete(taskDoc.ref));
+                await taskBatch.commit();
+                const columnsPath = `artifacts/${appIdFromGlobal}/boards/${boardId}/columns`;
+                const columnsQuery = query(collection(db, columnsPath));
+                const columnsSnapshot = await getDocs(columnsQuery);
+                const columnBatch = writeBatch(db);
+                columnsSnapshot.forEach(columnDoc => columnBatch.delete(columnDoc.ref));
+                await columnBatch.commit();
+                await deleteDoc(boardRef);
+                showToast(`Quadro "${actualName}" e conteúdo excluídos!`, 'success');
+                deleteBoardConfirmModal.classList.add('hidden');
+                if (activeBoardId === boardId) { backToBoardsButton.click(); }
+            } catch (error) { console.error("Erro ao excluir quadro:", error); showMessageModal('Erro ao Excluir', `Não foi possível excluir. Detalhes: ${error.message}`, 'error');
+            } finally { hideLoading(); }
+        });
+        async function setActiveBoard(boardId, boardData) { 
+            activeBoardId = boardId;
+            activeBoardData = boardData;
+            if (currentBoardNameDisplay) { currentBoardNameDisplay.textContent = boardData.name; currentBoardNameDisplay.title = boardData.name; }
+            if (showManageMembersModalButton) { showManageMembersModalButton.classList.toggle('hidden', boardData.owner !== currentUserId); }
+            boardManagementSection?.classList.add('hidden');
+            kanbanSection?.classList.remove('hidden');
+            if (unsubscribeColumnsSnapshot) unsubscribeColumnsSnapshot();
+            if (unsubscribeTasksSnapshot) unsubscribeTasksSnapshot();
+            userColumns = []; allTasks = [];
+            if (kanbanBoard) kanbanBoard.innerHTML = '<p class="text-gray-500 p-4 text-center w-full">Carregando colunas e tarefas...</p>';
+            columnsCollectionRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/columns`);
+            tasksCollectionRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/tasks`);
+            // Não precisa chamar updateUserProfileAndActivity aqui de novo, pois já é chamado no onAuthStateChanged e ao editar perfil.
+            loadAndListenToColumns();
+        }
+        backToBoardsButton?.addEventListener('click', () => { 
+            activeBoardId = null; activeBoardData = null;
+            kanbanSection?.classList.add('hidden');
+            boardManagementSection?.classList.remove('hidden');
+            if (unsubscribeColumnsSnapshot) unsubscribeColumnsSnapshot();
+            if (unsubscribeTasksSnapshot) unsubscribeTasksSnapshot();
+        });
+
+        // --- Gerenciamento de Membros ---
+        async function openManageMembersModal(boardId, boardName, ownerId, members) {
+            if (!manageMembersModal || !manageMembersBoardIdInput || !memberListContainer || !newMemberIdInput) return;
+            manageMembersBoardIdInput.value = boardId;
+            manageMembersModal.querySelector('h3').textContent = `Membros de: ${boardName}`;
+            newMemberIdInput.value = ''; 
+            newMemberCreateEmailInput.value = '';
+            newMemberCreatePasswordInput.value = '';
+
+            memberListContainer.innerHTML = '<li class="text-center text-gray-500 p-2">Carregando membros...</li>';
+            
+            const isCurrentUserOwnerOfBoard = ownerId === currentUserId;
+            console.log("Abrindo modal de membros. Usuário logado é admin global?", isCurrentUserAdmin); // Log para depuração
+
+            const memberItemsPromises = members.map(async (memberId) => {
+                let displayName = memberId.substring(0, 12) + '...'; 
+                let memberEmail = 'Email não disponível';
+                let isProfileOwnerOfBoard = memberId === ownerId; 
+
+                try {
+                    const profileDocRef = doc(userProfilesCollectionRef, memberId);
+                    const profileDoc = await getDoc(profileDocRef);
+                    if (profileDoc.exists()) {
+                        const profileData = profileDoc.data();
+                        displayName = profileData.displayName || profileData.email || displayName; 
+                        memberEmail = profileData.email || memberEmail;
+                    }
+                } catch (e) {
+                    console.warn("Erro ao buscar perfil para membro:", memberId, e);
+                }
+
+                const li = document.createElement('li');
+                li.className = 'flex justify-between items-center p-2.5 bg-white rounded-lg shadow-sm border border-gray-200';
+                
+                let memberDisplayHtml = `<span class="text-sm text-gray-700 truncate" title="UID: ${memberId}\nEmail: ${memberEmail}">${displayName}</span>`;
+                if (isProfileOwnerOfBoard) memberDisplayHtml += '<span class="ml-2 text-xs text-green-600 font-semibold">(Proprietário do Quadro)</span>';
+                
+                let removeButtonHtml = '';
+                if (isCurrentUserOwnerOfBoard && memberId !== ownerId) { 
+                    removeButtonHtml = `<button class="remove-member-button text-red-500 hover:text-red-700 text-xs font-medium p-1 rounded hover:bg-red-50" data-member-id="${memberId}" title="Remover Membro"><i class="fas fa-times-circle mr-1"></i>Remover</button>`;
+                }
+                li.innerHTML = `${memberDisplayHtml} ${removeButtonHtml}`;
+                if (isCurrentUserOwnerOfBoard && memberId !== ownerId) {
+                    li.querySelector('.remove-member-button')?.addEventListener('click', () => handleRemoveMember(boardId, memberId));
+                }
+                return li;
+            });
+
+            const resolvedMemberItems = await Promise.all(memberItemsPromises);
+            memberListContainer.innerHTML = ''; 
+            if (resolvedMemberItems.length > 0) {
+                resolvedMemberItems.forEach(item => memberListContainer.appendChild(item));
+            } else {
+                memberListContainer.innerHTML = '<li class="text-center text-gray-500 p-2">Nenhum membro neste quadro ainda.</li>';
+            }
+            
+            if (createUserSection) {
+                createUserSection.style.display = isCurrentUserAdmin ? 'block' : 'none'; // Controlado por isCurrentUserAdmin
+            }
+            newMemberIdInput.disabled = !isCurrentUserOwnerOfBoard;
+            addMemberButton.disabled = !isCurrentUserOwnerOfBoard;
+            if(!isCurrentUserOwnerOfBoard) {
+                 newMemberIdInput.placeholder = "Apenas o proprietário do quadro pode adicionar membros";
+                 addMemberButton.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                 newMemberIdInput.placeholder = "UID do novo membro";
+                 addMemberButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            manageMembersModal.classList.remove('hidden');
+        }
+
+        showManageMembersModalButton?.addEventListener('click', () => { 
+            if (activeBoardData) { 
+                openManageMembersModal(activeBoardId, activeBoardData.name, activeBoardData.owner, activeBoardData.members); 
+            } 
+        });
+        closeManageMembersModalButton?.addEventListener('click', () => manageMembersModal.classList.add('hidden'));
+        
+        addMemberButton?.addEventListener('click', async () => { 
+            const boardId = manageMembersBoardIdInput.value;
+            const memberIdToAdd = newMemberIdInput.value.trim();
+            if (!memberIdToAdd) { showToast('Insira o UID do membro.', 'info'); return; }
+            if (!boardId || !boardsCollectionRef) { showToast('Erro: ID do quadro não encontrado.', 'error'); return; }
+            if (memberIdToAdd.length < 20) { showToast('UID inválido. Verifique o ID completo.', 'info'); return; }
+            
+            if (activeBoardData && activeBoardData.owner !== currentUserId) {
+                showToast('Apenas o proprietário do quadro pode adicionar novos membros.', 'error');
+                return;
+            }
+
+            showLoading();
+            const boardRef = doc(boardsCollectionRef, boardId);
+            try {
+                const userProfileRef = doc(userProfilesCollectionRef, memberIdToAdd);
+                const userProfileSnap = await getDoc(userProfileRef);
+                if (!userProfileSnap.exists()) {
+                    showToast(`Usuário com UID ${memberIdToAdd.substring(0,6)}... não encontrado. O usuário precisa existir no sistema.`, 'error', 6000);
+                    hideLoading();
+                    return;
+                }
+
+                await updateDoc(boardRef, { members: arrayUnion(memberIdToAdd) });
+                showToast('Membro adicionado!', 'success'); 
+                newMemberIdInput.value = '';
+                const updatedBoardDoc = await getDoc(boardRef);
+                if (updatedBoardDoc.exists()) { 
+                    const updatedBoardData = { id: updatedBoardDoc.id, ...updatedBoardDoc.data() }; 
+                    if (activeBoardId === boardId) activeBoardData = updatedBoardData; 
+                    openManageMembersModal(boardId, updatedBoardData.name, updatedBoardData.owner, updatedBoardData.members); 
+                }
+            } catch (error) { 
+                console.error("Erro ao adicionar membro:", error); 
+                showToast(`Erro ao adicionar: ${error.message}`, 'error');
+            } finally { 
+                hideLoading(); 
+            }
+        });
+
+        createUserAndAddMemberButton?.addEventListener('click', async () => {
+            if (!isCurrentUserAdmin) { // Verificação crucial
+                showMessageModal('Acesso Negado', 'Apenas administradores podem criar novos usuários.', 'error');
+                return;
+            }
+
+            const boardId = manageMembersBoardIdInput.value;
+            const newEmail = newMemberCreateEmailInput.value.trim();
+            const newPassword = newMemberCreatePasswordInput.value.trim();
+
+            if (!newEmail || !newPassword) { showMessageModal('Atenção', 'Preencha o email e a senha para o novo usuário.', 'info'); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) { showMessageModal('Atenção', 'Formato de email inválido.', 'info'); return; }
+            if (newPassword.length < 6) { showMessageModal('Atenção', 'A senha deve ter no mínimo 6 caracteres.', 'info'); return; }
+
+            showLoading();
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, newEmail, newPassword);
+                const newUser = userCredential.user;
+                const newUserId = newUser.uid;
+                console.log(`Novo usuário criado via admin: ${newEmail}, UID: ${newUserId}`);
+
+                const boardRef = doc(boardsCollectionRef, boardId);
+                await updateDoc(boardRef, { members: arrayUnion(newUserId) });
+                
+                const newUserProfileRef = doc(userProfilesCollectionRef, newUserId);
+                await setDoc(newUserProfileRef, {
+                    displayName: newEmail, 
+                    email: newEmail,
+                    isAdmin: false, 
+                    createdAt: serverTimestamp(),
+                    lastBoardAccess: serverTimestamp() 
+                });
+                
+                showToast(`Usuário ${newEmail} criado e adicionado ao quadro!`, 'success');
+                newMemberCreateEmailInput.value = '';
+                newMemberCreatePasswordInput.value = '';
+
+                const updatedBoardDoc = await getDoc(boardRef);
+                if (updatedBoardDoc.exists()) {
+                    const updatedBoardData = { id: updatedBoardDoc.id, ...updatedBoardDoc.data() };
+                    if (activeBoardId === boardId) activeBoardData = updatedBoardData;
+                    openManageMembersModal(boardId, updatedBoardData.name, updatedBoardData.owner, updatedBoardData.members);
+                }
+            } catch (error) {
+                console.error("Erro ao criar usuário e adicionar ao quadro:", error);
+                let userMessage = "Não foi possível criar o novo usuário.";
+                if (error.code === 'auth/email-already-in-use') userMessage = "Este email já está em uso por outra conta.";
+                else if (error.code === 'auth/weak-password') userMessage = "A senha é muito fraca.";
+                else if (error.code === 'auth/invalid-email') userMessage = "O formato do email é inválido.";
+                showMessageModal('Erro ao Criar Usuário', `${userMessage}\nDetalhes: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+
+        async function handleRemoveMember(boardId, memberIdToRemove) { 
+            if (!boardId || !memberIdToRemove || !boardsCollectionRef) { showToast('Erro ao remover (dados faltando).', 'error'); return; }
+            
+            if (activeBoardData && activeBoardData.owner !== currentUserId) {
+                showToast('Apenas o proprietário do quadro pode remover membros.', 'error');
+                return;
+            }
+            if (memberIdToRemove === activeBoardData.owner) {
+                showToast('O proprietário não pode ser removido do quadro.', 'info');
+                return;
+            }
+
+            showLoading();
+            const boardRef = doc(boardsCollectionRef, boardId);
+            try {
+                await updateDoc(boardRef, { members: arrayRemove(memberIdToRemove) });
+                showToast('Membro removido!', 'success');
+                const updatedBoardDoc = await getDoc(boardRef);
+                if (updatedBoardDoc.exists()) { 
+                    const updatedBoardData = { id: updatedBoardDoc.id, ...updatedBoardDoc.data() }; 
+                    if (activeBoardId === boardId) activeBoardData = updatedBoardData; 
+                    openManageMembersModal(boardId, updatedBoardData.name, updatedBoardData.owner, updatedBoardData.members); 
+                }
+            } catch (error) { 
+                console.error("Erro ao remover membro:", error); 
+                showToast(`Erro ao remover: ${error.message}`, 'error');
+            } finally { 
+                hideLoading(); 
+            }
+        }
+
+        // --- Gerenciamento de Colunas ---
+        showAddColumnModalButton?.addEventListener('click', () => { 
+            if (newColumnTitleInput) newColumnTitleInput.value = '';
+            addColumnModal?.classList.remove('hidden'); newColumnTitleInput?.focus();
+        });
+        cancelAddColumnButton?.addEventListener('click', () => addColumnModal.classList.add('hidden'));
+        confirmAddColumnButton?.addEventListener('click', async () => { 
+            const title = newColumnTitleInput.value.trim();
+            if (!title) { showMessageModal('Atenção', 'Título da coluna é obrigatório.', 'info'); newColumnTitleInput.focus(); return; }
+            if (!activeBoardId || !columnsCollectionRef) { showMessageModal('Erro Crítico', 'Quadro não ativo ou ref. não pronta.', 'error'); return; }
+            showLoading();
+            const newOrder = userColumns.length > 0 ? Math.max(0, ...userColumns.map(c => c.order || 0)) + 1 : 0;
+            const newColor = defaultColumnColors[userColumns.length % defaultColumnColors.length];
+            try {
+                await addDoc(columnsCollectionRef, { title, order: newOrder, color: newColor, createdAt: serverTimestamp(), boardId: activeBoardId });
+                addColumnModal?.classList.add('hidden'); showToast('Coluna adicionada!', 'success');
+            } catch (error) { console.error("Erro ao adicionar coluna:", error); showMessageModal('Erro ao Adicionar', `Não foi possível adicionar. Detalhes: ${error.message}`, 'error');
+            } finally { hideLoading(); }
+        });
+        saveEditColumnButton?.addEventListener('click', async () => { 
+            const columnId = editColumnIdInput.value;
+            const newTitle = editColumnTitleInput.value.trim();
+            const newColor = editColumnColorInput.value;
+            if (!newTitle) { showMessageModal('Atenção', 'Título é obrigatório.', 'info'); editColumnTitleInput.focus(); return; }
+            if (!newColor) { showMessageModal('Atenção', 'Cor é obrigatória.', 'info'); return; }
+            if (!columnsCollectionRef) { showMessageModal('Erro', 'Ref. de colunas não pronta.', 'error'); return; }
+            showLoading();
+            const columnRef = doc(columnsCollectionRef, columnId);
+            try {
+                await updateDoc(columnRef, { title: newTitle, color: newColor });
+                editColumnModal?.classList.add('hidden'); showToast('Coluna atualizada!', 'success');
+            } catch (error) { console.error("Erro ao atualizar coluna:", error); showMessageModal('Erro ao Atualizar', `Não foi possível atualizar. Detalhes: ${error.message}`, 'error');
+            } finally { hideLoading(); }
+        });
+        cancelEditColumnButton?.addEventListener('click', () => editColumnModal.classList.add('hidden'));
+        async function deleteColumn(columnId, columnTitle) { 
+            if (userColumns.length <= 1) { showMessageModal('Ação Não Permitida', 'Não pode excluir a última coluna.', 'info'); return; }
+            const targetColumnForTasks = userColumns.filter(col => col.id !== columnId).sort((a,b) => (a.order || 0) - (b.order || 0))[0];
+            if (!targetColumnForTasks) { showMessageModal('Erro Crítico', 'Coluna de destino não encontrada.', 'error'); return; }
+            const message = `Excluir coluna "${columnTitle}"? Tarefas serão movidas para "${targetColumnForTasks.title}".`;
+            showMessageModal('Confirmar Exclusão', message, 'warning', async () => {
+                if (!columnsCollectionRef || !tasksCollectionRef) { showMessageModal('Erro', 'Refs. não prontas.', 'error'); return; }
+                showLoading();
+                try {
+                    const batch = writeBatch(db);
+                    const tasksToMoveQuery = query(tasksCollectionRef, where("status", "==", columnId));
+                    const tasksToMoveSnapshot = await getDocs(tasksToMoveQuery);
+                    tasksToMoveSnapshot.forEach(taskDoc => { batch.update(doc(tasksCollectionRef, taskDoc.id), { status: targetColumnForTasks.id }); });
+                    batch.delete(doc(columnsCollectionRef, columnId));
+                    await batch.commit(); showToast(`Coluna "${columnTitle}" excluída.`, 'success');
+                } catch (error) { console.error("Erro ao excluir coluna:", error); showMessageModal('Erro ao Excluir', `Não foi possível excluir. Detalhes: ${error.message}`, 'error');
+                } finally { hideLoading(); }
+            }, 'Excluir Coluna', true, 'Cancelar');
+        }
+        function openEditColumnModal(columnId, currentTitle) { 
+            const column = userColumns.find(c => c.id === columnId);
+            if (!column) { console.error("Coluna não encontrada:", columnId); showMessageModal('Erro', 'Coluna não encontrada.', 'error'); return; }
+            if (editColumnIdInput) editColumnIdInput.value = columnId;
+            if (editColumnTitleInput) editColumnTitleInput.value = currentTitle;
+            if (editColumnColorInput) editColumnColorInput.value = column.color || defaultColumnColors[0];
+            populateColorPicker(editColumnColorPicker, column.color || defaultColumnColors[0], editColumnColorInput);
+            if (editColumnModal) { editColumnModal.classList.remove('hidden'); if (editColumnTitleInput) editColumnTitleInput.focus(); }
+        }
+
+        function loadAndListenToColumns() { 
+            if (!columnsCollectionRef) { console.error("loadAndListenToColumns: columnsCollectionRef não definida."); kanbanBoard.innerHTML = '<p class="text-red-500 p-4 text-center w-full">Erro: Ref. colunas.</p>'; hideLoading(); return; }
+            if (unsubscribeColumnsSnapshot) unsubscribeColumnsSnapshot();
+            showLoading();
+            const q = query(columnsCollectionRef, orderBy("order"));
+            unsubscribeColumnsSnapshot = onSnapshot(q, async (snapshot) => {
+                if (snapshot.empty && activeBoardId) { await createDefaultColumnsForBoard(); return; }
+                userColumns = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+                loadAndListenToTasks();
+            }, (error) => { console.error("Erro ao carregar colunas:", error); showMessageModal('Erro Colunas', `Erro: ${error.message}`, 'error'); kanbanBoard.innerHTML = `<p class="text-red-500 p-4 text-center w-full">Erro colunas: ${error.message}.</p>`; hideLoading(); });
+        }
+        async function createDefaultColumnsForBoard() { 
+            if (!columnsCollectionRef || !activeBoardId) { console.error("createDefaultColumnsForBoard: Quadro não ativo ou ref. não pronta."); hideLoading(); return; }
+            showLoading(); const batch = writeBatch(db);
+            const defaultColsData = [ { title: 'A Fazer', order: 0, color: defaultColumnColors[0] }, { title: 'Em Andamento', order: 1, color: defaultColumnColors[1] }, { title: 'Concluído', order: 2, color: defaultColumnColors[2] } ];
+            defaultColsData.forEach(colData => { const newColRef = doc(columnsCollectionRef); batch.set(newColRef, { ...colData, createdAt: serverTimestamp(), boardId: activeBoardId }); });
+            try { await batch.commit(); showToast('Colunas padrão criadas!', 'info');
+            } catch (error) { console.error("Erro criar colunas padrão:", error); showMessageModal('Erro Colunas Padrão', `Erro: ${error.message}`, 'error'); }
+        }
+        function loadAndListenToTasks() { 
+            if (!tasksCollectionRef) { console.error("loadAndListenToTasks: tasksCollectionRef não definida."); kanbanBoard.innerHTML = '<p class="text-red-500 p-4 text-center w-full">Erro: Ref. tarefas.</p>'; hideLoading(); return; }
+            if (unsubscribeTasksSnapshot) unsubscribeTasksSnapshot();
+            showLoading(); 
+            const qTasks = query(tasksCollectionRef, orderBy("createdAt", "desc"));
+            unsubscribeTasksSnapshot = onSnapshot(qTasks, (snapshot) => {
+                allTasks = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+                applyFiltersAndRender(allTasks);
+            }, (error) => { console.error("Erro carregar tarefas:", error); showMessageModal('Erro Tarefas', `Erro: ${error.message}`, 'error'); if (kanbanBoard && userColumns.length > 0) { renderKanbanBoard([]); } else { kanbanBoard.innerHTML = `<p class="text-red-500 p-4 text-center w-full">Erro tarefas: ${error.message}.</p>`; } hideLoading(); });
+        }
+        taskSearchInput?.addEventListener('input', () => applyFiltersAndRender(allTasks));
+        filterPrioritySelect?.addEventListener('change', () => applyFiltersAndRender(allTasks));
+        function applyFiltersAndRender(tasks) { 
+            allTasks = tasks; let filteredTasks = [...tasks];
             const searchTerm = taskSearchInput.value.toLowerCase().trim();
-            const filterPriority = filterPrioritySelect.value;
-
-            if (searchTerm) {
-                filteredTasks = filteredTasks.filter(task =>
-                    task.title.toLowerCase().includes(searchTerm) ||
-                    (task.description && task.description.toLowerCase().includes(searchTerm))
-                );
-            }
-
-            if (filterPriority) {
-                filteredTasks = filteredTasks.filter(task => task.priority === filterPriority);
-            }
-
+            const filterPriorityValue = filterPrioritySelect.value;
+            if (searchTerm) { filteredTasks = filteredTasks.filter(task => (task.title && task.title.toLowerCase().includes(searchTerm)) || (task.description && task.description.toLowerCase().includes(searchTerm))); }
+            if (filterPriorityValue) { filteredTasks = filteredTasks.filter(task => task.priority === filterPriorityValue); }
             renderKanbanBoard(filteredTasks);
         }
 
+        // --- Renderização do Quadro Kanban e Cards de Tarefa ---
         function renderKanbanBoard(tasksToRender) {
-            kanbanBoard.innerHTML = ''; // Clear existing board
-            columns.forEach(column => {
+            if (!kanbanBoard) { hideLoading(); return; }
+            kanbanBoard.innerHTML = '';
+            if (!userColumns || userColumns.length === 0) {
+                kanbanBoard.innerHTML = `<p class="text-gray-500 p-4 text-center w-full">Nenhuma coluna. Adicione colunas.</p>`;
+                hideLoading(); return;
+            }
+            userColumns.forEach((column, index) => {
                 const columnElement = document.createElement('div');
                 columnElement.id = `column-${column.id}`;
-                columnElement.classList.add(
-                    'kanban-column', 'flex', 'flex-col', 'bg-gray-100', 'rounded-xl', 'shadow-lg', 'p-4', 'h-full'
-                );
+                columnElement.className = 'kanban-column flex flex-col bg-slate-100 rounded-xl shadow-lg p-4 h-full';
                 columnElement.setAttribute('data-column-id', column.id);
 
-                // Column Header
-                const columnHeader = document.createElement('div');
-                columnHeader.classList.add('flex', 'items-center', 'justify-between', 'mb-4');
                 const columnTasksCount = tasksToRender.filter(t => t.status === column.id).length;
+                const columnHeader = document.createElement('div');
+                columnHeader.className = 'flex items-center justify-between mb-5';
+                const columnColorClass = column.color || defaultColumnColors[index % defaultColumnColors.length];
+
                 columnHeader.innerHTML = `
-                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                        <span class="w-3 h-3 ${column.color} rounded-full mr-2"></span>
-                        ${column.title}
-                        <span class="ml-2 text-sm text-gray-500">(${columnTasksCount})</span>
-                    </h2>
-                    ${column.id === 'todo' ? `
-                        <button class="add-task-button bg-indigo-500 text-white p-2 rounded-full shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition duration-150 ease-in-out" data-column-id="${column.id}" title="Adicionar nova tarefa">
+                    <div class="flex items-center min-w-0">
+                        <span class="w-3.5 h-3.5 ${columnColorClass} rounded-full mr-2.5 flex-shrink-0"></span>
+                        <h2 class="text-lg font-semibold text-gray-700 flex items-center">
+                            <span class="column-title-text truncate-text cursor-pointer hover:underline" title="Editar: ${column.title}">${column.title}</span>
+                        </h2>
+                        <span class="ml-2 text-sm text-gray-500 font-medium">(${columnTasksCount})</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5 flex-shrink-0">
+                         <button class="edit-column-button text-gray-400 hover:text-indigo-600 p-1.5 rounded-md hover:bg-gray-200 transition-colors" data-column-id="${column.id}" data-column-title="${column.title}" title="Editar coluna">
+                            <i class="fas fa-pencil-alt fa-sm"></i>
+                        </button>
+                        <button class="delete-column-button text-gray-400 hover:text-red-600 p-1.5 rounded-md hover:bg-gray-200 transition-colors" data-column-id="${column.id}" data-column-title="${column.title}" title="Excluir coluna">
+                            <i class="fas fa-trash-alt fa-sm"></i>
+                        </button>
+                        <button class="add-task-to-column-button bg-indigo-500 text-white w-8 h-8 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1 transition-all flex items-center justify-center" data-column-id="${column.id}" title="Adicionar tarefa">
                             <i class="fas fa-plus"></i>
                         </button>
-                    ` : ''}
-                `;
+                    </div>`;
                 columnElement.appendChild(columnHeader);
-
-                // Column Content (for tasks)
+                const columnTitleSpan = columnHeader.querySelector('.column-title-text');
+                if (columnTitleSpan) columnTitleSpan.addEventListener('click', () => openEditColumnModal(column.id, column.title));
+                const editColBtn = columnHeader.querySelector('.edit-column-button');
+                if (editColBtn) editColBtn.addEventListener('click', (e) => openEditColumnModal(e.currentTarget.dataset.columnId, e.currentTarget.dataset.columnTitle));
+                const deleteColBtn = columnHeader.querySelector('.delete-column-button');
+                if (deleteColBtn) deleteColBtn.addEventListener('click', (e) => deleteColumn(e.currentTarget.dataset.columnId, e.currentTarget.dataset.columnTitle));
+                const addTaskButtonForColumn = columnHeader.querySelector('.add-task-to-column-button');
+                if (addTaskButtonForColumn) {
+                    addTaskButtonForColumn.addEventListener('click', (e) => {
+                        const targetColId = e.currentTarget.dataset.columnId;
+                        if (addTaskModal) {
+                            addTaskModal.classList.remove('hidden');
+                            if (taskTitleInput) { taskTitleInput.value = ''; taskTitleInput.focus(); }
+                            if (taskDescriptionInput) taskDescriptionInput.value = '';
+                            if (taskPriorityInput) taskPriorityInput.value = 'medium';
+                            if (taskDueDateInput) taskDueDateInput.value = '';
+                            if (confirmAddTaskButton) confirmAddTaskButton.dataset.targetColumnId = targetColId;
+                        }
+                    });
+                }
                 const columnContent = document.createElement('div');
-                columnContent.classList.add('kanban-column-content', 'flex-grow', 'overflow-y-auto', 'space-y-3', 'pr-2'); // Added pr-2 for scrollbar space
+                columnContent.className = 'kanban-column-content flex-grow overflow-y-auto space-y-3.5 pr-1.5';
                 columnElement.appendChild(columnContent);
-
-                // Append column to board
                 kanbanBoard.appendChild(columnElement);
-
-                // Add drag and drop event listeners to the columnElement (the whole column)
                 columnElement.addEventListener('dragover', handleDragOver);
                 columnElement.addEventListener('dragleave', handleDragLeave);
                 columnElement.addEventListener('drop', handleDrop);
-            });
-
-            // Render tasks into their respective columns
-            tasksToRender.forEach(task => {
-                const columnTasksContainer = document.querySelector(`#column-${task.status} .kanban-column-content`);
-                if (columnTasksContainer) {
-                    columnTasksContainer.appendChild(createTaskCard(task));
+                const tasksForThisColumn = tasksToRender.filter(task => task.status === column.id);
+                if (tasksForThisColumn.length > 0) {
+                    tasksForThisColumn.forEach(task => columnContent.appendChild(createTaskCard(task)));
+                } else {
+                    const emptyMsg = document.createElement('p');
+                    emptyMsg.className = 'text-center text-sm text-gray-500 italic mt-6 px-2';
+                    emptyMsg.textContent = 'Nenhuma tarefa aqui.';
+                    columnContent.appendChild(emptyMsg);
                 }
             });
-
-            // Add event listener for "Add Task" button (only on 'A Fazer' column)
-            const addTaskButton = document.querySelector('.add-task-button');
-            if (addTaskButton) {
-                addTaskButton.addEventListener('click', () => {
-                    addTaskModal.classList.remove('hidden');
-                    taskTitleInput.value = '';
-                    taskDescriptionInput.value = '';
-                    taskPriorityInput.value = 'medium'; // Default priority
-                    taskDueDateInput.value = ''; // Clear due date
-                    taskTitleInput.focus();
-                });
-            }
+            hideLoading();
         }
 
         function createTaskCard(task) {
             const card = document.createElement('div');
             card.id = `task-${task.id}`;
-            card.classList.add(
-                'kanban-card', 'bg-white', 'p-4', 'rounded-lg', 'shadow-md', 'border', 'border-gray-200',
-                'hover:shadow-lg', 'transition', 'duration-200', 'ease-in-out'
-            );
-            card.setAttribute('draggable', 'true'); // Ensure draggable attribute is set
+            card.className = 'kanban-card bg-white p-3.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-l-4 flex flex-col space-y-2'; 
+            card.setAttribute('draggable', 'true');
             card.setAttribute('data-task-id', task.id);
             card.setAttribute('data-task-status', task.status);
 
-            let priorityColorClass = '';
-            let priorityText = '';
+            if (task.isBlocked) card.classList.add('task-blocked');
+            if (task.completedAt) card.classList.add('task-completed');
+
+            let priorityIconHtml = '', priorityText = '', priorityBorderClass = 'border-gray-300', priorityIconColor = 'text-gray-500';
             switch (task.priority) {
-                case 'high':
-                    priorityColorClass = 'bg-red-500';
-                    priorityText = 'Alta';
-                    break;
-                case 'medium':
-                    priorityColorClass = 'bg-yellow-500';
-                    priorityText = 'Média';
-                    break;
-                case 'low':
-                    priorityColorClass = 'bg-green-500';
-                    priorityText = 'Baixa';
-                    break;
-                default:
-                    priorityColorClass = 'bg-gray-400';
-                    priorityText = 'Não Definida';
+                case 'high': priorityIconHtml = '<i class="fas fa-exclamation-triangle priority-icon"></i>'; priorityText = 'Alta'; priorityBorderClass = 'border-red-500'; priorityIconColor = 'text-red-500'; break;
+                case 'medium': priorityIconHtml = '<i class="fas fa-minus-circle priority-icon"></i>'; priorityText = 'Média'; priorityBorderClass = 'border-yellow-500'; priorityIconColor = 'text-yellow-500'; break;
+                case 'low': priorityIconHtml = '<i class="fas fa-check-circle priority-icon"></i>'; priorityText = 'Baixa'; priorityBorderClass = 'border-green-500'; priorityIconColor = 'text-green-500'; break;
+                default: priorityIconHtml = '<i class="fas fa-info-circle priority-icon"></i>'; priorityText = 'N/D'; priorityBorderClass = 'border-gray-400'; priorityIconColor = 'text-gray-400';
             }
+            if (!task.isBlocked && !task.completedAt) card.classList.add(priorityBorderClass);
 
-            const createdAtDate = task.createdAt ? new Date(task.createdAt.toDate()) : null;
-            const formattedCreatedAt = createdAtDate ? createdAtDate.toLocaleDateString('pt-BR') : 'N/A';
 
-            const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-            const formattedDueDate = dueDate ? dueDate.toLocaleDateString('pt-BR') : 'N/A';
-            const dueDateClass = dueDate && dueDate < new Date() && task.status !== 'done' ? 'text-red-500 font-semibold' : 'text-gray-500';
+            let formattedDueDate = 'N/A', dueDate = null;
+            if (task.dueDate) {
+                if (task.dueDate.toDate) dueDate = task.dueDate.toDate();
+                else if (typeof task.dueDate === 'string' && task.dueDate.match(/^\d{4}-\d{2}-\d{2}$/)) { const parts = task.dueDate.split('-'); dueDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])); }
+                if(dueDate && !isNaN(dueDate.getTime())) formattedDueDate = dueDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+            }
+            const completedKeywords = ['concluído', 'concluido', 'completo', 'finalizado', 'done', 'resolvido'];
+            const colData = userColumns.find(col => col.id === task.status);
+            const isInCompletedColumn = colData && completedKeywords.some(k => colData.title.toLowerCase().includes(k));
+            let isOverdue = false, overdueIcon = '';
+            if (dueDate && !isNaN(dueDate.getTime()) && !isInCompletedColumn && !task.completedAt && !task.isBlocked) {
+                const today = new Date(); today.setUTCHours(0,0,0,0);
+                isOverdue = dueDate < today;
+                if(isOverdue) overdueIcon = '<i class="fas fa-exclamation-circle text-red-500 ml-1.5" title="Tarefa Vencida!"></i>';
+            }
+            const dueDateCls = isOverdue ? 'text-red-600 font-semibold' : 'text-gray-500';
+
+            const assignedToText = task.assignedToDisplayName || (task.assignedTo ? task.assignedTo.substring(0,8) + '...' : 'Ninguém');
+            const assignedAtDate = task.assignedAt?.toDate ? task.assignedAt.toDate().toLocaleDateString('pt-BR', {day:'2-digit', month:'short'}) : '';
+            const completedAtDate = task.completedAt?.toDate ? task.completedAt.toDate().toLocaleDateString('pt-BR', {day:'2-digit', month:'short', year:'numeric'}) : '';
+
+
+            let actionButtonsHtml = '';
+            if (task.completedAt) {
+                actionButtonsHtml += `<button class="reopen-task-btn text-xs bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-1 px-2 rounded-md transition-colors" data-task-id="${task.id}" title="Reabrir Tarefa"><i class="fas fa-undo mr-1"></i>Reabrir</button>`;
+            } else {
+                if (!task.assignedTo) {
+                    actionButtonsHtml += `<button class="assign-task-btn text-xs bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-2 rounded-md transition-colors" data-task-id="${task.id}" title="Assumir tarefa"><i class="fas fa-user-plus mr-1"></i>Assumir</button>`;
+                } else if (task.assignedTo === currentUserId) {
+                    actionButtonsHtml += `<button class="complete-task-btn text-xs bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-2 rounded-md transition-colors" data-task-id="${task.id}" title="Concluir tarefa"><i class="fas fa-check mr-1"></i>Concluir</button>`;
+                    actionButtonsHtml += `<button class="unassign-task-btn text-xs bg-gray-400 hover:bg-gray-500 text-white font-medium py-1 px-2 rounded-md transition-colors ml-1" data-task-id="${task.id}" title="Liberar tarefa"><i class="fas fa-user-minus mr-1"></i>Liberar</button>`;
+                }
+                 actionButtonsHtml += `<button class="toggle-block-task-btn text-xs ${task.isBlocked ? 'bg-yellow-400 hover:bg-yellow-500 text-black' : 'bg-red-500 hover:bg-red-600 text-white'} font-medium py-1 px-2 rounded-md transition-colors ml-1" data-task-id="${task.id}" title="${task.isBlocked ? 'Desbloquear' : 'Bloquear'}"><i class="fas ${task.isBlocked ? 'fa-lock-open' : 'fa-lock'} mr-1"></i>${task.isBlocked ? 'Desbloq.' : 'Bloquear'}</button>`;
+            }
 
 
             card.innerHTML = `
-                <div class="flex justify-between items-center mb-2">
-                    <h4 class="font-medium text-gray-900 text-lg">${task.title}</h4>
-                    <span class="text-xs font-semibold px-2 py-1 rounded-full text-white ${priorityColorClass}">${priorityText}</span>
+                <div>
+                    <div class="flex justify-between items-start mb-1.5">
+                        <h4 class="task-title-text text-gray-800 text-base truncate-text" title="${task.title}">${task.title}</h4>
+                        <button class="edit-task-button text-gray-400 hover:text-indigo-600 p-1 -mr-1 flex-shrink-0" data-task-id="${task.id}" title="Detalhes/Editar"><i class="fas fa-ellipsis-h fa-sm"></i></button>
+                    </div>
+                    ${task.description ? `<p class="text-xs text-gray-600 break-words leading-snug max-h-12 overflow-y-auto mb-1.5">${task.description.substring(0,100)}${task.description.length > 100 ? '...' : ''}</p>` : '<p class="text-xs text-gray-400 italic mb-1.5">Sem descrição.</p>'}
                 </div>
-                ${task.description ? `<p class="text-sm text-gray-600 mb-2">${task.description}</p>` : ''}
-                <div class="flex justify-between items-center text-xs text-gray-500 mt-2">
-                    <span>Criado em: ${formattedCreatedAt}</span>
-                    <span class="${dueDateClass}">Vencimento: ${formattedDueDate}</span>
+                <div class="text-xs text-gray-600 mb-1.5">
+                    <span class="font-medium">Responsável:</span> ${assignedToText} ${task.assignedAt ? `(${assignedAtDate})` : ''}
+                    ${task.completedAt ? `<br><span class="font-medium text-green-700">Concluída:</span> <span class="text-green-600">${completedAtDate}</span>` : ''}
                 </div>
-                <div class="flex justify-end mt-3">
-                    <button class="edit-task-button text-indigo-500 hover:text-indigo-700 text-sm font-medium" data-task-id="${task.id}" title="Editar tarefa">
-                        Editar
-                    </button>
+                <div class="flex justify-between items-center text-xs mt-auto pt-2 border-t border-gray-200">
+                    <div class="flex items-center ${priorityIconColor}" title="Prioridade: ${priorityText}">${priorityIconHtml}<span class="ml-1.5 font-medium">${priorityText}</span></div>
+                    <div class="flex items-center ${dueDateCls}" title="Vencimento"><i class="far fa-calendar-alt mr-1.5"></i><span class="font-medium">${formattedDueDate}</span>${overdueIcon}</div>
+                </div>
+                <div class="flex justify-start items-center space-x-1.5 mt-2.5 pt-2 border-t border-gray-200">
+                    ${actionButtonsHtml}
                 </div>
             `;
 
-            // Add drag event listeners
+            const assignBtn = card.querySelector('.assign-task-btn');
+            if(assignBtn) assignBtn.addEventListener('click', (e) => { e.stopPropagation(); assignTaskToSelf(e.currentTarget.dataset.taskId); });
+
+            const completeBtn = card.querySelector('.complete-task-btn');
+            if(completeBtn) completeBtn.addEventListener('click', (e) => { e.stopPropagation(); completeTask(e.currentTarget.dataset.taskId); });
+            
+            const reopenBtn = card.querySelector('.reopen-task-btn');
+            if(reopenBtn) reopenBtn.addEventListener('click', (e) => { e.stopPropagation(); reopenTask(e.currentTarget.dataset.taskId); });
+
+            const unassignBtn = card.querySelector('.unassign-task-btn');
+            if(unassignBtn) unassignBtn.addEventListener('click', (e) => { e.stopPropagation(); unassignTask(e.currentTarget.dataset.taskId); });
+
+            const blockBtn = card.querySelector('.toggle-block-task-btn');
+            if(blockBtn) blockBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleBlockTask(e.currentTarget.dataset.taskId); });
+
+
             card.addEventListener('dragstart', handleDragStart);
             card.addEventListener('dragend', handleDragEnd);
-
-            // Add edit button listener
-            card.querySelector('.edit-task-button').addEventListener('click', () => {
-                openEditTaskModal(task);
-            });
-
+            card.querySelector('.edit-task-button').addEventListener('click', (e) => { e.stopPropagation(); openEditTaskModal(task); });
             return card;
         }
 
-        // --- Drag and Drop Logic ---
-        let draggedTask = null;
-
-        function handleDragStart(e) {
-            console.log('--- Drag started ---');
-            console.log('Event target:', e.target);
-            console.log('Task ID being dragged (from dataset):', e.target.dataset.taskId);
-            draggedTask = e.target;
-            e.dataTransfer.setData('text/plain', draggedTask.dataset.taskId); // Set data for drop
-            e.dataTransfer.effectAllowed = 'move';
-            setTimeout(() => {
-                draggedTask.classList.add('dragging');
-            }, 0); // Add class after a slight delay to avoid flickering
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault(); // Allow dropping
-            e.dataTransfer.dropEffect = 'move';
-            const columnElement = e.currentTarget; // This is now the .kanban-column div
-            console.log('--- Drag over ---');
-            console.log('Column being dragged over (ID):', columnElement.id);
-            if (!columnElement.classList.contains('drag-over')) {
-                columnElement.classList.add('drag-over');
-            }
-        }
-
-        function handleDragLeave(e) {
-            const columnElement = e.currentTarget; // This is now the .kanban-column div
-            console.log('--- Drag left ---');
-            console.log('Column left (ID):', columnElement.id);
-            columnElement.classList.remove('drag-over');
-        }
-
-        async function handleDrop(e) {
-            e.preventDefault();
-            const taskId = e.dataTransfer.getData('text/plain'); // Get task ID from dataTransfer
-            const targetColumnElement = e.currentTarget; // This is now the .kanban-column div
-            const newStatus = targetColumnElement.dataset.columnId;
-
-            console.log('--- Inside handleDrop ---');
-            console.log('Dropped taskId from dataTransfer:', taskId);
-            console.log('Target column ID (newStatus):', newStatus);
-            console.log('draggedTask (global variable before processing):', draggedTask); // Check its state here
-
-            targetColumnElement.classList.remove('drag-over');
-
-            // Find the task in allTasks array to get its current status
-            const currentTask = allTasks.find(task => task.id === taskId);
-
-            if (currentTask && currentTask.status !== newStatus) {
-                console.log('Drop condition met. Attempting to update task status to:', newStatus);
-                showLoading();
-                try {
-                    const taskRef = doc(tasksCollectionRef, taskId);
-                    await updateDoc(taskRef, { status: newStatus });
-                    // The onSnapshot listener will re-render the board, so no need to manually move the card
-                    showToast('Tarefa movida com sucesso!', 'success');
-                } catch (error) {
-                    console.error("Erro ao atualizar status da tarefa:", error);
-                    showMessageModal('Erro', 'Não foi possível mover a tarefa. Tente novamente.', 'error');
-                } finally {
-                    hideLoading();
-                }
-            } else {
-                console.log('Drop condition NOT met.');
-                if (!currentTask) {
-                    console.log('Reason: Task not found in allTasks (ID:', taskId, '). This could happen if the data was not correctly set during dragstart or if allTasks is not populated.');
-                } else if (currentTask.status === newStatus) {
-                    console.log('Reason: Task dropped in the same column (status is not changing). Current status:', currentTask.status, 'New status:', newStatus);
-                } else {
-                    console.log('Reason: Unknown issue with currentTask or status comparison.');
-                }
-            }
-        }
-
-        function handleDragEnd(e) {
-            console.log('--- Drag ended ---');
-            console.log('Task ID that ended dragging:', e.target.dataset.taskId);
-            if (draggedTask) {
-                draggedTask.classList.remove('dragging');
-                console.log('draggedTask class "dragging" removed.');
-            }
-            // Remove drag-over class from all columns
-            document.querySelectorAll('.kanban-column').forEach(col => {
-                col.classList.remove('drag-over');
-            });
-            draggedTask = null; // Reset draggedTask after drag operation ends
-            console.log('draggedTask set to null.');
-        }
-
-        // --- Task Management (Add, Edit, Delete) ---
-
-        // Add Task Modal Buttons
-        cancelAddTaskButton.addEventListener('click', () => {
-            addTaskModal.classList.add('hidden');
-        });
-
-        confirmAddTaskButton.addEventListener('click', async () => {
-            const title = taskTitleInput.value.trim();
-            const description = taskDescriptionInput.value.trim();
-            const priority = taskPriorityInput.value;
-            const dueDate = taskDueDateInput.value; // ISO-MM-DD string
-
-            if (!title) {
-                showMessageModal('Atenção', 'O título da tarefa não pode estar vazio.', 'info');
+        async function assignTaskToSelf(taskId) {
+            if (!currentUserId || !tasksCollectionRef || !currentUserDisplayName) { 
+                showMessageModal('Erro', 'Não foi possível assumir a tarefa. Usuário ou contexto não definidos.', 'error');
                 return;
             }
-
             showLoading();
+            const taskRef = doc(tasksCollectionRef, taskId);
             try {
-                await addDoc(tasksCollectionRef, {
-                    title: title,
-                    description: description,
-                    status: 'todo', // New tasks always start in 'todo'
-                    priority: priority,
-                    dueDate: dueDate || null, // Store as string or null
-                    createdAt: serverTimestamp() // Use server timestamp for consistency
+                await updateDoc(taskRef, {
+                    assignedTo: currentUserId,
+                    assignedToDisplayName: currentUserDisplayName, 
+                    assignedAt: serverTimestamp(),
+                    completedAt: null, 
+                    isBlocked: false 
                 });
-                addTaskModal.classList.add('hidden');
-                showToast('Tarefa adicionada com sucesso!', 'success');
+                showToast('Tarefa assumida por você!', 'success');
             } catch (error) {
-                console.error("Erro ao adicionar tarefa:", error);
-                showMessageModal('Erro', 'Não foi possível adicionar a tarefa. Tente novamente.', 'error');
+                console.error("Erro ao assumir tarefa:", error);
+                showMessageModal('Erro', `Não foi possível assumir a tarefa: ${error.message}`, 'error');
             } finally {
                 hideLoading();
             }
+        }
+
+        async function unassignTask(taskId) {
+            if (!tasksCollectionRef) return;
+            showLoading();
+            const taskRef = doc(tasksCollectionRef, taskId);
+            try {
+                await updateDoc(taskRef, {
+                    assignedTo: null,
+                    assignedToDisplayName: null,
+                    assignedAt: null
+                });
+                showToast('Tarefa liberada!', 'info');
+            } catch (error) {
+                console.error("Erro ao liberar tarefa:", error);
+                showMessageModal('Erro', `Não foi possível liberar a tarefa: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function completeTask(taskId) {
+            if (!tasksCollectionRef) return;
+            showLoading();
+            const taskRef = doc(tasksCollectionRef, taskId);
+            try {
+                await updateDoc(taskRef, {
+                    completedAt: serverTimestamp(),
+                    isBlocked: false 
+                });
+                showToast('Tarefa marcada como concluída!', 'success');
+            } catch (error) {
+                console.error("Erro ao concluir tarefa:", error);
+                showMessageModal('Erro', `Não foi possível concluir a tarefa: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function reopenTask(taskId) {
+            if (!tasksCollectionRef) return;
+            showLoading();
+            const taskRef = doc(tasksCollectionRef, taskId);
+            try {
+                await updateDoc(taskRef, {
+                    completedAt: null
+                });
+                showToast('Tarefa reaberta!', 'info');
+            } catch (error) {
+                console.error("Erro ao reabrir tarefa:", error);
+                showMessageModal('Erro', `Não foi possível reabrir a tarefa: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function toggleBlockTask(taskId) {
+            if (!tasksCollectionRef) return;
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task) {
+                showMessageModal('Erro', 'Tarefa não encontrada para bloquear/desbloquear.', 'error');
+                return;
+            }
+            showLoading();
+            const taskRef = doc(tasksCollectionRef, taskId);
+            try {
+                await updateDoc(taskRef, {
+                    isBlocked: !task.isBlocked 
+                });
+                showToast(task.isBlocked ? 'Tarefa desbloqueada!' : 'Tarefa bloqueada!', 'info');
+            } catch (error) {
+                console.error("Erro ao bloquear/desbloquear tarefa:", error);
+                showMessageModal('Erro', `Não foi possível alterar o bloqueio: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        cancelAddTaskButton?.addEventListener('click', () => addTaskModal.classList.add('hidden'));
+        confirmAddTaskButton?.addEventListener('click', async () => {
+            const title = taskTitleInput.value.trim();
+            if (!title) { showMessageModal('Atenção', 'Título da tarefa é obrigatório.', 'info'); taskTitleInput.focus(); return; }
+            if (!activeBoardId || !tasksCollectionRef || !userColumns.length) { showMessageModal('Erro Crítico', 'Contexto inválido para adicionar tarefa.', 'error'); return; }
+            const targetColumnId = confirmAddTaskButton.dataset.targetColumnId || userColumns[0].id;
+            showLoading();
+            try {
+                await addDoc(tasksCollectionRef, {
+                    title,
+                    description: taskDescriptionInput.value.trim(),
+                    priority: taskPriorityInput.value,
+                    status: targetColumnId,
+                    dueDate: taskDueDateInput.value || null,
+                    createdAt: serverTimestamp(),
+                    boardId: activeBoardId,
+                    assignedTo: null, 
+                    assignedToDisplayName: null, 
+                    assignedAt: null, 
+                    completedAt: null, 
+                    isBlocked: false 
+                });
+                addTaskModal?.classList.add('hidden');
+                showToast('Tarefa adicionada!', 'success');
+            } catch (error) { console.error("Erro ao adicionar tarefa:", error); showMessageModal('Erro Adicionar Tarefa', `Erro: ${error.message}`, 'error');
+            } finally { hideLoading(); }
         });
 
-        // Edit Task Modal Functions
         function openEditTaskModal(task) {
+            if (!editTaskModal) return;
             editTaskIdInput.value = task.id;
             editTaskTitleInput.value = task.title;
             editTaskDescriptionInput.value = task.description || '';
             editTaskPriorityInput.value = task.priority || 'medium';
-            editTaskDueDateInput.value = task.dueDate || ''; // Populate with existing due date
+
+            if (task.dueDate) {
+                let dateToSet = task.dueDate;
+                if (task.dueDate.toDate) { dateToSet = task.dueDate.toDate().toISOString().split('T')[0];
+                } else if (typeof task.dueDate === 'string' && task.dueDate.match(/^\d{4}-\d{2}-\d{2}$/)) { dateToSet = task.dueDate; }
+                editTaskDueDateInput.value = dateToSet;
+            } else { editTaskDueDateInput.value = ''; }
+
+            editTaskAssignedToDisplay.textContent = task.assignedToDisplayName || (task.assignedTo ? `UID: ${task.assignedTo.substring(0,10)}...` : 'Ninguém');
+            editTaskAssignedAtDisplay.textContent = task.assignedAt?.toDate ? `Assumida em: ${task.assignedAt.toDate().toLocaleString('pt-BR')}` : '';
+            
+            if (task.completedAt) {
+                editTaskCompletedAtDisplay.textContent = task.completedAt.toDate().toLocaleString('pt-BR');
+                editTaskCompletedDisplayContainer.classList.remove('hidden');
+            } else {
+                editTaskCompletedDisplayContainer.classList.add('hidden');
+            }
+
             editTaskModal.classList.remove('hidden');
             editTaskTitleInput.focus();
         }
-
-        cancelEditTaskButton.addEventListener('click', () => {
-            editTaskModal.classList.add('hidden');
-        });
-
-        saveEditTaskButton.addEventListener('click', async () => {
+        cancelEditTaskButton?.addEventListener('click', () => editTaskModal.classList.add('hidden'));
+        saveEditTaskButton?.addEventListener('click', async () => {
             const taskId = editTaskIdInput.value;
             const newTitle = editTaskTitleInput.value.trim();
-            const newDescription = editTaskDescriptionInput.value.trim();
-            const newPriority = editTaskPriorityInput.value;
-            const newDueDate = editTaskDueDateInput.value;
-
-            if (!newTitle) {
-                showMessageModal('Atenção', 'O título da tarefa não pode estar vazio.', 'info');
-                return;
-            }
-
+            if (!newTitle) { showMessageModal('Atenção', 'Título é obrigatório.', 'info'); editTaskTitleInput.focus(); return; }
+            if (!tasksCollectionRef) { showMessageModal('Erro', 'Ref. tarefas não pronta.', 'error'); return; }
             showLoading();
             try {
                 const taskRef = doc(tasksCollectionRef, taskId);
                 await updateDoc(taskRef, {
                     title: newTitle,
-                    description: newDescription,
-                    priority: newPriority,
-                    dueDate: newDueDate || null
+                    description: editTaskDescriptionInput.value.trim(),
+                    priority: editTaskPriorityInput.value,
+                    dueDate: editTaskDueDateInput.value || null
                 });
-                editTaskModal.classList.add('hidden');
-                showToast('Tarefa atualizada com sucesso!', 'success');
-            } catch (error) {
-                    console.error("Erro ao salvar alterações da tarefa:", error);
-                    showMessageModal('Erro', 'Não foi possível salvar as alterações. Tente novamente.', 'error');
-                } finally {
-                    hideLoading();
-                }
-            });
+                editTaskModal?.classList.add('hidden');
+                showToast('Tarefa atualizada!', 'success');
+            } catch (error) { console.error("Erro ao salvar tarefa:", error); showMessageModal('Erro Salvar Tarefa', `Erro: ${error.message}`, 'error');
+            } finally { hideLoading(); }
+        });
+        deleteTaskButton?.addEventListener('click', () => { 
+            const taskId = editTaskIdInput.value;
+            const taskToDelete = allTasks.find(t => t.id === taskId);
+            const taskTitle = taskToDelete ? `"${taskToDelete.title}"` : "esta tarefa";
+            showMessageModal('Confirmar Exclusão', `Excluir ${taskTitle}?`, 'warning', async () => {
+                if (editTaskModal) editTaskModal.classList.add('hidden');
+                if (!tasksCollectionRef) { showMessageModal('Erro', 'Ref. tarefas não pronta.', 'error'); return; }
+                showLoading();
+                try { await deleteDoc(doc(tasksCollectionRef, taskId)); showToast('Tarefa excluída!', 'success');
+                } catch (error) { console.error("Erro ao excluir tarefa:", error); showMessageModal('Erro Excluir Tarefa', `Erro: ${error.message}`, 'error');
+                } finally { hideLoading(); }
+            }, 'Excluir Tarefa', true, 'Cancelar');
+        });
 
-            deleteTaskButton.addEventListener('click', async () => {
-                const taskId = editTaskIdInput.value;
-                // Show a confirmation modal
-                const confirmDeleteModalId = `confirmDeleteModal-${Date.now()}`;
-                const confirmDeleteModalHtml = `
-                <div id="${confirmDeleteModalId}" class="fixed inset-0 modal-overlay flex items-center justify-center z-50">
-                    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm modal-content">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">Confirmar Exclusão</h3>
-                        <p class="text-gray-700 mb-6">Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.</p>
-                        <div class="flex justify-end space-x-4">
-                            <button id="cancelDelete${confirmDeleteModalId}" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
-                                Cancelar
-                            </button>
-                            <button id="confirmDelete${confirmDeleteModalId}" class="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition duration-150 ease-in-out">
-                                Excluir
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', confirmDeleteModalHtml);
-
-            document.getElementById(`cancelDelete${confirmDeleteModalId}`).addEventListener('click', () => {
-                document.getElementById(confirmDeleteModalId).remove();
-            });
-
-            document.getElementById(`confirmDelete${confirmDeleteModalId}`).addEventListener('click', async () => {
-                document.getElementById(confirmDeleteModalId).remove(); // Close confirmation modal
-                editTaskModal.classList.add('hidden'); // Close edit modal
+        let draggedTaskElement = null;
+        function handleDragStart(e) { if (!e.target.classList.contains('kanban-card')) return; draggedTaskElement = e.target; e.dataTransfer.setData('text/plain', draggedTaskElement.dataset.taskId); e.dataTransfer.effectAllowed = 'move'; setTimeout(() => { if(draggedTaskElement) draggedTaskElement.classList.add('dragging'); }, 0); }
+        function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; const colEl = e.currentTarget.closest('.kanban-column'); if (colEl && !colEl.classList.contains('drag-over')) colEl.classList.add('drag-over'); }
+        function handleDragLeave(e) { const colEl = e.currentTarget.closest('.kanban-column'); if (colEl) colEl.classList.remove('drag-over'); }
+        async function handleDrop(e) {
+            e.preventDefault();
+            const taskId = e.dataTransfer.getData('text/plain');
+            const targetColEl = e.currentTarget.closest('.kanban-column');
+            if (!targetColEl || !draggedTaskElement) return;
+            const newStatusColId = targetColEl.dataset.columnId;
+            targetColEl.classList.remove('drag-over');
+            const taskToMove = allTasks.find(t => t.id === taskId);
+            if (taskToMove && taskToMove.status !== newStatusColId) {
+                if (!tasksCollectionRef) { showMessageModal('Erro', 'Ref. tarefas não pronta para mover.', 'error'); if (draggedTaskElement) draggedTaskElement.classList.remove('dragging'); draggedTaskElement = null; return; }
                 showLoading();
                 try {
                     const taskRef = doc(tasksCollectionRef, taskId);
-                    await deleteDoc(taskRef);
-                    showToast('Tarefa excluída com sucesso!', 'success');
-                } catch (error) {
-                    console.error("Erro ao excluir tarefa:", error);
-                    showMessageModal('Erro', 'Não foi possível excluir a tarefa. Tente novamente.', 'error');
-                } finally {
-                    hideLoading();
-                }
-            });
-        });
+                    await updateDoc(taskRef, { status: newStatusColId });
+                    showToast(`Tarefa movida para "${userColumns.find(c=>c.id === newStatusColId)?.title || 'nova coluna'}"!`, 'success');
+                } catch (err) { console.error("Erro ao mover tarefa:", err); showMessageModal('Erro Mover Tarefa', `Erro: ${err.message}`, 'error');
+                } finally { hideLoading(); }
+            }
+            if (draggedTaskElement) draggedTaskElement.classList.remove('dragging');
+            draggedTaskElement = null;
+        }
+        function handleDragEnd(e) { if (draggedTaskElement) draggedTaskElement.classList.remove('dragging'); document.querySelectorAll('.kanban-column.drag-over').forEach(col => col.classList.remove('drag-over')); draggedTaskElement = null; }
 
-        // --- Filtering and Searching ---
-        taskSearchInput.addEventListener('input', () => {
-            applyFiltersAndRender(allTasks);
-        });
-
-        filterPrioritySelect.addEventListener('change', () => {
-            applyFiltersAndRender(allTasks);
-        });
-
-        // Initial render of empty board (will be populated by onSnapshot)
-        renderKanbanBoard([]);
-
-        // Ensure the initial auth state is checked and UI is updated
-        window.onload = async function() {
-            // The onAuthStateChanged listener handles initial loading and UI updates.
-            // No need for explicit signInAnonymously here as it's removed.
+        window.onload = () => {
+            console.log("Janela carregada. Aguardando autenticação do Firebase...");
         };
     </script>
 </body>
