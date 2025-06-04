@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Kanban Board Pro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body, html { /* Adicionado html aqui para text-size-adjust */
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f0f2f5; /* Light gray background */
+            -webkit-text-size-adjust: 100%; /* Mantido para compatibilidade */
+            text-size-adjust: 100%; /* Adicionado para compatibilidade moderna */
+        }
+        .kanban-column {
+            min-width: 280px;
+            max-width: 320px;
+            flex-shrink: 0; /* Prevent columns from shrinking below min-width */
+        }
+        .kanban-card {
+            cursor: grab;
+            transition: transform 0.1s ease-in-out, box-shadow 0.2s ease;
+            position: relative; /* For priority badge */
+        }
+        .kanban-card:active {
+            cursor: grabbing;
+        }
+        .kanban-card.dragging {
+            opacity: 0.5;
+            border: 2px dashed #9ca3af; /* Gray-400 */
+        }
+        .kanban-column.drag-over { /* Aplicado à coluna inteira agora */
+            background-color: #e0e7ff; /* Indigo-100 */
+            border: 2px dashed #6366f1; /* Indigo-500 */
+        }
+        /* Custom scrollbar for columns */
+        .kanban-column-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .kanban-column-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .kanban-column-content::-webkit-scrollbar-thumb {
+            background: #a1a1aa; /* Gray-400 */
+            border-radius: 10px;
+        }
+        .kanban-column-content::-webkit-scrollbar-thumb:hover {
+            background: #71717a; /* Gray-500 */
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .modal-content {
+            animation: fadeInScale 0.3s ease-out forwards;
+        }
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+        .toast {
+            animation: slideInRight 0.5s ease-out forwards, fadeOut 3s forwards 2s;
+        }
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+            <p class="mt-4 text-white text-lg">Carregando...</p>
+        </div>
+    </div>
+
+    <!-- Toast Container for Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Login/Register Section -->
+    <div id="authSection" class="flex flex-grow items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-105">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8" id="authTitle">Bem-vindo ao Meu Kanban</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="email" autocomplete="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="seu.email@exemplo.com">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                    <input type="password" id="password" autocomplete="current-password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="********">
+                </div>
+                <button id="authButton" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out font-semibold text-lg">
+                    Entrar
+                </button>
+            </div>
+            <p id="authError" class="text-red-600 text-sm mt-4 text-center hidden"></p>
+        </div>
+    </div>
+
+    <!-- Kanban Section -->
+    <div id="kanbanSection" class="flex flex-col flex-grow hidden">
+        <header class="bg-white shadow-md p-4 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <h1 class="text-2xl font-bold text-gray-800">Meu Kanban Board Pro</h1>
+            <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+                <input type="text" id="taskSearchInput" placeholder="Pesquisar tarefas..." class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-full sm:w-48">
+                <label for="filterPriority" class="sr-only">Filtrar por Prioridade</label> <!-- Adicionado label para acessibilidade -->
+                <select id="filterPriority" class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-full sm:w-32">
+                    <option value="">Todas Prioridades</option>
+                    <option value="low">Baixa</option>
+                    <option value="medium">Média</option>
+                    <option value="high">Alta</option>
+                </select>
+                <span id="userIdDisplay" class="text-gray-600 text-sm truncate">ID do Usuário: Carregando...</span>
+                <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition duration-150 ease-in-out w-full sm:w-auto">
+                    Sair
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-grow p-6 overflow-x-auto">
+            <div id="kanbanBoard" class="flex flex-nowrap space-x-6 h-full items-start pb-4">
+                <!-- Kanban Columns will be rendered here by JavaScript -->
+            </div>
+        </main>
+
+        <!-- Add Task Modal -->
+        <div id="addTaskModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Adicionar Nova Tarefa</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="taskTitle" class="block text-sm font-medium text-gray-700">Título da Tarefa</label>
+                        <input type="text" id="taskTitle" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Título da Tarefa">
+                    </div>
+                    <div>
+                        <label for="taskDescription" class="block text-sm font-medium text-gray-700">Descrição (Opcional)</label>
+                        <textarea id="taskDescription" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Detalhes da tarefa"></textarea>
+                    </div>
+                    <div>
+                        <label for="taskPriority" class="block text-sm font-medium text-gray-700">Prioridade</label>
+                        <select id="taskPriority" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="low">Baixa</option>
+                            <option value="medium" selected>Média</option>
+                            <option value="high">Alta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="taskDueDate" class="block text-sm font-medium text-gray-700">Data de Vencimento (Opcional)</label>
+                        <input type="date" id="taskDueDate" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button id="cancelAddTask" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
+                            Cancelar
+                        </button>
+                        <button id="confirmAddTask" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
+                            Adicionar Tarefa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit/Delete Task Modal -->
+        <div id="editTaskModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Editar Tarefa</h3>
+                <input type="hidden" id="editTaskId">
+                <div class="space-y-4">
+                    <div>
+                        <label for="editTaskTitle" class="block text-sm font-medium text-gray-700">Título da Tarefa</label>
+                        <input type="text" id="editTaskTitle" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="editTaskDescription" class="block text-sm font-medium text-gray-700">Descrição (Opcional)</label>
+                        <textarea id="editTaskDescription" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                    </div>
+                    <div>
+                        <label for="editTaskPriority" class="block text-sm font-medium text-gray-700">Prioridade</label>
+                        <select id="editTaskPriority" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="low">Baixa</option>
+                            <option value="medium">Média</option>
+                            <option value="high">Alta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="editTaskDueDate" class="block text-sm font-medium text-gray-700">Data de Vencimento (Opcional)</label>
+                        <input type="date" id="editTaskDueDate" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button id="deleteTaskButton" class="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition duration-150 ease-in-out">
+                            Excluir
+                        </button>
+                        <button id="cancelEditTask" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
+                            Cancelar
+                        </button>
+                        <button id="saveEditTask" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration (provided by the user)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJEuO5Su5yNYlLr800WPnCBICs8uO3xpc",
+            authDomain: "kanban-1ad54.firebaseapp.com",
+            projectId: "kanban-1ad54",
+            storageBucket: "kanban-1ad54.firebasestorage.app",
+            messagingSenderId: "1096522810322",
+            appId: "1:1096522810322:web:cf5c53903a117f51de7e0b",
+            measurementId: "G-FGCGPQ9QP0"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Global variables for UI elements
+        const authSection = document.getElementById('authSection');
+        const kanbanSection = document.getElementById('kanbanSection');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const authButton = document.getElementById('authButton');
+        const authTitle = document.getElementById('authTitle');
+        const authError = document.getElementById('authError');
+        const logoutButton = document.getElementById('logoutButton');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const kanbanBoard = document.getElementById('kanbanBoard');
+        const addTaskModal = document.getElementById('addTaskModal');
+        const taskTitleInput = document.getElementById('taskTitle');
+        const taskDescriptionInput = document.getElementById('taskDescription');
+        const taskPriorityInput = document.getElementById('taskPriority');
+        const taskDueDateInput = document.getElementById('taskDueDate');
+        const cancelAddTaskButton = document.getElementById('cancelAddTask');
+        const confirmAddTaskButton = document.getElementById('confirmAddTask');
+        const editTaskModal = document.getElementById('editTaskModal');
+        const editTaskIdInput = document.getElementById('editTaskId');
+        const editTaskTitleInput = document.getElementById('editTaskTitle');
+        const editTaskDescriptionInput = document.getElementById('editTaskDescription');
+        const editTaskPriorityInput = document.getElementById('editTaskPriority');
+        const editTaskDueDateInput = document.getElementById('editTaskDueDate');
+        const cancelEditTaskButton = document.getElementById('cancelEditTask');
+        const saveEditTaskButton = document.getElementById('saveEditTask');
+        const deleteTaskButton = document.getElementById('deleteTaskButton');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const toastContainer = document.getElementById('toastContainer');
+        const taskSearchInput = document.getElementById('taskSearchInput');
+        const filterPrioritySelect = document.getElementById('filterPriority');
+
+        // Kanban board data structure
+        const columns = [
+            { id: 'todo', title: 'A Fazer', color: 'bg-blue-500' },
+            { id: 'in-progress', title: 'Em Andamento', color: 'bg-yellow-500' },
+            { id: 'done', title: 'Concluído', color: 'bg-green-500' }
+        ];
+
+        let currentUserId = null;
+        let tasksCollectionRef = null;
+        let unsubscribeSnapshot = null; // To store the unsubscribe function for Firestore listener
+
+        // Helper function to show loading overlay
+        function showLoading() {
+            loadingOverlay.classList.remove('hidden');
+        }
+
+        // Helper function to hide loading overlay
+        function hideLoading() {
+            loadingOverlay.classList.add('hidden');
+        }
+
+        // Function to display toast notifications
+        function showToast(message, type = 'success') {
+            const toastElement = document.createElement('div');
+            toastElement.classList.add('toast', 'p-4', 'rounded-lg', 'shadow-lg', 'mb-3', 'flex', 'items-center', 'space-x-3');
+
+            let bgColor = 'bg-green-500';
+            let icon = '<i class="fas fa-check-circle"></i>';
+            if (type === 'error') {
+                bgColor = 'bg-red-500';
+                icon = '<i class="fas fa-times-circle"></i>';
+            } else if (type === 'info') {
+                bgColor = 'bg-blue-500';
+                icon = '<i class="fas fa-info-circle"></i>';
+            }
+
+            toastElement.classList.add(bgColor, 'text-white');
+            toastElement.innerHTML = `${icon} <span>${message}</span>`;
+            toastContainer.appendChild(toastElement);
+
+            setTimeout(() => {
+                toastElement.remove();
+            }, 3500); // Toast disappears after 3.5 seconds
+        }
+
+        // Function to display messages in a modal (instead of alert)
+        function showMessageModal(title, message, type = 'info') {
+            const modalId = `messageModal-${Date.now()}`; // Unique ID for each modal
+            const modalHtml = `
+                <div id="${modalId}" class="fixed inset-0 modal-overlay flex items-center justify-center z-50">
+                    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm modal-content">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">${title}</h3>
+                        <p class="text-gray-700 mb-6">${message}</p>
+                        <div class="flex justify-end">
+                            <button id="close${modalId}" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
+                                Ok
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            document.getElementById(`close${modalId}`).addEventListener('click', () => {
+                document.getElementById(modalId).remove();
+            });
+        }
+
+        // --- Authentication Logic ---
+        onAuthStateChanged(auth, async (user) => {
+            showLoading();
+            if (user) {
+                currentUserId = user.uid;
+                userIdDisplay.textContent = `ID do Usuário: ${currentUserId}`;
+                authSection.classList.add('hidden');
+                kanbanSection.classList.remove('hidden');
+
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                // Using private data path for authenticated users
+                tasksCollectionRef = collection(db, `artifacts/${appId}/users/${currentUserId}/tasks`);
+
+                // Listen for real-time updates to tasks
+                if (unsubscribeSnapshot) {
+                    unsubscribeSnapshot(); // Unsubscribe previous listener if exists
+                }
+                unsubscribeSnapshot = onSnapshot(tasksCollectionRef, (snapshot) => {
+                    let tasks = [];
+                    snapshot.forEach(doc => {
+                        tasks.push({ id: doc.id, ...doc.data() });
+                    });
+                    applyFiltersAndRender(tasks); // Apply filters after fetching
+                    hideLoading();
+                }, (error) => {
+                    console.error("Erro ao obter tarefas em tempo real:", error);
+                    showMessageModal('Erro', 'Não foi possível carregar as tarefas. Tente novamente mais tarde.', 'error');
+                    hideLoading();
+                });
+
+            } else {
+                currentUserId = null;
+                authSection.classList.remove('hidden');
+                kanbanSection.classList.add('hidden');
+                if (unsubscribeSnapshot) {
+                    unsubscribeSnapshot(); // Unsubscribe if user logs out
+                }
+                hideLoading();
+            }
+        });
+
+        // Handle Login button click (only login functionality remains)
+        authButton.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                authError.textContent = 'Por favor, preencha email e senha.';
+                authError.classList.remove('hidden');
+                return;
+            }
+
+            // Basic email format validation
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                authError.textContent = 'Formato de email inválido.';
+                authError.classList.remove('hidden');
+                return;
+            }
+
+            // Password strength validation (still good practice to validate)
+            if (password.length < 6) {
+                authError.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+                authError.classList.remove('hidden');
+                return;
+            }
+
+            showLoading();
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showToast('Login bem-sucedido!', 'success');
+                authError.classList.add('hidden');
+            } catch (error) {
+                console.error("Erro de autenticação:", error);
+                let errorMessage = 'Ocorreu um erro. Tente novamente.';
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    errorMessage = 'Email ou senha inválidos.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Formato de email inválido.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Muitas tentativas. Tente novamente mais tarde.';
+                }
+                authError.textContent = errorMessage;
+                authError.classList.remove('hidden');
+                showToast('Erro de autenticação!', 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Logout
+        logoutButton.addEventListener('click', async () => {
+            showLoading();
+            try {
+                await signOut(auth);
+                showToast('Logout realizado com sucesso!', 'info');
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+                showMessageModal('Erro', 'Não foi possível fazer logout. Tente novamente.', 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // --- Kanban Board Rendering and Logic ---
+
+        let allTasks = []; // Store all tasks fetched from Firestore
+
+        function applyFiltersAndRender(tasks) {
+            allTasks = tasks; // Update the global tasks array
+            let filteredTasks = [...tasks]; // Create a copy to filter
+
+            const searchTerm = taskSearchInput.value.toLowerCase().trim();
+            const filterPriority = filterPrioritySelect.value;
+
+            if (searchTerm) {
+                filteredTasks = filteredTasks.filter(task =>
+                    task.title.toLowerCase().includes(searchTerm) ||
+                    (task.description && task.description.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (filterPriority) {
+                filteredTasks = filteredTasks.filter(task => task.priority === filterPriority);
+            }
+
+            renderKanbanBoard(filteredTasks);
+        }
+
+        function renderKanbanBoard(tasksToRender) {
+            kanbanBoard.innerHTML = ''; // Clear existing board
+            columns.forEach(column => {
+                const columnElement = document.createElement('div');
+                columnElement.id = `column-${column.id}`;
+                columnElement.classList.add(
+                    'kanban-column', 'flex', 'flex-col', 'bg-gray-100', 'rounded-xl', 'shadow-lg', 'p-4', 'h-full'
+                );
+                columnElement.setAttribute('data-column-id', column.id);
+
+                // Column Header
+                const columnHeader = document.createElement('div');
+                columnHeader.classList.add('flex', 'items-center', 'justify-between', 'mb-4');
+                const columnTasksCount = tasksToRender.filter(t => t.status === column.id).length;
+                columnHeader.innerHTML = `
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <span class="w-3 h-3 ${column.color} rounded-full mr-2"></span>
+                        ${column.title}
+                        <span class="ml-2 text-sm text-gray-500">(${columnTasksCount})</span>
+                    </h2>
+                    ${column.id === 'todo' ? `
+                        <button class="add-task-button bg-indigo-500 text-white p-2 rounded-full shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition duration-150 ease-in-out" data-column-id="${column.id}" title="Adicionar nova tarefa">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    ` : ''}
+                `;
+                columnElement.appendChild(columnHeader);
+
+                // Column Content (for tasks)
+                const columnContent = document.createElement('div');
+                columnContent.classList.add('kanban-column-content', 'flex-grow', 'overflow-y-auto', 'space-y-3', 'pr-2'); // Added pr-2 for scrollbar space
+                columnElement.appendChild(columnContent);
+
+                // Append column to board
+                kanbanBoard.appendChild(columnElement);
+
+                // Add drag and drop event listeners to the columnElement (the whole column)
+                columnElement.addEventListener('dragover', handleDragOver);
+                columnElement.addEventListener('dragleave', handleDragLeave);
+                columnElement.addEventListener('drop', handleDrop);
+            });
+
+            // Render tasks into their respective columns
+            tasksToRender.forEach(task => {
+                const columnTasksContainer = document.querySelector(`#column-${task.status} .kanban-column-content`);
+                if (columnTasksContainer) {
+                    columnTasksContainer.appendChild(createTaskCard(task));
+                }
+            });
+
+            // Add event listener for "Add Task" button (only on 'A Fazer' column)
+            const addTaskButton = document.querySelector('.add-task-button');
+            if (addTaskButton) {
+                addTaskButton.addEventListener('click', () => {
+                    addTaskModal.classList.remove('hidden');
+                    taskTitleInput.value = '';
+                    taskDescriptionInput.value = '';
+                    taskPriorityInput.value = 'medium'; // Default priority
+                    taskDueDateInput.value = ''; // Clear due date
+                    taskTitleInput.focus();
+                });
+            }
+        }
+
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.id = `task-${task.id}`;
+            card.classList.add(
+                'kanban-card', 'bg-white', 'p-4', 'rounded-lg', 'shadow-md', 'border', 'border-gray-200',
+                'hover:shadow-lg', 'transition', 'duration-200', 'ease-in-out'
+            );
+            card.setAttribute('draggable', 'true'); // Ensure draggable attribute is set
+            card.setAttribute('data-task-id', task.id);
+            card.setAttribute('data-task-status', task.status);
+
+            let priorityColorClass = '';
+            let priorityText = '';
+            switch (task.priority) {
+                case 'high':
+                    priorityColorClass = 'bg-red-500';
+                    priorityText = 'Alta';
+                    break;
+                case 'medium':
+                    priorityColorClass = 'bg-yellow-500';
+                    priorityText = 'Média';
+                    break;
+                case 'low':
+                    priorityColorClass = 'bg-green-500';
+                    priorityText = 'Baixa';
+                    break;
+                default:
+                    priorityColorClass = 'bg-gray-400';
+                    priorityText = 'Não Definida';
+            }
+
+            const createdAtDate = task.createdAt ? new Date(task.createdAt.toDate()) : null;
+            const formattedCreatedAt = createdAtDate ? createdAtDate.toLocaleDateString('pt-BR') : 'N/A';
+
+            const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+            const formattedDueDate = dueDate ? dueDate.toLocaleDateString('pt-BR') : 'N/A';
+            const dueDateClass = dueDate && dueDate < new Date() && task.status !== 'done' ? 'text-red-500 font-semibold' : 'text-gray-500';
+
+
+            card.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-medium text-gray-900 text-lg">${task.title}</h4>
+                    <span class="text-xs font-semibold px-2 py-1 rounded-full text-white ${priorityColorClass}">${priorityText}</span>
+                </div>
+                ${task.description ? `<p class="text-sm text-gray-600 mb-2">${task.description}</p>` : ''}
+                <div class="flex justify-between items-center text-xs text-gray-500 mt-2">
+                    <span>Criado em: ${formattedCreatedAt}</span>
+                    <span class="${dueDateClass}">Vencimento: ${formattedDueDate}</span>
+                </div>
+                <div class="flex justify-end mt-3">
+                    <button class="edit-task-button text-indigo-500 hover:text-indigo-700 text-sm font-medium" data-task-id="${task.id}" title="Editar tarefa">
+                        Editar
+                    </button>
+                </div>
+            `;
+
+            // Add drag event listeners
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+
+            // Add edit button listener
+            card.querySelector('.edit-task-button').addEventListener('click', () => {
+                openEditTaskModal(task);
+            });
+
+            return card;
+        }
+
+        // --- Drag and Drop Logic ---
+        let draggedTask = null;
+
+        function handleDragStart(e) {
+            console.log('--- Drag started ---');
+            console.log('Event target:', e.target);
+            console.log('Task ID being dragged (from dataset):', e.target.dataset.taskId);
+            draggedTask = e.target;
+            e.dataTransfer.setData('text/plain', draggedTask.dataset.taskId); // Set data for drop
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => {
+                draggedTask.classList.add('dragging');
+            }, 0); // Add class after a slight delay to avoid flickering
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault(); // Allow dropping
+            e.dataTransfer.dropEffect = 'move';
+            const columnElement = e.currentTarget; // This is now the .kanban-column div
+            console.log('--- Drag over ---');
+            console.log('Column being dragged over (ID):', columnElement.id);
+            if (!columnElement.classList.contains('drag-over')) {
+                columnElement.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            const columnElement = e.currentTarget; // This is now the .kanban-column div
+            console.log('--- Drag left ---');
+            console.log('Column left (ID):', columnElement.id);
+            columnElement.classList.remove('drag-over');
+        }
+
+        async function handleDrop(e) {
+            e.preventDefault();
+            const taskId = e.dataTransfer.getData('text/plain'); // Get task ID from dataTransfer
+            const targetColumnElement = e.currentTarget; // This is now the .kanban-column div
+            const newStatus = targetColumnElement.dataset.columnId;
+
+            console.log('--- Inside handleDrop ---');
+            console.log('Dropped taskId from dataTransfer:', taskId);
+            console.log('Target column ID (newStatus):', newStatus);
+            console.log('draggedTask (global variable before processing):', draggedTask); // Check its state here
+
+            targetColumnElement.classList.remove('drag-over');
+
+            // Find the task in allTasks array to get its current status
+            const currentTask = allTasks.find(task => task.id === taskId);
+
+            if (currentTask && currentTask.status !== newStatus) {
+                console.log('Drop condition met. Attempting to update task status to:', newStatus);
+                showLoading();
+                try {
+                    const taskRef = doc(tasksCollectionRef, taskId);
+                    await updateDoc(taskRef, { status: newStatus });
+                    // The onSnapshot listener will re-render the board, so no need to manually move the card
+                    showToast('Tarefa movida com sucesso!', 'success');
+                } catch (error) {
+                    console.error("Erro ao atualizar status da tarefa:", error);
+                    showMessageModal('Erro', 'Não foi possível mover a tarefa. Tente novamente.', 'error');
+                } finally {
+                    hideLoading();
+                }
+            } else {
+                console.log('Drop condition NOT met.');
+                if (!currentTask) {
+                    console.log('Reason: Task not found in allTasks (ID:', taskId, '). This could happen if the data was not correctly set during dragstart or if allTasks is not populated.');
+                } else if (currentTask.status === newStatus) {
+                    console.log('Reason: Task dropped in the same column (status is not changing). Current status:', currentTask.status, 'New status:', newStatus);
+                } else {
+                    console.log('Reason: Unknown issue with currentTask or status comparison.');
+                }
+            }
+        }
+
+        function handleDragEnd(e) {
+            console.log('--- Drag ended ---');
+            console.log('Task ID that ended dragging:', e.target.dataset.taskId);
+            if (draggedTask) {
+                draggedTask.classList.remove('dragging');
+                console.log('draggedTask class "dragging" removed.');
+            }
+            // Remove drag-over class from all columns
+            document.querySelectorAll('.kanban-column').forEach(col => {
+                col.classList.remove('drag-over');
+            });
+            draggedTask = null; // Reset draggedTask after drag operation ends
+            console.log('draggedTask set to null.');
+        }
+
+        // --- Task Management (Add, Edit, Delete) ---
+
+        // Add Task Modal Buttons
+        cancelAddTaskButton.addEventListener('click', () => {
+            addTaskModal.classList.add('hidden');
+        });
+
+        confirmAddTaskButton.addEventListener('click', async () => {
+            const title = taskTitleInput.value.trim();
+            const description = taskDescriptionInput.value.trim();
+            const priority = taskPriorityInput.value;
+            const dueDate = taskDueDateInput.value; // ISO-MM-DD string
+
+            if (!title) {
+                showMessageModal('Atenção', 'O título da tarefa não pode estar vazio.', 'info');
+                return;
+            }
+
+            showLoading();
+            try {
+                await addDoc(tasksCollectionRef, {
+                    title: title,
+                    description: description,
+                    status: 'todo', // New tasks always start in 'todo'
+                    priority: priority,
+                    dueDate: dueDate || null, // Store as string or null
+                    createdAt: serverTimestamp() // Use server timestamp for consistency
+                });
+                addTaskModal.classList.add('hidden');
+                showToast('Tarefa adicionada com sucesso!', 'success');
+            } catch (error) {
+                console.error("Erro ao adicionar tarefa:", error);
+                showMessageModal('Erro', 'Não foi possível adicionar a tarefa. Tente novamente.', 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Edit Task Modal Functions
+        function openEditTaskModal(task) {
+            editTaskIdInput.value = task.id;
+            editTaskTitleInput.value = task.title;
+            editTaskDescriptionInput.value = task.description || '';
+            editTaskPriorityInput.value = task.priority || 'medium';
+            editTaskDueDateInput.value = task.dueDate || ''; // Populate with existing due date
+            editTaskModal.classList.remove('hidden');
+            editTaskTitleInput.focus();
+        }
+
+        cancelEditTaskButton.addEventListener('click', () => {
+            editTaskModal.classList.add('hidden');
+        });
+
+        saveEditTaskButton.addEventListener('click', async () => {
+            const taskId = editTaskIdInput.value;
+            const newTitle = editTaskTitleInput.value.trim();
+            const newDescription = editTaskDescriptionInput.value.trim();
+            const newPriority = editTaskPriorityInput.value;
+            const newDueDate = editTaskDueDateInput.value;
+
+            if (!newTitle) {
+                showMessageModal('Atenção', 'O título da tarefa não pode estar vazio.', 'info');
+                return;
+            }
+
+            showLoading();
+            try {
+                const taskRef = doc(tasksCollectionRef, taskId);
+                await updateDoc(taskRef, {
+                    title: newTitle,
+                    description: newDescription,
+                    priority: newPriority,
+                    dueDate: newDueDate || null
+                });
+                editTaskModal.classList.add('hidden');
+                showToast('Tarefa atualizada com sucesso!', 'success');
+            } catch (error) {
+                    console.error("Erro ao salvar alterações da tarefa:", error);
+                    showMessageModal('Erro', 'Não foi possível salvar as alterações. Tente novamente.', 'error');
+                } finally {
+                    hideLoading();
+                }
+            });
+
+            deleteTaskButton.addEventListener('click', async () => {
+                const taskId = editTaskIdInput.value;
+                // Show a confirmation modal
+                const confirmDeleteModalId = `confirmDeleteModal-${Date.now()}`;
+                const confirmDeleteModalHtml = `
+                <div id="${confirmDeleteModalId}" class="fixed inset-0 modal-overlay flex items-center justify-center z-50">
+                    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm modal-content">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Confirmar Exclusão</h3>
+                        <p class="text-gray-700 mb-6">Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.</p>
+                        <div class="flex justify-end space-x-4">
+                            <button id="cancelDelete${confirmDeleteModalId}" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
+                                Cancelar
+                            </button>
+                            <button id="confirmDelete${confirmDeleteModalId}" class="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition duration-150 ease-in-out">
+                                Excluir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', confirmDeleteModalHtml);
+
+            document.getElementById(`cancelDelete${confirmDeleteModalId}`).addEventListener('click', () => {
+                document.getElementById(confirmDeleteModalId).remove();
+            });
+
+            document.getElementById(`confirmDelete${confirmDeleteModalId}`).addEventListener('click', async () => {
+                document.getElementById(confirmDeleteModalId).remove(); // Close confirmation modal
+                editTaskModal.classList.add('hidden'); // Close edit modal
+                showLoading();
+                try {
+                    const taskRef = doc(tasksCollectionRef, taskId);
+                    await deleteDoc(taskRef);
+                    showToast('Tarefa excluída com sucesso!', 'success');
+                } catch (error) {
+                    console.error("Erro ao excluir tarefa:", error);
+                    showMessageModal('Erro', 'Não foi possível excluir a tarefa. Tente novamente.', 'error');
+                } finally {
+                    hideLoading();
+                }
+            });
+        });
+
+        // --- Filtering and Searching ---
+        taskSearchInput.addEventListener('input', () => {
+            applyFiltersAndRender(allTasks);
+        });
+
+        filterPrioritySelect.addEventListener('change', () => {
+            applyFiltersAndRender(allTasks);
+        });
+
+        // Initial render of empty board (will be populated by onSnapshot)
+        renderKanbanBoard([]);
+
+        // Ensure the initial auth state is checked and UI is updated
+        window.onload = async function() {
+            // The onAuthStateChanged listener handles initial loading and UI updates.
+            // No need for explicit signInAnonymously here as it's removed.
+        };
+    </script>
+</body>
+</html>
