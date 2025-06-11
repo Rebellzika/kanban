@@ -11,30 +11,72 @@
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --color-background: #0f172a;
+            --color-surface: #1e293b;
+            --color-primary: #3b82f6;
+            --color-secondary: #475569;
+            --color-accent: #6366f1;
+            --color-success: #22c55e;
+            --color-danger: #ef4444;
+            --color-warning: #f59e0b;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #94a3b8;
+            --color-border: #334155;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+
         body, html {
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #f3f4f6;
+            background-color: var(--color-background);
+            color: var(--color-text-primary);
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
         }
+
         .kanban-column {
             min-width: 300px;
             max-width: 340px;
             flex-shrink: 0;
-            border: 2px solid transparent;
-            transition: background-color 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background-color: var(--color-surface);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
         }
+
+        .kanban-column:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
         .kanban-card {
             cursor: grab;
-            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.25s ease, background-color 0.25s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--color-border);
+            background-color: #2a3649;
+            color: var(--color-text-primary);
+            border-radius: 8px;
+            margin: 8px;
+            padding: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .kanban-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            background-color: #2f3b4e;
         }
         .kanban-card:hover {
-            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.12), 0 6px 12px -8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3), 0 6px 12px -8px rgba(0, 0, 0, 0.22);
             transform: translateY(-3px) scale(1.01);
+            background-color: #2d2e32;
         }
         .kanban-card:active {
             cursor: grabbing;
@@ -43,25 +85,33 @@
         .kanban-card.dragging {
             opacity: 0.75;
             transform: scale(1.03) rotate(2deg);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
             border-color: transparent;
         }
         .kanban-column.drag-over {
-            background-color: #e0e7ff;
-            border-color: #a5b4fc;
+            background-color: #323438;
+            border-color: #4f46e5;
         }
         .kanban-column-content::-webkit-scrollbar { width: 8px; }
-        .kanban-column-content::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 10px; }
-        .kanban-column-content::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
+        .kanban-column-content::-webkit-scrollbar-track { background: #2d2e32; border-radius: 10px; }
+        .kanban-column-content::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
         .kanban-column-content::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-        .modal-overlay { background-color: rgba(0, 0, 0, 0.65); }
-        .modal-content { animation: fadeInScaleModal 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.75); }
+        .modal-content { 
+            animation: fadeInScaleModal 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+            background-color: #27282b;
+            color: #e2e8f0;
+        }
         @keyframes fadeInScaleModal {
             from { opacity: 0; transform: translateY(25px) scale(0.96); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 1000; }
-        .toast { animation: slideInRightToast 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards, fadeOutToast 0.5s ease-in forwards 3.5s; }
+        .toast { 
+            animation: slideInRightToast 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards, fadeOutToast 0.5s ease-in forwards 3.5s;
+            background-color: #27282b;
+            color: #e2e8f0;
+        }
         @keyframes slideInRightToast { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOutToast { from { opacity: 1; } to { opacity: 0; } }
         .truncate-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
@@ -69,14 +119,224 @@
         .task-title-text { max-width: 190px; font-weight: 500; }
         .priority-icon { width: 1em; height: 1em; }
         .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease; border: 2px solid transparent; }
-        .color-swatch.selected { transform: scale(1.15); box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor; }
-        .board-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .board-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-        .task-blocked { border-left-color: #ef4444 !important; background-color: #fee2e2; }
-        .task-blocked .task-title-text::before { content: "\f023"; font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 6px; color: #dc2626; }
-        .task-completed { border-left-color: #22c55e !important; background-color: #f0fdf4; opacity: 0.8; }
-        .task-completed .task-title-text { text-decoration: line-through; color: #52525b; }
-        .task-completed .task-title-text::before { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 6px; color: #16a34a; }
+        .color-swatch.selected { transform: scale(1.15); box-shadow: 0 0 0 2px #27282b, 0 0 0 4px currentColor; }
+        .board-card { 
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background-color: #2d2e32;
+            border: 1px solid #3f3f46;
+        }
+        .board-card:hover { 
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            background-color: #323438;
+        }
+        .task-blocked { 
+            border-left-color: #ef4444 !important; 
+            background-color: #471818;
+        }
+        .task-blocked .task-title-text::before { 
+            content: "\f023"; 
+            font-family: "Font Awesome 6 Free"; 
+            font-weight: 900; 
+            margin-right: 6px; 
+            color: #ef4444; 
+        }
+        .task-completed { 
+            border-left-color: #22c55e !important; 
+            background-color: #1a2f1d;
+            opacity: 0.8; 
+        }
+        .task-completed .task-title-text { 
+            text-decoration: line-through; 
+            color: #94a3b8; 
+        }
+        .task-completed .task-title-text::before { 
+            content: "\f00c"; 
+            font-family: "Font Awesome 6 Free"; 
+            font-weight: 900; 
+            margin-right: 6px; 
+            color: #22c55e; 
+        }
+        /* Ajustes adicionais para elementos de interface */
+        input, select, textarea {
+            background-color: #2d2e32 !important;
+            color: #e2e8f0 !important;
+            border-color: #3f3f46 !important;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #6b7280 !important;
+        }
+        /* Estilos modernos para elementos da interface */
+        .bg-white,
+        div[class*="bg-white"],
+        section[class*="bg-white"],
+        header[class*="bg-white"],
+        nav[class*="bg-white"],
+        aside[class*="bg-white"] {
+            background-color: var(--color-surface) !important;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .bg-gray-50 {
+            background-color: var(--color-background) !important;
+        }
+
+        .bg-gray-100 {
+            background-color: var(--color-surface) !important;
+        }
+
+        /* Estilos modernos para botões */
+        button:not(.color-swatch) {
+            transition: all 0.3s ease !important;
+            border-radius: 8px !important;
+            font-weight: 500 !important;
+        }
+
+        button:not(.color-swatch):hover {
+            transform: translateY(-2px) !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+
+        /* Estilos para inputs */
+        input:not([type="checkbox"]), 
+        select, 
+        textarea {
+            background-color: #2a3649 !important;
+            border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        input:not([type="checkbox"]):focus,
+        select:focus,
+        textarea:focus {
+            box-shadow: 0 0 0 2px var(--color-primary) !important;
+            border-color: var(--color-primary) !important;
+        }
+
+        /* Estilos para modais */
+        .modal-content {
+            background-color: var(--color-surface) !important;
+            border-radius: 16px !important;
+            border: 1px solid var(--color-border) !important;
+            box-shadow: var(--shadow-lg) !important;
+        }
+        .text-white {
+            color: #e2e8f0 !important;
+        }
+        .text-gray-800 {
+            color: #e2e8f0 !important;
+        }
+        .text-gray-700 {
+            color: #cbd5e1 !important;
+        }
+        .text-gray-600 {
+            color: #94a3b8 !important;
+        }
+        .text-gray-500 {
+            color: #64748b !important;
+        }
+        .border-gray-200 {
+            border-color: #3f3f46 !important;
+        }
+        .border-gray-300 {
+            border-color: #4b5563 !important;
+        }
+        /* Ajustes para cards e containers */
+        .shadow-md,
+        .shadow-lg,
+        .shadow-xl {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 
+                        0 2px 4px -1px rgba(0, 0, 0, 0.25) !important;
+        }
+        /* Ajustes para modais e overlays */
+        .modal-content,
+        div[role="dialog"],
+        .dropdown-menu {
+            background-color: #1f2937 !important;
+            border: 1px solid #374151 !important;
+        }
+        /* Ajustes para inputs e campos de formulário */
+        .focus\:ring-white:focus {
+            --tw-ring-color: #4b5563 !important;
+        }
+        /* Ajustes para hover states */
+        .hover\:bg-white:hover {
+            background-color: #374151 !important;
+        }
+        /* Ajustes para botões */
+        .bg-gray-200 {
+            background-color: #374151 !important;
+            color: #e2e8f0 !important;
+        }
+        .bg-gray-200:hover {
+            background-color: #4b5563 !important;
+        }
+        .bg-gray-300 {
+            background-color: #4b5563 !important;
+            color: #e2e8f0 !important;
+        }
+        .bg-gray-300:hover {
+            background-color: #6b7280 !important;
+        }
+        /* Ajuste para botões com fundo branco */
+        button.bg-white, 
+        .bg-white[role="button"] {
+            color: #e2e8f0 !important;
+        }
+        /* Ajuste para botões com texto branco em fundos coloridos */
+        .bg-indigo-600,
+        .bg-purple-600,
+        .bg-blue-500,
+        .bg-green-500,
+        .bg-red-500,
+        .bg-red-600,
+        .bg-yellow-500 {
+            color: #ffffff !important;
+        }
+        /* Ajuste para títulos coloridos */
+        .text-emerald-700 {
+            color: #34d399 !important;
+        }
+        /* Ajustes para o modal de Permissões de Estoque */
+        #inventoryPermissionsModal,
+        #inventoryPermissionsModal .bg-white,
+        #inventoryPermissionsModal div[class*="bg-white"] {
+            background-color: #111827 !important;
+        }
+        #inventoryPermissionsModal .modal-content {
+            background-color: #1f2937 !important;
+            border: 1px solid #374151;
+        }
+        #inventoryPermissionsModal label,
+        #inventoryPermissionsModal p,
+        #inventoryPermissionsModal h4,
+        #inventoryPermissionsModal .text-gray-600,
+        #inventoryPermissionsModal .text-gray-700,
+        #inventoryPermissionsModal .text-gray-800 {
+            color: #e2e8f0 !important;
+        }
+        #inventoryPermissionsModal input[type="checkbox"] {
+            accent-color: #10b981;
+            border-color: #4b5563;
+        }
+        #inventoryPermissionsModal .text-blue-600 {
+            color: #60a5fa !important;
+        }
+        #inventoryPermissionsModal .border-gray-200,
+        #inventoryPermissionsModal div[class*="border"] {
+            border-color: #374151 !important;
+        }
+        #inventoryPermissionsModal .bg-gray-50,
+        #inventoryPermissionsModal .bg-gray-100 {
+            background-color: #1a1b1e !important;
+        }
+        .task-blocked { border-left-color: #ef4444 !important; background-color: #471818; }
+        .task-blocked .task-title-text::before { content: "\f023"; font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 6px; color: #ef4444; }
+        .task-completed { border-left-color: #22c55e !important; background-color: #1a2f1d; opacity: 0.8; }
+        .task-completed .task-title-text { text-decoration: line-through; color: #94a3b8; }
+        .task-completed .task-title-text::before { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 6px; color: #22c55e; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -163,16 +423,38 @@
                 </button>
             </div>
         </header>
-        <div class="p-5 pb-2">
-             <button id="showAddColumnModalButton" class="bg-purple-600 text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-150 ease-in-out font-medium">
-                <i class="fas fa-plus mr-2"></i>Adicionar Nova Coluna
-            </button>
-        </div>
-        <main class="flex-grow p-5 pt-0 overflow-x-auto">
-            <div id="kanbanBoard" class="flex flex-nowrap space-x-6 h-full items-start pb-5">
-                <!-- Colunas do LUMO -->
+        <div class="flex flex-row flex-grow relative">
+            <div class="flex-grow flex flex-col">
+                <div class="p-5 pb-2">
+                    <button id="showAddColumnModalButton" class="bg-purple-600 text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-150 ease-in-out font-medium">
+                        <i class="fas fa-plus mr-2"></i>Adicionar Nova Coluna
+                    </button>
+                </div>
+                <main class="flex-grow p-5 pt-0 overflow-x-auto">
+                    <div id="kanbanBoard" class="flex flex-nowrap space-x-6 h-full items-start pb-5">
+                        <!-- Colunas do LUMO -->
+                    </div>
+                </main>
             </div>
-        </main>
+            <!-- Chat lateral -->
+            <aside id="kanbanChatSidebar" class="w-full sm:w-96 max-w-full sm:max-w-xs bg-white border-l border-gray-200 flex flex-col h-full shadow-lg z-30 transition-all duration-300 fixed sm:static right-0 top-0 sm:top-auto sm:right-auto" style="min-width:320px; max-width:400px; display:none;">
+                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
+                    <h3 class="text-lg font-bold text-indigo-700 flex items-center"><i class="fas fa-comments mr-2"></i>Chat do Quadro</h3>
+                    <button id="closeChatSidebarBtn" class="text-gray-400 hover:text-red-500 text-xl p-1 rounded transition"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="kanbanChatMessages" class="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-white">
+                    <!-- Mensagens do chat -->
+                </div>
+                <form id="kanbanChatForm" class="flex items-center gap-2 px-4 py-3 border-t border-gray-100 bg-gray-50">
+                    <input id="kanbanChatInput" type="text" maxlength="500" placeholder="Digite sua mensagem..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" autocomplete="off" />
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-indigo-700 font-semibold text-base"><i class="fas fa-paper-plane"></i></button>
+                </form>
+                <div class="flex justify-end px-4 pb-2">
+                    <button id="clearChatBtn" class="hidden text-xs bg-red-100 text-red-700 px-3 py-1.5 rounded shadow hover:bg-red-200 font-medium flex items-center"><i class="fas fa-trash-alt mr-1"></i>Limpar Chat</button>
+                </div>
+            </aside>
+            <button id="openChatSidebarBtn" class="fixed sm:absolute bottom-6 right-6 sm:top-5 sm:right-5 z-40 bg-indigo-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-indigo-700 transition-all"><i class="fas fa-comments"></i></button>
+        </div>
     </div>
 
     <!-- Modais -->
@@ -207,7 +489,20 @@
         </div>
     </div>
 
-    <div id="addTaskModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Adicionar Tarefa</h3><div class="space-y-4"><div><label for="taskTitle" class="block text-sm font-medium text-gray-700 mb-1">Título</label><input type="text" id="taskTitle" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Ex: Nova funcionalidade"></div><div><label for="taskDescription" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label><textarea id="taskDescription" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Detalhes..."></textarea></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="taskPriority" class="block text-sm font-medium text-gray-700 mb-1">Prioridade</label><select id="taskPriority" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"><option value="low">Baixa</option><option value="medium" selected>Média</option><option value="high">Alta</option></select></div><div><label for="taskDueDate" class="block text-sm font-medium text-gray-700 mb-1">Vencimento</label><input type="date" id="taskDueDate" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></div></div><div class="flex justify-end space-x-4 pt-2"><button id="cancelAddTask" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmAddTask" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 font-medium">Adicionar</button></div></div></div></div>
+    <div id="addTaskModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Adicionar Tarefa</h3><div class="space-y-4"><div><label for="taskTitle" class="block text-sm font-medium text-gray-700 mb-1">Título</label><input type="text" id="taskTitle" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Ex: Nova funcionalidade"></div><div><label for="taskDescription" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label><textarea id="taskDescription" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Detalhes..."></textarea></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="taskPriority" class="block text-sm font-medium text-gray-700 mb-1">Prioridade</label><select id="taskPriority" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"><option value="low">Baixa</option><option value="medium" selected>Média</option><option value="high">Alta</option></select></div><div><label for="taskDueDate" class="block text-sm font-medium text-gray-700 mb-1">Vencimento</label><input type="date" id="taskDueDate" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></div></div>
+<!-- Bloco de produtos necessários para esta tarefa -->
+<div id="taskProductMentionContainer" class="col-span-2 mt-2">
+  <label class="block text-sm font-medium text-gray-700 mb-1">Produtos necessários para esta tarefa</label>
+  <div class="flex flex-col gap-2">
+    <div class="flex gap-2 items-center">
+      <select id="taskProductMentionSelect" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-sm"></select>
+      <input id="taskProductMentionQty" type="number" min="1" class="w-20 px-2 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-sm" placeholder="Qtd">
+      <button id="addTaskProductMentionBtn" class="bg-emerald-500 text-white px-3 py-2 rounded-lg shadow-md hover:bg-emerald-600 font-medium"><i class="fas fa-plus"></i></button>
+    </div>
+    <div id="taskProductMentionList" class="flex flex-wrap gap-2"></div>
+  </div>
+</div>
+<div class="flex justify-end space-x-4 pt-2"><button id="cancelAddTask" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmAddTask" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 font-medium">Adicionar</button></div></div></div></div>
     <div id="editTaskModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Editar Tarefa</h3><input type="hidden" id="editTaskId"><div class="space-y-4"><div><label for="editTaskTitle" class="block text-sm font-medium text-gray-700 mb-1">Título</label><input type="text" id="editTaskTitle" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></div><div><label for="editTaskDescription" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label><textarea id="editTaskDescription" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="editTaskPriority" class="block text-sm font-medium text-gray-700 mb-1">Prioridade</label><select id="editTaskPriority" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"><option value="low">Baixa</option><option value="medium">Média</option><option value="high">Alta</option></select></div><div><label for="editTaskDueDate" class="block text-sm font-medium text-gray-700 mb-1">Vencimento</label><input type="date" id="editTaskDueDate" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></div></div><div class="mt-4"><p class="text-sm font-medium text-gray-700 mb-1">Responsável: <span id="editTaskAssignedToDisplay" class="font-normal text-gray-600"></span></p><p id="editTaskAssignedAtDisplay" class="text-xs text-gray-500"></p></div><div id="editTaskCompletedDisplayContainer" class="mt-2 hidden"><p class="text-sm font-medium text-green-700">Concluída em: <span id="editTaskCompletedAtDisplay" class="font-normal"></span></p></div><div class="flex justify-between items-center pt-2"><button id="deleteTaskButton" class="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-700 font-medium"><i class="fas fa-trash-alt mr-2"></i>Excluir</button><div class="space-x-4"><button id="cancelEditTask" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="saveEditTask" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 font-medium">Salvar</button></div></div></div></div></div>
     <div id="addColumnModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Nova Coluna</h3><div class="space-y-4"><div><label for="newColumnTitleInput" class="block text-sm font-medium text-gray-700 mb-1">Título</label><input type="text" id="newColumnTitleInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Ex: Revisão"></div><div class="flex justify-end space-x-4 pt-2"><button id="cancelAddColumnButton" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmAddColumnButton" class="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 font-medium">Adicionar</button></div></div></div></div>
     <div id="editColumnModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden"><div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content"><h3 class="text-2xl font-bold text-gray-800 mb-6">Editar Coluna</h3><input type="hidden" id="editColumnIdInput"><div class="space-y-5"><div><label for="editColumnTitleInput" class="block text-sm font-medium text-gray-700 mb-1">Novo Título</label><input type="text" id="editColumnTitleInput" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Novo Título"></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Cor</label><div id="editColumnColorPicker" class="flex flex-wrap gap-2 mt-1"></div><input type="hidden" id="editColumnColorInput"></div><div class="flex justify-end space-x-4 pt-3"><button id="cancelEditColumnButton" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="saveEditColumnButton" class="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 font-medium">Salvar</button></div></div></div></div>
@@ -216,7 +511,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, serverTimestamp, orderBy, writeBatch, arrayUnion, arrayRemove, setLogLevel, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, serverTimestamp, orderBy, writeBatch, arrayUnion, arrayRemove, setLogLevel, getDoc, deleteField, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Variáveis Globais & Configuração do Firebase ---
         let app;
@@ -366,6 +661,61 @@
             'bg-teal-500', 'bg-rose-500', 'bg-lime-500', 'bg-cyan-500', 'bg-fuchsia-500',
             'bg-slate-500', 'bg-orange-500', 'bg-red-500', 'bg-yellow-500', 'bg-green-500', 'bg-blue-500'
         ];
+
+        // --- Permissões administrativas por cargo/tag ---
+        // Mapeamento de permissões por cargo/tag (pode ser customizado)
+        const ROLE_PERMISSIONS = {
+            'Administrador': {
+                canEditColumn: true,
+                canDeleteColumn: true,
+                canRemoveMember: true,
+                canEditTag: true,
+                canBlockTask: true,
+                canEditTask: true,
+            },
+            'Supervisor': {
+                canEditColumn: false,
+                canDeleteColumn: false,
+                canRemoveMember: false,
+                canEditTag: false,
+                canBlockTask: true,
+                canEditTask: true,
+            },
+            'Membro': {
+                canEditColumn: false,
+                canDeleteColumn: false,
+                canRemoveMember: false,
+                canEditTag: false,
+                canBlockTask: false,
+                canEditTask: true,
+            },
+            'Proprietário': {
+                canEditColumn: true,
+                canDeleteColumn: true,
+                canRemoveMember: true,
+                canEditTag: true,
+                canBlockTask: true,
+                canEditTask: true,
+            },
+        };
+
+        // Função utilitária para obter o cargo/tag do usuário no quadro
+        function getUserRoleForBoard(boardData, userId) {
+            if (!boardData || !userId) return null;
+            if (boardData.owner === userId) return 'Proprietário';
+            if (boardData.memberTags && boardData.memberTags[userId]) {
+                return boardData.memberTags[userId];
+            }
+            return null;
+        }
+
+        // Função para checar permissão
+        function hasPermission(boardData, userId, permission) {
+            const role = getUserRoleForBoard(boardData, userId);
+            if (!role) return false;
+            const perms = (boardData.rolePermissions && boardData.rolePermissions[role]) ? boardData.rolePermissions[role] : ROLE_PERMISSIONS[role];
+            return perms && perms[permission] === true;
+        }
 
         // --- Funções Utilitárias ---
         function showLoading() { loadingOverlay?.classList.remove('hidden'); }
@@ -656,6 +1006,7 @@
                     owner: currentUserId,
                     ownerDisplayName: currentUserDisplayName, 
                     members: [currentUserId], 
+                    memberTags: { [currentUserId]: 'Proprietário' },
                     createdAt: serverTimestamp()
                 });
                 createBoardModal?.classList.add('hidden');
@@ -691,7 +1042,7 @@
         }
         function renderBoardList(boards) {
              if (!boardListContainer) return;
-            boardListContainer.innerHTML = ''; 
+            boardListContainer.innerHTML = '';
             if (boards.length === 0) {
                 noBoardsMessage?.classList.remove('hidden');
             } else {
@@ -712,7 +1063,6 @@
                     if (isOwner && currentUserDisplayName) { // Se o usuário atual é o dono E tem um displayName, usa ele.
                          ownerDisplay = currentUserDisplayName;
                     }
-
 
                     card.innerHTML = `
                         <div>
@@ -836,6 +1186,7 @@
             columnsCollectionRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/columns`);
             tasksCollectionRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/tasks`);
             loadAndListenToColumns();
+            setupBoardChat(boardId, boardData);
         }
         backToBoardsButton?.addEventListener('click', () => { 
             activeBoardId = null; activeBoardData = null;
@@ -850,55 +1201,102 @@
             if (!manageMembersModal || !manageMembersBoardIdInput || !memberListContainer || !newMemberIdInput) return;
             manageMembersBoardIdInput.value = boardId;
             manageMembersModal.querySelector('h3').textContent = `Membros de: ${boardName}`;
-            newMemberIdInput.value = ''; 
-            
+            newMemberIdInput.value = '';
             memberListContainer.innerHTML = '<li class="text-center text-gray-500 p-2">Carregando membros...</li>';
-            
             const isCurrentUserOwnerOfBoard = ownerId === currentUserId;
-            // A seção de criar novo usuário já foi removida do HTML, então não precisamos controlá-la aqui.
-
+            const memberTags = (activeBoardData && activeBoardData.memberTags) ? activeBoardData.memberTags : {};
             const memberItemsPromises = members.map(async (memberId) => {
-                let displayName = memberId.substring(0, 12) + '...'; 
+                let displayName = memberId.substring(0, 12) + '...';
                 let memberEmail = 'Email não disponível';
-                let isProfileOwnerOfBoard = memberId === ownerId; 
-
+                let isProfileOwnerOfBoard = memberId === ownerId;
                 try {
                     const profileDocRef = doc(userProfilesCollectionRef, memberId);
-                    const profileDoc = await getDoc(profileDocRef); // Esta leitura deve funcionar com as novas regras
+                    const profileDoc = await getDoc(profileDocRef);
                     if (profileDoc.exists()) {
                         const profileData = profileDoc.data();
-                        displayName = profileData.displayName || profileData.email || displayName; 
+                        displayName = profileData.displayName || profileData.email || displayName;
                         memberEmail = profileData.email || memberEmail;
                     }
                 } catch (e) {
                     console.warn("Erro ao buscar perfil para membro:", memberId, e);
                 }
-
+                const tag = memberTags[memberId] || '';
                 const li = document.createElement('li');
-                li.className = 'flex justify-between items-center p-2.5 bg-white rounded-lg shadow-sm border border-gray-200';
-                
+                li.className = 'flex flex-col sm:flex-row sm:justify-between sm:items-center p-2.5 bg-white rounded-lg shadow-sm border border-gray-200';
                 let memberDisplayHtml = `<span class="text-sm text-gray-700 truncate" title="UID: ${memberId}\nEmail: ${memberEmail}">${displayName}</span>`;
                 if (isProfileOwnerOfBoard) memberDisplayHtml += '<span class="ml-2 text-xs text-green-600 font-semibold">(Proprietário do Quadro)</span>';
-                
-                let removeButtonHtml = '';
-                if (isCurrentUserOwnerOfBoard && memberId !== ownerId) { 
-                    removeButtonHtml = `<button class="remove-member-button text-red-500 hover:text-red-700 text-xs font-medium p-1 rounded hover:bg-red-50" data-member-id="${memberId}" title="Remover Membro"><i class="fas fa-times-circle mr-1"></i>Remover</button>`;
+                // Campo de cargo/tag visual melhorado
+                let tagBadgeHtml = tag ? `<span class='ml-2 inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded align-middle'>${tag}</span>` : '';
+                // Campo de edição
+                let tagHtml = '';
+                if (isCurrentUserOwnerOfBoard) {
+                    tagHtml = `<label class="ml-0 sm:ml-4 text-xs text-gray-500 font-medium whitespace-nowrap">Cargo:</label>` +
+                        `<input type="text" class="member-tag-input ml-2 px-2 py-1 border border-gray-300 rounded text-xs w-28 focus:ring-2 focus:ring-blue-400" placeholder="Cargo/Tag" value="${tag}" data-member-id="${memberId}" style="margin-right:4px;" />` +
+                        `<button class="save-tag-btn bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded transition-colors" data-member-id="${memberId}" style="margin-left:2px;">Salvar</button>`;
+                } else {
+                    tagHtml = tag ? `<span class="ml-2 text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded">${tag}</span>` : '';
                 }
-                li.innerHTML = `${memberDisplayHtml} ${removeButtonHtml}`;
+                // Layout: badge ao lado do nome/email, campo de edição abaixo
+                li.innerHTML = `
+                    <div class="relative bg-white rounded-xl shadow border border-gray-200 p-4 mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 transition hover:shadow-lg">
+                        <div class="flex flex-col flex-grow">
+                            <div class="flex items-center mb-1">
+                                <span class="font-semibold text-gray-800 text-base truncate" title="${displayName}">${displayName}</span>
+                                ${tagBadgeHtml}
+                                ${isProfileOwnerOfBoard ? '<span class="ml-2 text-xs text-green-600 font-semibold">(Proprietário do Quadro)</span>' : ''}
+                            </div>
+                            <div class="flex items-center mt-1">
+                                <label class="text-xs text-gray-500 font-medium mr-2">Cargo:</label>
+                                ${isCurrentUserOwnerOfBoard
+                                    ? `<input type="text" class="member-tag-input px-2 py-1 border border-gray-300 rounded text-xs w-32 focus:ring-2 focus:ring-blue-400 transition" placeholder="Cargo/Tag" value="${tag}" data-member-id="${memberId}" style="margin-right:4px;" />
+                                       <button class="save-tag-btn bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded transition-colors flex items-center" data-member-id="${memberId}" style="margin-left:2px;">
+                                           <i class='fas fa-save mr-1'></i>Salvar
+                                       </button>`
+                                    : (tag ? `<span class="ml-2 text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded">${tag}</span>` : '<span class="ml-2 text-xs text-gray-400">Sem cargo</span>')
+                                }
+                            </div>
+                        </div>
+                        ${isCurrentUserOwnerOfBoard && memberId !== ownerId ?
+                            `<button class="remove-member-button absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-medium p-1 rounded-full hover:bg-red-50 transition" data-member-id="${memberId}" title="Remover Membro">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>` : ''}
+                    </div>
+                `;
+                if (isCurrentUserOwnerOfBoard) {
+                    li.querySelector('.save-tag-btn')?.addEventListener('click', async (e) => {
+                        // Busca o input dentro do mesmo card do botão clicado
+                        const cardDiv = e.currentTarget.closest('.relative');
+                        const input = cardDiv ? cardDiv.querySelector('.member-tag-input') : null;
+                        const newTag = input ? input.value.trim() : '';
+                        const memberIdToUpdate = e.currentTarget.dataset.memberId;
+                        if (!activeBoardId || !boardsCollectionRef) return;
+                        showLoading();
+                        try {
+                            const boardRef = doc(boardsCollectionRef, activeBoardId);
+                            await updateDoc(boardRef, { [`memberTags.${memberIdToUpdate}`]: newTag });
+                            if (!activeBoardData.memberTags) activeBoardData.memberTags = {};
+                            activeBoardData.memberTags[memberIdToUpdate] = newTag;
+                            showToast('Cargo/Tag atualizado!', 'success');
+                            openManageMembersModal(activeBoardId, activeBoardData.name, activeBoardData.owner, activeBoardData.members);
+                        } catch (err) {
+                            showToast('Erro ao salvar cargo/tag: ' + err.message, 'error');
+                        } finally {
+                            hideLoading();
+                        }
+                    });
+                }
                 if (isCurrentUserOwnerOfBoard && memberId !== ownerId) {
                     li.querySelector('.remove-member-button')?.addEventListener('click', () => handleRemoveMember(boardId, memberId));
                 }
                 return li;
             });
-
             const resolvedMemberItems = await Promise.all(memberItemsPromises);
-            memberListContainer.innerHTML = ''; 
+            memberListContainer.innerHTML = '';
             if (resolvedMemberItems.length > 0) {
                 resolvedMemberItems.forEach(item => memberListContainer.appendChild(item));
             } else {
                 memberListContainer.innerHTML = '<li class="text-center text-gray-500 p-2">Nenhum membro neste quadro ainda.</li>';
             }
-            
             newMemberIdInput.disabled = !isCurrentUserOwnerOfBoard;
             addMemberButton.disabled = !isCurrentUserOwnerOfBoard;
             if(!isCurrentUserOwnerOfBoard) {
@@ -908,8 +1306,16 @@
                  newMemberIdInput.placeholder = "UID do novo membro";
                  addMemberButton.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-
             manageMembersModal.classList.remove('hidden');
+            // Adiciona aviso visual no topo do modal
+            let permNotice = document.getElementById('membersPermNotice');
+            if (!permNotice) {
+                permNotice = document.createElement('div');
+                permNotice.id = 'membersPermNotice';
+                permNotice.className = 'mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs font-medium';
+                permNotice.innerHTML = `<i class='fas fa-info-circle mr-1'></i>As permissões e cargos valem <b>apenas para este quadro</b>.`;
+                memberListContainer.parentElement.insertBefore(permNotice, memberListContainer);
+            }
         }
 
         showManageMembersModalButton?.addEventListener('click', () => { 
@@ -919,54 +1325,46 @@
         });
         closeManageMembersModalButton?.addEventListener('click', () => manageMembersModal.classList.add('hidden'));
         
-        addMemberButton?.addEventListener('click', async () => { 
+        addMemberButton?.addEventListener('click', async () => {
             const boardId = manageMembersBoardIdInput.value;
             const memberIdToAdd = newMemberIdInput.value.trim();
             if (!memberIdToAdd) { showToast('Insira o UID do membro.', 'info'); return; }
             if (!boardId || !boardsCollectionRef) { showToast('Erro: ID do quadro não encontrado.', 'error'); return; }
             if (memberIdToAdd.length < 20) { showToast('UID inválido. Verifique o ID completo.', 'info'); return; }
-            
             if (activeBoardData && activeBoardData.owner !== currentUserId) {
                 showToast('Apenas o proprietário do quadro pode adicionar novos membros.', 'error');
                 return;
             }
-
             showLoading();
             const boardRef = doc(boardsCollectionRef, boardId);
             try {
-                // Com as novas regras, esta leitura deve funcionar
                 const userProfileRef = doc(userProfilesCollectionRef, memberIdToAdd);
-                const userProfileSnap = await getDoc(userProfileRef); 
+                const userProfileSnap = await getDoc(userProfileRef);
                 if (!userProfileSnap.exists()) {
                     showToast(`Usuário com UID ${memberIdToAdd.substring(0,6)}... não encontrado. O usuário precisa existir no sistema.`, 'error', 6000);
                     hideLoading();
                     return;
                 }
-
-                await updateDoc(boardRef, { members: arrayUnion(memberIdToAdd) });
-                showToast('Membro adicionado!', 'success'); 
+                // Adiciona membro e já cria tag vazia
+                await updateDoc(boardRef, { members: arrayUnion(memberIdToAdd), [`memberTags.${memberIdToAdd}`]: '' });
+                showToast('Membro adicionado!', 'success');
                 newMemberIdInput.value = '';
                 const updatedBoardDoc = await getDoc(boardRef);
-                if (updatedBoardDoc.exists()) { 
-                    const updatedBoardData = { id: updatedBoardDoc.id, ...updatedBoardDoc.data() }; 
-                    if (activeBoardId === boardId) activeBoardData = updatedBoardData; 
-                    // Reabre o modal para atualizar a lista de membros
-                    openManageMembersModal(boardId, updatedBoardData.name, updatedBoardData.owner, updatedBoardData.members); 
+                if (updatedBoardDoc.exists()) {
+                    const updatedBoardData = { id: updatedBoardDoc.id, ...updatedBoardDoc.data() };
+                    if (activeBoardId === boardId) activeBoardData = updatedBoardData;
+                    openManageMembersModal(boardId, updatedBoardData.name, updatedBoardData.owner, updatedBoardData.members);
                 }
-            } catch (error) { 
-                console.error("Erro ao adicionar membro:", error); 
+            } catch (error) {
+                console.error("Erro ao adicionar membro:", error);
                 showToast(`Erro ao adicionar membro: ${error.message}`, 'error');
-            } finally { 
-                hideLoading(); 
+            } finally {
+                hideLoading();
             }
         });
 
-        // A função createUserAndAddMemberButton e seu listener foram removidos,
-        // pois a seção de UI para criar usuário foi removida.
-
-        async function handleRemoveMember(boardId, memberIdToRemove) { 
+        async function handleRemoveMember(boardId, memberIdToRemove) {
             if (!boardId || !memberIdToRemove || !boardsCollectionRef) { showToast('Erro ao remover (dados faltando).', 'error'); return; }
-            
             if (activeBoardData && activeBoardData.owner !== currentUserId) {
                 showToast('Apenas o proprietário do quadro pode remover membros.', 'error');
                 return;
@@ -975,23 +1373,23 @@
                 showToast('O proprietário não pode ser removido do quadro.', 'info');
                 return;
             }
-
             showLoading();
             const boardRef = doc(boardsCollectionRef, boardId);
             try {
-                await updateDoc(boardRef, { members: arrayRemove(memberIdToRemove) });
+                // Remove membro e a tag/cargo dele
+                await updateDoc(boardRef, { members: arrayRemove(memberIdToRemove), [`memberTags.${memberIdToRemove}`]: deleteField() });
                 showToast('Membro removido!', 'success');
                 const updatedBoardDoc = await getDoc(boardRef);
-                if (updatedBoardDoc.exists()) { 
-                    const updatedBoardData = { id: updatedBoardDoc.id, ...updatedBoardDoc.data() }; 
-                    if (activeBoardId === boardId) activeBoardData = updatedBoardData; 
-                    openManageMembersModal(boardId, updatedBoardData.name, updatedBoardData.owner, updatedBoardData.members); 
+                if (updatedBoardDoc.exists()) {
+                    const updatedBoardData = { id: updatedBoardDoc.id, ...updatedBoardDoc.data() };
+                    if (activeBoardId === boardId) activeBoardData = updatedBoardData;
+                    openManageMembersModal(boardId, updatedBoardData.name, updatedBoardData.owner, updatedBoardData.members);
                 }
-            } catch (error) { 
-                console.error("Erro ao remover membro:", error); 
+            } catch (error) {
+                console.error("Erro ao remover membro:", error);
                 showToast(`Erro ao remover: ${error.message}`, 'error');
-            } finally { 
-                hideLoading(); 
+            } finally {
+                hideLoading();
             }
         }
 
@@ -1498,6 +1896,2099 @@
             console.log("Janela carregada. Aguardando autenticação do Firebase...");
             // A autenticação será tratada pelo onAuthStateChanged
         };
+
+        // --- [PAINEL DE PERMISSÕES ADMINISTRATIVAS] ---
+        // Adiciona botão no modal de membros (só para proprietário)
+        let managePermissionsButton = null;
+        if (!document.getElementById('managePermissionsButton')) {
+            managePermissionsButton = document.createElement('button');
+            managePermissionsButton.id = 'managePermissionsButton';
+            managePermissionsButton.className = 'ml-2 bg-yellow-500 text-white px-3 py-1.5 rounded-md shadow-sm hover:bg-yellow-600 text-xs font-medium';
+            managePermissionsButton.innerHTML = '<i class="fas fa-shield-alt mr-1"></i>Permissões';
+            document.querySelector('#manageMembersModal .flex.justify-between')?.appendChild(managePermissionsButton);
+        }
+
+        // Modal de permissões (criado dinamicamente)
+        function openPermissionsModal(boardData) {
+            let modal = document.getElementById('permissionsModal');
+            if (modal) modal.remove();
+            modal = document.createElement('div');
+            modal.id = 'permissionsModal';
+            modal.className = 'fixed inset-0 modal-overlay flex items-center justify-center z-[70] p-4';
+            // Pega todos os cargos únicos
+            const tags = Array.from(new Set(Object.values(boardData.memberTags||{}).concat(['Proprietário'])));
+            // Permissões possíveis
+            const allPerms = [
+                { key: 'canEditColumn', label: 'Editar Coluna', tip: 'Permite editar o título e cor das colunas.' },
+                { key: 'canDeleteColumn', label: 'Excluir Coluna', tip: 'Permite excluir colunas do quadro.' },
+                { key: 'canRemoveMember', label: 'Remover Membro', tip: 'Permite remover membros do quadro.' },
+                { key: 'canEditTag', label: 'Editar Cargo/Tag', tip: 'Permite editar o cargo/tag de outros membros.' },
+                { key: 'canBlockTask', label: 'Bloquear Tarefa', tip: 'Permite bloquear/desbloquear tarefas.' },
+                { key: 'canEditTask', label: 'Editar Tarefa', tip: 'Permite editar o conteúdo das tarefas.' },
+                { key: 'canDeleteChat', label: 'Apagar Chat', tip: 'Permite apagar mensagens do chat ou limpar o chat.' },
+            ];
+            const rolePerms = boardData.rolePermissions || ROLE_PERMISSIONS;
+            // Mapeia membros por cargo
+            const membersByTag = {};
+            boardData.members.forEach(uid => {
+                const tag = (boardData.memberTags && boardData.memberTags[uid]) || (uid === boardData.owner ? 'Proprietário' : '');
+                if (!membersByTag[tag]) membersByTag[tag] = [];
+                membersByTag[tag].push(uid);
+            });
+            // Ícones e cores para cargos
+            const tagIcons = {
+                'Proprietário': 'fa-crown text-yellow-500',
+                'Administrador': 'fa-user-shield text-blue-600',
+                'Supervisor': 'fa-user-tie text-green-600',
+                'Membro': 'fa-user text-gray-500',
+            };
+            let html = `<div class='bg-white p-8 rounded-xl shadow-2xl w-full max-w-3xl modal-content'>
+                <div class='flex justify-between items-center mb-6'>
+                    <h3 class='text-2xl font-bold text-gray-800'>Permissões por Cargo</h3>
+                    <button id='closePermissionsModalBtn' class='text-gray-500 hover:text-gray-700 text-2xl leading-none'>&times;</button>
+                </div>
+                <div class='mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs font-medium'>
+                    <i class='fas fa-info-circle mr-1'></i>As permissões configuradas aqui valem <b>apenas para este quadro</b>. Cada quadro tem regras e cargos independentes.
+                </div>
+                <div class='grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6'>`;
+            tags.forEach(tag => {
+                const isOwner = tag === 'Proprietário';
+                const icon = tagIcons[tag] || 'fa-id-badge text-indigo-400';
+                const memberCount = membersByTag[tag]?.length || 0;
+                const memberList = (membersByTag[tag]||[]).map(uid => boardData.memberDisplayNames?.[uid] || uid).join(', ');
+                html += `<div class='rounded-lg border border-gray-200 shadow p-5 bg-gray-50 relative group'>
+                    <div class='flex items-center mb-2'>
+                        <i class='fas ${icon} fa-lg mr-2'></i>
+                        <span class='font-semibold text-base text-gray-800'>${tag}</span>
+                        <span class='ml-2 text-xs text-gray-500' title='${memberList}'>${memberCount} membro${memberCount===1?'':'s'}</span>
+                        ${isOwner ? `<span class='ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded font-semibold'>Fixo</span>` : ''}
+                    </div>
+                    <div class='flex flex-col gap-2'>`;
+                allPerms.forEach(p => {
+                    if (isOwner) {
+                        html += `<label class='flex items-center gap-2 text-xs text-gray-700 cursor-not-allowed' title='${p.tip}'>
+                            <input type='checkbox' class='perm-checkbox' data-role='${tag}' data-perm='${p.key}' checked disabled>
+                            <span>${p.label}</span>
+                            <i class='fas fa-info-circle text-gray-400 ml-1' title='${p.tip}'></i>
+                        </label>`;
+                    } else {
+                        const checked = rolePerms[tag] && rolePerms[tag][p.key] ? 'checked' : '';
+                        html += `<label class='flex items-center gap-2 text-xs text-gray-700 cursor-pointer' title='${p.tip}'>
+                            <input type='checkbox' class='perm-checkbox' data-role='${tag}' data-perm='${p.key}' ${checked}>
+                            <span>${p.label}</span>
+                            <i class='fas fa-info-circle text-gray-400 ml-1' title='${p.tip}'></i>
+                        </label>`;
+                    }
+                });
+                html += `</div>
+                </div>`;
+            });
+            html += `</div>
+                <div class='flex justify-between items-center mt-6'>
+                    <button id='restoreDefaultPermsBtn' class='bg-gray-100 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-200 font-medium'><i class='fas fa-undo mr-1'></i>Restaurar padrão</button>
+                    <div class='flex space-x-4'>
+                        <button id='cancelPermissionsBtn' class='bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium'>Cancelar</button>
+                        <button id='savePermissionsBtn' class='bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600 font-medium'>Salvar Permissões</button>
+                    </div>
+                </div>
+                <div id='permSaveFeedback' class='text-center text-sm mt-3 hidden'></div>
+            </div>`;
+            modal.innerHTML = html;
+            document.body.appendChild(modal);
+            document.getElementById('closePermissionsModalBtn').onclick = () => modal.remove();
+            document.getElementById('cancelPermissionsBtn').onclick = () => modal.remove();
+            document.getElementById('restoreDefaultPermsBtn').onclick = () => {
+                // Restaura checkboxes para padrão
+                tags.forEach(tag => {
+                    allPerms.forEach(p => {
+                        const cb = modal.querySelector(`.perm-checkbox[data-role='${tag}'][data-perm='${p.key}']`);
+                        if (cb) cb.checked = !!(ROLE_PERMISSIONS[tag] && ROLE_PERMISSIONS[tag][p.key]);
+                    });
+                });
+            };
+            document.getElementById('savePermissionsBtn').onclick = async () => {
+                const feedback = document.getElementById('permSaveFeedback');
+                feedback.classList.remove('hidden');
+                feedback.textContent = 'Salvando permissões...';
+                // Monta novo objeto de permissões
+                const newPerms = {};
+                tags.forEach(tag => {
+                    newPerms[tag] = {};
+                    allPerms.forEach(p => {
+                        const cb = modal.querySelector(`.perm-checkbox[data-role='${tag}'][data-perm='${p.key}']`);
+                        newPerms[tag][p.key] = !!cb.checked;
+                    });
+                });
+                if (activeBoardId && boardsCollectionRef) {
+                    showLoading();
+                    try {
+                        const boardRef = doc(boardsCollectionRef, activeBoardId);
+                        await updateDoc(boardRef, { rolePermissions: newPerms });
+                        feedback.textContent = 'Permissões salvas com sucesso!';
+                        feedback.className = 'text-center text-green-600 text-sm mt-3';
+                        setTimeout(()=>modal.remove(), 1200);
+                        if (activeBoardData) activeBoardData.rolePermissions = newPerms;
+                    } catch (err) {
+                        feedback.textContent = 'Erro ao salvar permissões: ' + err.message;
+                        feedback.className = 'text-center text-red-600 text-sm mt-3';
+                    } finally {
+                        hideLoading();
+                    }
+                }
+            };
+        }
+        // Adiciona evento ao botão (só se proprietário)
+        if (managePermissionsButton) {
+            managePermissionsButton.onclick = () => {
+                if (activeBoardData && activeBoardData.owner === currentUserId) {
+                    openPermissionsModal(activeBoardData);
+                }
+            };
+        }
+        // --- FIM PAINEL DE PERMISSÕES ---
+
+        // --- CHAT DO QUADRO ---
+        // Elementos do chat
+        const openChatSidebarBtn = document.getElementById('openChatSidebarBtn');
+        const closeChatSidebarBtn = document.getElementById('closeChatSidebarBtn');
+        const kanbanChatSidebar = document.getElementById('kanbanChatSidebar');
+        const kanbanChatMessages = document.getElementById('kanbanChatMessages');
+        const kanbanChatForm = document.getElementById('kanbanChatForm');
+        const kanbanChatInput = document.getElementById('kanbanChatInput');
+        const clearChatBtn = document.getElementById('clearChatBtn');
+        let chatMessagesUnsub = null;
+        let chatCollectionRef = null;
+        let lastChatSend = 0;
+        // Função para sanitizar texto (anti-XSS)
+        function sanitize(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        // Função para gerar cor de avatar baseada no userId
+        function avatarColor(uid) {
+            if (!uid) return 'bg-indigo-200';
+            const colors = ['bg-indigo-200','bg-pink-200','bg-green-200','bg-yellow-200','bg-blue-200','bg-rose-200','bg-amber-200','bg-purple-200','bg-teal-200','bg-cyan-200'];
+            let hash = 0; for (let i = 0; i < uid.length; i++) hash = uid.charCodeAt(i) + ((hash << 5) - hash);
+            return colors[Math.abs(hash) % colors.length];
+        }
+        // Abre/fecha chat
+        openChatSidebarBtn?.addEventListener('click', () => { kanbanChatSidebar.style.display = 'flex'; openChatSidebarBtn.style.display = 'none'; });
+        closeChatSidebarBtn?.addEventListener('click', () => { kanbanChatSidebar.style.display = 'none'; openChatSidebarBtn.style.display = 'flex'; });
+        // Desabilita botão enviar se vazio
+        kanbanChatInput?.addEventListener('input', () => {
+            kanbanChatForm.querySelector('button[type="submit"]').disabled = !kanbanChatInput.value.trim();
+        });
+        // Ao trocar de board, configurar chat
+        async function setupBoardChat(boardId, boardData) {
+            if (chatMessagesUnsub) chatMessagesUnsub();
+            kanbanChatMessages.innerHTML = '<div class="flex flex-col items-center justify-center h-32 animate-pulse"><div class="w-12 h-12 rounded-full bg-indigo-100 mb-2"></div><div class="h-3 w-32 bg-gray-200 rounded mb-1"></div><div class="h-3 w-24 bg-gray-200 rounded"></div></div>';
+            chatCollectionRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${boardId}/chatMessages`);
+            // Permissão para limpar/apagar (nova permissão granular)
+            const canDeleteChat = hasPermission(boardData, currentUserId, 'canDeleteChat');
+            clearChatBtn.style.display = canDeleteChat ? 'flex' : 'none';
+            // Listener de mensagens
+            const q = query(chatCollectionRef, orderBy('createdAt', 'asc'));
+            chatMessagesUnsub = onSnapshot(q, async (snapshot) => {
+                kanbanChatMessages.innerHTML = '';
+                const now = new Date();
+                const weekAgo = new Date(now.getTime() - 7*24*60*60*1000);
+                const batch = writeBatch(db);
+                let hasOld = false;
+                let lastDate = '';
+                snapshot.forEach(docSnap => {
+                    const msg = docSnap.data();
+                    const msgId = docSnap.id;
+                    const createdAt = msg.createdAt?.toDate ? msg.createdAt.toDate() : null;
+                    if (createdAt && createdAt < weekAgo) {
+                        batch.delete(doc(chatCollectionRef, msgId));
+                        hasOld = true;
+                        return;
+                    }
+                    // Só mostra se for membro
+                    if (!boardData.members.includes(msg.userId)) return;
+                    // Separador de data
+                    const msgDate = createdAt ? createdAt.toLocaleDateString('pt-BR') : '';
+                    if (msgDate && msgDate !== lastDate) {
+                        const sep = document.createElement('div');
+                        sep.className = 'flex items-center justify-center my-2';
+                        sep.innerHTML = `<span class="px-3 py-1 bg-gray-100 text-gray-400 text-xs rounded-full shadow">${msgDate}</span>`;
+                        kanbanChatMessages.appendChild(sep);
+                        lastDate = msgDate;
+                    }
+                    const isMine = msg.userId === currentUserId;
+                    const canDelete = canDeleteChat || isMine;
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `flex items-start gap-2 group transition-opacity duration-300 ${isMine ? 'bg-indigo-50' : ''}`;
+                    msgDiv.innerHTML = `
+                        <div class="flex-shrink-0 w-9 h-9 rounded-full ${avatarColor(msg.userId)} flex items-center justify-center font-bold text-indigo-700 text-lg">${sanitize((msg.displayName||'').substring(0,1).toUpperCase())}</div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-indigo-800 text-sm">${sanitize(msg.displayName||'Usuário')}</span>
+                                <span class="text-xs text-gray-400" title="${createdAt ? createdAt.toLocaleString('pt-BR') : ''}">${createdAt ? createdAt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : ''}</span>
+                                ${canDelete ? `<button class="delete-chat-msg-btn ml-2 text-xs text-red-400 hover:text-red-600 hidden group-hover:inline" data-msg-id="${msgId}" title="Apagar mensagem"><i class="fas fa-trash-alt"></i></button>` : ''}
+                            </div>
+                            <div class="text-gray-700 text-sm break-words whitespace-pre-line">${sanitize(msg.text)}</div>
+                        </div>
+                    `;
+                    kanbanChatMessages.appendChild(msgDiv);
+                    if (canDelete) {
+                        msgDiv.querySelector('.delete-chat-msg-btn')?.addEventListener('click', async () => {
+                            showMessageModal('Apagar Mensagem', 'Tem certeza que deseja apagar esta mensagem?', 'warning', async () => {
+                                msgDiv.style.opacity = 0.3;
+                                await deleteDoc(doc(chatCollectionRef, msgId));
+                            }, 'Apagar', true, 'Cancelar');
+                        });
+                    }
+                });
+                if (hasOld) await batch.commit();
+                setTimeout(()=>{ kanbanChatMessages.scrollTo({top: kanbanChatMessages.scrollHeight, behavior:'smooth'}); }, 100);
+            }, (err) => {
+                kanbanChatMessages.innerHTML = '<div class="text-center text-red-500 mt-6">Erro ao carregar chat. Verifique sua conexão.</div>';
+            });
+            kanbanChatInput.value = '';
+            kanbanChatForm.querySelector('button[type="submit"]').disabled = true;
+        }
+        // Envio de mensagem
+        kanbanChatForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = kanbanChatInput.value.trim();
+            if (!text || !chatCollectionRef) return;
+            if (text.length > 500) { showToast('Mensagem muito longa (máx 500 caracteres).', 'info'); return; }
+            if (text.split('\n').length > 10) { showToast('Mensagem com muitas linhas (máx 10).', 'info'); return; }
+            if (Date.now() - lastChatSend < 1200) { showToast('Espere um pouco antes de enviar outra mensagem.', 'info'); return; }
+            lastChatSend = Date.now();
+            kanbanChatForm.querySelector('button[type="submit"]').disabled = true;
+            await addDoc(chatCollectionRef, {
+                text: text,
+                userId: currentUserId,
+                displayName: currentUserDisplayName,
+                createdAt: serverTimestamp()
+            });
+            kanbanChatInput.value = '';
+        });
+        // Limpar chat
+        clearChatBtn?.addEventListener('click', async () => {
+            if (!chatCollectionRef) return;
+            showMessageModal('Limpar Chat', 'Tem certeza que deseja apagar todas as mensagens do chat deste quadro?', 'warning', async () => {
+                const q = query(chatCollectionRef);
+                const snap = await getDocs(q);
+                const batch = writeBatch(db);
+                snap.forEach(docSnap => batch.delete(doc(chatCollectionRef, docSnap.id)));
+                await batch.commit();
+                showToast('Chat limpo com sucesso!', 'success');
+            }, 'Limpar', true, 'Cancelar');
+        });
+
+
+        // --- Botão Estoque no menu principal (acima dos quadros) ---
+        const openInventoryBtn = document.getElementById('openInventoryBtn');
+        openInventoryBtn?.addEventListener('click', () => {
+            document.getElementById('inventoryModal').classList.remove('hidden');
+        });
+
+        // --- Modal de Estoque ---
+        const inventoryModal = document.getElementById('inventoryModal');
+        const closeInventoryModalBtn = document.getElementById('closeInventoryModalBtn');
+        inventoryModal?.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                inventoryModal.classList.add('hidden');
+            }
+        });
+        closeInventoryModalBtn?.addEventListener('click', () => {
+            inventoryModal.classList.add('hidden');
+        });
+
+        // --- Modal de Adicionar Produto ---
+        const addProductModal = document.getElementById('addProductModal');
+        addProductModal?.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('addProductModal').classList.add('hidden');
+            }
+        });
+
+        // --- Modal de Retirada ---
+        const withdrawProductModal = document.getElementById('withdrawProductModal');
+        withdrawProductModal?.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('withdrawProductModal').classList.add('hidden');
+            }
+        });
+
+        // --- ESTOQUE POR QUADRO ---
+        // Exibir botão Estoque só dentro do quadro
+        function toggleInventoryBtn(show) {
+            if (openInventoryBtn) openInventoryBtn.style.display = show ? 'flex' : 'none';
+        }
+        // Chamar ao entrar/sair do quadro
+        const oldSetActiveBoardInventory = setActiveBoard;
+        setActiveBoard = async function(boardId, boardData) {
+            await oldSetActiveBoardInventory(boardId, boardData);
+            toggleInventoryBtn(true);
+            setupInventory(boardId, boardData);
+        };
+        backToBoardsButton?.addEventListener('click', () => {
+            toggleInventoryBtn(false);
+            document.getElementById('inventoryModal').classList.add('hidden');
+        });
+        toggleInventoryBtn(false);
+
+        // Firestore refs
+        let inventoryCollectionRef = null;
+        let inventoryUnsub = null;
+        let currentInventoryProducts = [];
+        let currentBoardInventoryId = null;
+        // Permissões do Sistema de Estoque
+        function canManageInventory(boardData) {
+            if (!boardData) return false;
+            return hasPermission(boardData, currentUserId, 'canManageInventory') || (boardData.owner === currentUserId);
+        }
+
+        function canWithdrawInventory(boardData) {
+            if (!boardData) return false;
+            return hasPermission(boardData, currentUserId, 'canWithdrawInventory') || canManageInventory(boardData);
+        }
+
+        function canApproveRequests(boardData) {
+            if (!boardData) return false;
+            return hasPermission(boardData, currentUserId, 'canApproveRequests') || canManageInventory(boardData);
+        }
+
+        function canViewReports(boardData) {
+            if (!boardData) return false;
+            return hasPermission(boardData, currentUserId, 'canViewReports') || canManageInventory(boardData);
+        }
+
+        function canManageCategories(boardData) {
+            if (!boardData) return false;
+            return hasPermission(boardData, currentUserId, 'canManageCategories') || canManageInventory(boardData);
+        }
+
+        function canApproveReturns(boardData) {
+            if (!boardData) return false;
+            return hasPermission(boardData, currentUserId, 'canApproveReturns') || canManageInventory(boardData);
+        }
+        // Setup Inventory
+        function setupInventory(boardId, boardData) {
+            currentBoardInventoryId = boardId;
+            inventoryCollectionRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${boardId}/inventoryProducts`);
+            if (inventoryUnsub) inventoryUnsub();
+            const inventoryList = document.getElementById('inventoryList');
+            const addProductBtn = document.getElementById('addProductBtn');
+            if (canManageInventory(boardData)) {
+                addProductBtn.classList.remove('hidden');
+            } else {
+                addProductBtn.classList.add('hidden');
+            }
+            // Listener de produtos
+            inventoryUnsub = onSnapshot(inventoryCollectionRef, (snapshot) => {
+                currentInventoryProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderInventoryList(currentInventoryProducts, boardData);
+            });
+        }
+        // Renderizar lista de produtos
+        function renderInventoryList(products, boardData) {
+            const inventoryList = document.getElementById('inventoryList');
+            const searchInput = document.getElementById('inventorySearchInput');
+            const search = searchInput ? searchInput.value.toLowerCase() : '';
+            if (!inventoryList) return;
+            inventoryList.innerHTML = '';
+            let filtered = Array.isArray(products) ? products.filter(p => p.name && p.name.toLowerCase().includes(search)) : [];
+            if (filtered.length === 0) {
+                inventoryList.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhum produto encontrado.</div>';
+                return;
+            }
+            filtered.forEach(prod => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between py-3 px-2 hover:bg-emerald-50 rounded transition';
+                div.innerHTML = `
+                    <div>
+                        <div class="font-semibold text-emerald-800 text-base">${prod.name || ''}</div>
+                        <div class="text-xs text-gray-500">${prod.code || ''} ${prod.category ? ' | ' + prod.category : ''}</div>
+                        <div class="text-xs text-gray-600">Estoque: <span class="font-bold">${Number(prod.qty) || 0}</span> ${prod.unit || ''}</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="withdraw-btn bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-medium" data-id="${prod.id}" title="Retirar" ${(canWithdrawInventory(boardData) && (Number(prod.qty) > 0)) ? '' : 'disabled'}>Retirar</button>
+                        <button class="history-btn text-emerald-700 hover:text-emerald-900 px-2 py-1 rounded text-xs font-medium" data-id="${prod.id}" title="Histórico"><i class="fas fa-history"></i></button>
+                        ${canManageInventory(boardData) ? `<button class="edit-btn text-blue-600 hover:text-blue-800 px-2 py-1 rounded text-xs font-medium" data-id="${prod.id}" title="Editar"><i class="fas fa-edit"></i></button><button class="delete-btn text-red-600 hover:text-red-800 px-2 py-1 rounded text-xs font-medium" data-id="${prod.id}" title="Excluir"><i class="fas fa-trash-alt"></i></button>` : ''}
+                    </div>
+                `;
+                // Retirar produto
+                const withdrawBtn = div.querySelector('.withdraw-btn');
+                if (withdrawBtn) withdrawBtn.addEventListener('click', () => openWithdrawModal(prod));
+                // Histórico
+                const historyBtn = div.querySelector('.history-btn');
+                if (historyBtn) historyBtn.addEventListener('click', () => openProductHistory(prod));
+                // Editar e Excluir produto
+                if (canManageInventory(boardData)) {
+                    const editBtn = div.querySelector('.edit-btn');
+                    if (editBtn) editBtn.addEventListener('click', () => openEditProductModal(prod));
+                    const deleteBtn = div.querySelector('.delete-btn');
+                    if (deleteBtn) deleteBtn.addEventListener('click', () => confirmDeleteProduct(prod));
+                }
+                inventoryList.appendChild(div);
+            });
+        }
+        // Modal de retirada
+        function openWithdrawModal(prod) {
+            document.getElementById('withdrawProductModal').classList.remove('hidden');
+            document.getElementById('withdrawProductIdInput').value = prod.id;
+            document.getElementById('withdrawProductNameInput').value = prod.name;
+            document.getElementById('withdrawQtyInput').value = '';
+            document.getElementById('withdrawUnitInput').value = prod.unit || '';
+            document.getElementById('withdrawReasonInput').value = '';
+        }
+        document.getElementById('cancelWithdrawBtn')?.addEventListener('click', () => {
+            document.getElementById('withdrawProductModal').classList.add('hidden');
+        });
+        document.getElementById('confirmWithdrawBtn')?.addEventListener('click', async () => {
+            const prodId = document.getElementById('withdrawProductIdInput').value;
+            const qty = parseFloat(document.getElementById('withdrawQtyInput').value);
+            const reason = document.getElementById('withdrawReasonInput').value.trim();
+            if (!prodId || isNaN(qty) || qty <= 0) { showToast('Quantidade inválida.', 'info'); return; }
+            const prod = currentInventoryProducts.find(p => p.id === prodId);
+            if (!prod || prod.qty < qty) { showToast('Estoque insuficiente.', 'error'); return; }
+            const prodRef = doc(inventoryCollectionRef, prodId);
+            const movementsRef = collection(prodRef, 'movements');
+            showLoading();
+            try {
+                await updateDoc(prodRef, { qty: prod.qty - qty });
+                await addDoc(movementsRef, {
+                    type: 'saida',
+                    qty,
+                    userId: currentUserId,
+                    displayName: currentUserDisplayName,
+                    date: serverTimestamp(),
+                    reason
+                });
+                showToast('Retirada registrada!', 'success');
+                document.getElementById('withdrawProductModal').classList.add('hidden');
+            } catch (e) {
+                showToast('Erro ao registrar retirada.', 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+        // Modal de adicionar produto
+        const addProductBtnEl = document.getElementById('addProductBtn');
+        if (addProductBtnEl) {
+            addProductBtnEl.addEventListener('click', () => {
+                // Protege o clique: só abre se tiver permissão
+                if (!canManageInventory(activeBoardData)) {
+                    showToast('Você não tem permissão para adicionar produtos.', 'error');
+                    return;
+                }
+                document.getElementById('addProductModal').classList.remove('hidden');
+                document.getElementById('productNameInput').value = '';
+                document.getElementById('productCodeInput').value = '';
+                document.getElementById('productCategoryInput').value = '';
+                document.getElementById('productQtyInput').value = '';
+                document.getElementById('productUnitInput').value = '';
+                document.getElementById('productDescInput').value = '';
+            });
+        }
+        const cancelAddProductBtnEl = document.getElementById('cancelAddProductBtn');
+        if (cancelAddProductBtnEl) cancelAddProductBtnEl.addEventListener('click', () => {
+            document.getElementById('addProductModal').classList.add('hidden');
+        });
+        const confirmAddProductBtnEl = document.getElementById('confirmAddProductBtn');
+        if (confirmAddProductBtnEl) confirmAddProductBtnEl.addEventListener('click', async () => {
+            // Protege a ação: só executa se tiver permissão
+            if (!canManageInventory(activeBoardData)) {
+                showToast('Você não tem permissão para adicionar produtos.', 'error');
+                document.getElementById('addProductModal').classList.add('hidden');
+                return;
+            }
+            const name = document.getElementById('productNameInput').value.trim();
+            const code = document.getElementById('productCodeInput').value.trim();
+            const category = document.getElementById('productCategoryInput').value.trim();
+            const qty = parseFloat(document.getElementById('productQtyInput').value);
+            const unit = document.getElementById('productUnitInput').value.trim();
+            const desc = document.getElementById('productDescInput').value.trim();
+            if (!name || isNaN(qty) || qty < 0) { showToast('Preencha nome e quantidade válida.', 'info'); return; }
+            showLoading();
+            try {
+                await addDoc(inventoryCollectionRef, {
+                    name, code, category, qty, unit, desc, createdAt: serverTimestamp()
+                });
+                showToast('Produto adicionado!', 'success');
+                document.getElementById('addProductModal').classList.add('hidden');
+            } catch (e) {
+                showToast('Erro ao adicionar produto.', 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+        // Histórico de retiradas
+        async function openProductHistory(prod) {
+            showLoading();
+            const prodRef = doc(inventoryCollectionRef, prod.id);
+            const movementsRef = collection(prodRef, 'movements');
+            const q = query(movementsRef, orderBy('date', 'desc'));
+            let html = `<div class='fixed inset-0 modal-overlay flex items-center justify-center z-[100]'>
+                <div class='bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg modal-content'>
+                    <h3 class='text-xl font-bold text-emerald-700 mb-4'>Histórico de Retiradas<br><span class='text-base text-gray-500'>${prod.name}</span></h3>
+                    <div class='max-h-96 overflow-y-auto'>`;
+            try {
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    html += `<div class='text-center text-gray-400 py-8'>Nenhuma retirada registrada.</div>`;
+                } else {
+                    snap.forEach(doc => {
+                        const m = doc.data();
+                        const dt = m.date?.toDate ? m.date.toDate().toLocaleString('pt-BR') : '';
+                        html += `<div class='flex justify-between items-center border-b border-gray-100 py-2'>
+                            <div><span class='font-semibold text-emerald-800'>${m.displayName||m.userId}</span> <span class='text-xs text-gray-500'>${dt}</span><br><span class='text-xs text-gray-600'>Qtd: <b>${m.qty}</b> ${prod.unit||''}</span></div>
+                            <div class='text-xs text-gray-500'>${m.reason||''}</div>
+                        </div>`;
+                    });
+                }
+            } catch (e) {
+                html += `<div class='text-center text-red-500 py-8'>Erro ao carregar histórico.</div>`;
+            }
+            html += `</div><div class='flex justify-end pt-4'><button id='closeHistoryBtn' class='bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium'>Fechar</button></div></div></div>`;
+            const modalDiv = document.createElement('div');
+            modalDiv.innerHTML = html;
+            document.body.appendChild(modalDiv);
+            modalDiv.querySelector('#closeHistoryBtn').onclick = () => modalDiv.remove();
+            hideLoading();
+        }
+        // Busca
+        document.getElementById('inventorySearchInput')?.addEventListener('input', () => renderInventoryList(currentInventoryProducts, activeBoardData));
+
+        // Exibir botões de estoque só dentro do quadro
+        function toggleInventoryBtns(show) {
+            const openInventoryBtn = document.getElementById('openInventoryBtn');
+            const requestStockBtn = document.getElementById('requestStockBtn');
+            const openInventoryPermissionsBtn = document.getElementById('openInventoryPermissionsBtn');
+            if (openInventoryBtn) openInventoryBtn.style.display = show ? 'flex' : 'none';
+            if (requestStockBtn) requestStockBtn.style.display = show ? 'flex' : 'none';
+            if (openInventoryPermissionsBtn) openInventoryPermissionsBtn.style.display = show ? 'flex' : 'none';
+        }
+        // Chamar ao entrar/sair do quadro
+        const oldSetActiveBoard = setActiveBoard;
+        setActiveBoard = async function(boardId, boardData) {
+            await oldSetActiveBoard(boardId, boardData);
+            toggleInventoryBtns(true);
+            setupInventory(boardId, boardData);
+            setupBoardChat(boardId, boardData);
+        };
+        backToBoardsButton?.addEventListener('click', () => {
+            toggleInventoryBtns(false);
+            document.getElementById('inventoryModal').classList.add('hidden');
+        });
+        toggleInventoryBtns(false);
+
+        // Listener do botão Estoque (já existe)
+        document.getElementById('openInventoryBtn')?.addEventListener('click', () => {
+            document.getElementById('inventoryModal').classList.remove('hidden');
+        });
+        // Listener do botão Solicitar Item
+        const requestStockBtn = document.getElementById('requestStockBtn');
+        if (requestStockBtn) {
+            requestStockBtn.addEventListener('click', () => {
+                const modal = document.getElementById('requestStockModal');
+                if (modal) modal.classList.remove('hidden');
+            });
+        }
+        
+
+        // Função para fechar modal ao clicar fora ou no botão cancelar
+        function setupModalClose(modalId, cancelBtnId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            // Fechar ao clicar fora
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.add('hidden');
+            });
+            // Fechar ao clicar no botão cancelar
+            if (cancelBtnId) {
+                const cancelBtn = document.getElementById(cancelBtnId);
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', () => {
+                        modal.classList.add('hidden');
+                    });
+                }
+            }
+        }
+        setupModalClose('requestStockModal', 'cancelRequestStockBtn');
+        setupModalClose('inventoryPermissionsModal', 'cancelInventoryPermsBtn');
+
+        // Preencher painel de permissões de estoque ao abrir o modal
+        const openInventoryPermissionsBtn = document.getElementById('openInventoryPermissionsBtn');
+        if (openInventoryPermissionsBtn) {
+            openInventoryPermissionsBtn.addEventListener('click', () => {
+                const modal = document.getElementById('inventoryPermissionsModal');
+                if (modal) {
+                    // Preencher painel de permissões
+                    const panel = document.getElementById('inventoryPermissionsPanel');
+                    if (panel && typeof activeBoardData !== 'undefined' && activeBoardData) {
+                        // Exemplo de permissões de estoque
+                        const estoquePerms = [
+                            { key: 'canManageInventory', label: 'Gerenciar Estoque', tip: 'Adicionar, editar e remover produtos.' },
+                            { key: 'canWithdrawInventory', label: 'Retirar Itens', tip: 'Permite retirar itens do estoque.' }
+                        ];
+                        // Pega cargos/tags únicos
+                        const tags = Array.from(new Set(Object.values(activeBoardData.memberTags||{}).concat(['Proprietário'])));
+                        const rolePerms = activeBoardData.rolePermissions || {};
+                        let html = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">';
+                        tags.forEach(tag => {
+                            html += `<div class='rounded-lg border border-gray-200 shadow p-5 bg-gray-50'>`;
+                            html += `<div class='font-semibold text-base text-gray-800 mb-2'>${tag}</div>`;
+                            estoquePerms.forEach(p => {
+                                const checked = rolePerms[tag] && rolePerms[tag][p.key] ? 'checked' : '';
+                                html += `<label class='flex items-center gap-2 text-xs text-gray-700 cursor-pointer mb-1' title='${p.tip}'>`;
+                                html += `<input type='checkbox' class='perm-checkbox' data-role='${tag}' data-perm='${p.key}' ${checked}>`;
+                                html += `<span>${p.label}</span>`;
+                                html += `</label>`;
+                            });
+                            html += `</div>`;
+                        });
+                        html += '</div>';
+                        panel.innerHTML = html;
+                    }
+                    modal.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Após a função renderInventoryList:
+        function openEditProductModal(prod) {
+            document.getElementById('editProductModal').classList.remove('hidden');
+            document.getElementById('editProductIdInput').value = prod.id;
+            document.getElementById('editProductNameInput').value = prod.name || '';
+            document.getElementById('editProductCodeInput').value = prod.code || '';
+            document.getElementById('editProductCategoryInput').value = prod.category || '';
+            document.getElementById('editProductQtyInput').value = prod.qty || 0;
+            document.getElementById('editProductUnitInput').value = prod.unit || '';
+            document.getElementById('editProductDescInput').value = prod.desc || '';
+        }
+
+        async function confirmDeleteProduct(prod) {
+            if (!prod.id) return;
+            if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+            showLoading();
+            try {
+                const prodRef = doc(inventoryCollectionRef, prod.id);
+                await deleteDoc(prodRef);
+                showToast('Produto excluído!', 'success');
+                document.getElementById('editProductModal').classList.add('hidden');
+            } catch (e) {
+                showToast('Erro ao excluir produto.', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Listeners do modal de edição
+        const cancelEditProductBtn = document.getElementById('cancelEditProductBtn');
+        if (cancelEditProductBtn) cancelEditProductBtn.addEventListener('click', () => {
+            document.getElementById('editProductModal').classList.add('hidden');
+        });
+        const saveEditProductBtn = document.getElementById('saveEditProductBtn');
+        if (saveEditProductBtn) saveEditProductBtn.addEventListener('click', async () => {
+            const prodId = document.getElementById('editProductIdInput').value;
+            const name = document.getElementById('editProductNameInput').value.trim();
+            const code = document.getElementById('editProductCodeInput').value.trim();
+            const category = document.getElementById('editProductCategoryInput').value.trim();
+            const qty = parseFloat(document.getElementById('editProductQtyInput').value);
+            const unit = document.getElementById('editProductUnitInput').value.trim();
+            const desc = document.getElementById('editProductDescInput').value.trim();
+            if (!prodId || !name || isNaN(qty) || qty < 0) { showToast('Preencha nome e quantidade válida.', 'info'); return; }
+            showLoading();
+            try {
+                const prodRef = doc(inventoryCollectionRef, prodId);
+                await updateDoc(prodRef, { name, code, category, qty, unit, desc });
+                showToast('Produto atualizado!', 'success');
+                document.getElementById('editProductModal').classList.add('hidden');
+            } catch (e) {
+                showToast('Erro ao atualizar produto.', 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+        const deleteProductBtn = document.getElementById('deleteProductBtn');
+        if (deleteProductBtn) deleteProductBtn.addEventListener('click', async () => {
+            const prodId = document.getElementById('editProductIdInput').value;
+            if (!prodId) return;
+            if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+            showLoading();
+            try {
+                const prodRef = doc(inventoryCollectionRef, prodId);
+                await deleteDoc(prodRef);
+                showToast('Produto excluído!', 'success');
+                document.getElementById('editProductModal').classList.add('hidden');
+            } catch (e) {
+                showToast('Erro ao excluir produto.', 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+        // ... existing code ...
+        // Dentro de renderInventoryList, após inventoryList.appendChild(div):
+        if (canManageInventory(activeBoardData)) {
+            div.querySelector('.edit-btn')?.addEventListener('click', () => openEditProductModal(prod));
+            div.querySelector('.delete-btn')?.addEventListener('click', () => confirmDeleteProduct(prod));
+        }
+        // ... existing code ...
+
+        // [REMOVER botão antigo 'Meus Itens']
+        const oldBtn = document.getElementById('myItemsBtn');
+        if (oldBtn) oldBtn.remove();
+
+        // [2] Modal de 'Meus Itens'
+        if (!document.getElementById('myItemsModal')) {
+            const modal = document.createElement('div');
+            modal.id = 'myItemsModal';
+            modal.className = 'fixed inset-0 modal-overlay flex items-center justify-center z-[100] hidden';
+            modal.innerHTML = `
+              <div class='bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg modal-content flex flex-col'>
+                <div class='flex justify-between items-center mb-4'>
+                  <h3 class='text-2xl font-bold text-blue-700 flex items-center'><i class='fas fa-box mr-2'></i>Meus Itens Retirados</h3>
+                  <button id='closeMyItemsModalBtn' class='text-gray-400 hover:text-red-500 text-2xl p-1 rounded-full transition'><i class='fas fa-times'></i></button>
+                </div>
+                <div id='myItemsList' class='flex-1 overflow-y-auto divide-y divide-gray-100 mb-2'></div>
+              </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        document.getElementById('closeMyItemsModalBtn')?.addEventListener('click', () => {
+            document.getElementById('myItemsModal').classList.add('hidden');
+        });
+        document.getElementById('myItemsFabBtn')?.addEventListener('click', () => {
+            loadAndShowMyItems();
+        });
+
+        // [3] Função para carregar e exibir retiradas do usuário
+        async function loadAndShowMyItems() {
+            if (!activeBoardId || !currentUserId) return;
+            const modal = document.getElementById('myItemsModal');
+            const list = document.getElementById('myItemsList');
+            if (!modal || !list) return;
+            list.innerHTML = '<div class="text-center text-gray-400 py-8">Carregando...</div>';
+            modal.classList.remove('hidden');
+            try {
+                const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                const q = query(userWithdrawalsRef, where('userId', '==', currentUserId), where('status', 'in', ['retirado','devolucao_pendente']));
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    list.innerHTML = '<div class="text-center text-gray-400 py-8">Você não retirou nenhum item.</div>';
+                    return;
+                }
+                list.innerHTML = '';
+                snap.forEach(docSnap => {
+                    const item = docSnap.data();
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between py-3 px-2';
+                    let statusHtml = '';
+                    if (item.status === 'devolucao_pendente') {
+                        statusHtml = `<span class='text-xs text-yellow-600 font-semibold ml-2'>(Aguardando aprovação de devolução)</span>`;
+                    }
+                    div.innerHTML = `
+                        <div>
+                            <div class='font-semibold text-blue-800 text-base'>${item.prodName || ''}</div>
+                            <div class='text-xs text-gray-500'>Qtd: <b>${item.qty}</b> ${item.unit || ''}</div>
+                            <div class='text-xs text-gray-400'>${item.date ? new Date(item.date.seconds*1000).toLocaleString('pt-BR') : ''}</div>
+                            ${statusHtml}
+                        </div>
+                        <div>
+                            ${item.status === 'retirado' ? `<button class='return-item-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded text-xs font-medium' data-id='${docSnap.id}'>Devolver</button>` : ''}
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+                // Listeners para devolver
+                list.querySelectorAll('.return-item-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const withdrawalId = e.currentTarget.getAttribute('data-id');
+                        if (!withdrawalId) return;
+                        showLoading();
+                        try {
+                            const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                            const withdrawalDoc = doc(userWithdrawalsRef, withdrawalId);
+                            await updateDoc(withdrawalDoc, { status: 'devolucao_pendente', returnRequestDate: serverTimestamp() });
+                            showToast('Solicitação de devolução enviada para o administrador!', 'info');
+                            loadAndShowMyItems();
+                        } catch (err) {
+                            showToast('Erro ao solicitar devolução.', 'error');
+                        } finally {
+                            hideLoading();
+                        }
+                    });
+                });
+            } catch (err) {
+                list.innerHTML = '<div class="text-center text-red-500 py-8">Erro ao carregar seus itens.</div>';
+            }
+        }
+
+        // Listener para fechar o modal de Meus Itens
+        document.getElementById('closeMyItemsModalBtn')?.addEventListener('click', () => {
+            document.getElementById('myItemsModal')?.classList.add('hidden');
+        });
+
+        // [4] Ao retirar produto, registrar também em userWithdrawals
+        const oldConfirmWithdrawBtn = document.getElementById('confirmWithdrawBtn')?.onclick;
+        document.getElementById('confirmWithdrawBtn')?.addEventListener('click', async () => {
+            // ...código original de retirada...
+            // Após registrar a retirada no produto, registrar em userWithdrawals:
+            try {
+                const prodId = document.getElementById('withdrawProductIdInput').value;
+                const qty = parseFloat(document.getElementById('withdrawQtyInput').value);
+                const reason = document.getElementById('withdrawReasonInput').value.trim();
+                const prod = currentInventoryProducts.find(p => p.id === prodId);
+                if (!prod || isNaN(qty) || qty <= 0) return;
+                const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                await addDoc(userWithdrawalsRef, {
+                    userId: currentUserId,
+                    displayName: currentUserDisplayName,
+                    prodId: prod.id,
+                    prodName: prod.name,
+                    qty,
+                    unit: prod.unit || '',
+                    date: serverTimestamp(),
+                    status: 'retirado',
+                    reason
+                });
+            } catch (err) {
+                // Não impede a retirada, mas loga erro
+                console.warn('Erro ao registrar retirada em userWithdrawals:', err);
+            }
+            // ...continua código original...
+        });
+
+        // [5] Botão flutuante para admin ver devoluções pendentes
+        function checkShowAdminReturnsBtn() {
+            if (activeBoardData && canManageInventory(activeBoardData)) {
+                const btn = document.getElementById('adminReturnsBtn');
+                if (btn) btn.style.display = 'flex';
+            } else {
+                const btn = document.getElementById('adminReturnsBtn');
+                if (btn) btn.style.display = 'none';
+            }
+        }
+        // --- CENTRALIZAÇÃO DOS BOTÕES FLUTUANTES ---
+        if (typeof window._oldSetActiveBoardBackup === 'undefined') {
+            window._oldSetActiveBoardBackup = typeof setActiveBoard === 'function' ? setActiveBoard : undefined;
+            setActiveBoard = async function(boardId, boardData) {
+                if (window._oldSetActiveBoardBackup) await window._oldSetActiveBoardBackup(boardId, boardData);
+                toggleFabs(true, activeBoardData);
+                toggleInventoryBtn(true);
+                checkShowAdminReturnsBtn();
+            };
+            backToBoardsButton?.addEventListener('click', () => {
+                toggleFabs(false);
+                toggleInventoryBtn(false);
+                const adminReturnsBtn = document.getElementById('adminReturnsBtn');
+                if (adminReturnsBtn) adminReturnsBtn.style.display = 'none';
+            });
+            toggleFabs(false);
+            toggleInventoryBtn(false);
+            const adminReturnsBtn = document.getElementById('adminReturnsBtn');
+            if (adminReturnsBtn) adminReturnsBtn.style.display = 'none';
+        }
+        // --- FIM CENTRALIZAÇÃO ---
+        // [6] Modal de devoluções pendentes para admin
+        if (!document.getElementById('adminReturnsModal')) {
+            const modal = document.createElement('div');
+            modal.id = 'adminReturnsModal';
+            modal.className = 'fixed inset-0 modal-overlay flex items-center justify-center z-[101] hidden';
+            modal.innerHTML = `
+              <div class='bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg modal-content flex flex-col'>
+                <div class='flex justify-between items-center mb-4'>
+                  <h3 class='text-2xl font-bold text-yellow-700 flex items-center'><i class='fas fa-undo mr-2'></i>Devoluções Pendentes</h3>
+                  <button id='closeAdminReturnsModalBtn' class='text-gray-400 hover:text-red-500 text-2xl p-1 rounded-full transition'><i class='fas fa-times'></i></button>
+                </div>
+                <div id='adminReturnsList' class='flex-1 overflow-y-auto divide-y divide-gray-100 mb-2'></div>
+              </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        document.getElementById('closeAdminReturnsModalBtn')?.addEventListener('click', () => {
+            document.getElementById('adminReturnsModal').classList.add('hidden');
+        });
+
+        // [7] Função para carregar e exibir devoluções pendentes
+        async function loadAndShowAdminReturns() {
+            if (!activeBoardId || !canManageInventory(activeBoardData)) return;
+            const modal = document.getElementById('adminReturnsModal');
+            const list = document.getElementById('adminReturnsList');
+            if (!modal || !list) return;
+            list.innerHTML = '<div class="text-center text-gray-400 py-8">Carregando...</div>';
+            modal.classList.remove('hidden');
+            try {
+                const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                const q = query(userWithdrawalsRef, where('status', '==', 'devolucao_pendente'));
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    list.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhuma devolução pendente.</div>';
+                    return;
+                }
+                list.innerHTML = '';
+                snap.forEach(docSnap => {
+                    const item = docSnap.data();
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between py-3 px-2';
+                    div.innerHTML = `
+                        <div>
+                            <div class='font-semibold text-yellow-800 text-base'>${item.prodName || ''}</div>
+                            <div class='text-xs text-gray-500'>Qtd: <b>${item.qty}</b> ${item.unit || ''}</div>
+                            <div class='text-xs text-gray-400'>${item.date ? new Date(item.date.seconds*1000).toLocaleString('pt-BR') : ''}</div>
+                            <div class='text-xs text-gray-600'>Solicitante: <b>${item.displayName || item.userId}</b></div>
+                            <div class='text-xs text-gray-400'>Motivo: ${item.reason || ''}</div>
+                        </div>
+                        <div class='flex flex-col gap-2'>
+                            <button class='approve-return-btn bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-xs font-medium' data-id='${docSnap.id}'>Aprovar</button>
+                            <button class='reject-return-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-medium' data-id='${docSnap.id}'>Recusar</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+                // Listeners para aprovar/recusar
+                list.querySelectorAll('.approve-return-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const withdrawalId = e.currentTarget.getAttribute('data-id');
+                        if (!withdrawalId) return;
+                        showLoading();
+                        try {
+                            // Atualiza status para devolvido
+                            const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                            const withdrawalDoc = doc(userWithdrawalsRef, withdrawalId);
+                            await updateDoc(withdrawalDoc, { status: 'devolvido', returnApprovedAt: serverTimestamp(), returnApprovedBy: currentUserId });
+                            // Atualiza estoque do produto
+                            const withdrawalSnap = await getDoc(withdrawalDoc);
+                            const item = withdrawalSnap.data();
+                            if (item && item.prodId && item.qty) {
+                                const prodRef = doc(inventoryCollectionRef, item.prodId);
+                                await updateDoc(prodRef, { qty: increment(item.qty) });
+                            }
+                            showToast('Devolução aprovada e estoque atualizado!', 'success');
+                            loadAndShowAdminReturns();
+                        } catch (err) {
+                            showToast('Erro ao aprovar devolução.', 'error');
+                        } finally {
+                            hideLoading();
+                        }
+                    });
+                });
+                list.querySelectorAll('.reject-return-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const withdrawalId = e.currentTarget.getAttribute('data-id');
+                        if (!withdrawalId) return;
+                        showLoading();
+                        try {
+                            // Volta status para retirado
+                            const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                            const withdrawalDoc = doc(userWithdrawalsRef, withdrawalId);
+                            await updateDoc(withdrawalDoc, { status: 'retirado', returnRejectedAt: serverTimestamp(), returnRejectedBy: currentUserId });
+                            showToast('Solicitação de devolução recusada.', 'info');
+                            loadAndShowAdminReturns();
+                        } catch (err) {
+                            showToast('Erro ao recusar devolução.', 'error');
+                        } finally {
+                            hideLoading();
+                        }
+                    });
+                });
+            } catch (err) {
+                list.innerHTML = '<div class="text-center text-red-500 py-8">Erro ao carregar devoluções.</div>';
+            }
+        }
+ 
+        
+
+        // ... existing code ...
+        // [INÍCIO: CENTRALIZAÇÃO E CORREÇÃO DOS BOTÕES FLUTUANTES]
+        // Função para garantir criação única de FABs
+        function ensureFabBtn(id, iconClass, colorClass, title, onClick) {
+            let btn = document.getElementById(id);
+            if (!btn) {
+                btn = document.createElement('button');
+                btn.id = id;
+                btn.className = `fixed z-40 rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl transition-all duration-200 focus:outline-none focus:ring-2 ${colorClass}`;
+                btn.title = title;
+                btn.setAttribute('aria-label', title);
+                btn.setAttribute('tabindex', '0');
+                btn.setAttribute('role', 'button');
+                btn.innerHTML = `<i class="${iconClass}" aria-hidden="true"></i><span class="sr-only">${title}</span>`;
+                btn.style.display = 'none';
+                document.body.appendChild(btn);
+            }
+            if (onClick) {
+                btn.onclick = onClick;
+            }
+            return btn;
+        }
+
+        // Função central para mostrar/esconder FABs
+        function toggleFabs(show, boardData) {
+            const fabInventory = document.getElementById('openInventoryBtn');
+            const fabRequest = document.getElementById('requestStockBtn');
+            const fabPerms = document.getElementById('openInventoryPermissionsBtn');
+            const fabMyItems = document.getElementById('myItemsFabBtn');
+            const fabPendingRequests = document.getElementById('pendingRequestsBtn');
+            const fabMyRequests = document.getElementById('myRequestsBtn');
+            const fabAdminReturns = document.getElementById('adminReturnsBtn');
+            const fabReports = document.getElementById('inventoryReportsBtn');
+
+            if (fabInventory) fabInventory.style.display = show && canManageInventory(boardData) ? 'flex' : 'none';
+            if (fabRequest) fabRequest.style.display = show && canWithdrawInventory(boardData) ? 'flex' : 'none';
+            if (fabPerms) fabPerms.style.display = show && canManageInventory(boardData) ? 'flex' : 'none';
+            if (fabMyItems) fabMyItems.style.display = show && canWithdrawInventory(boardData) ? 'flex' : 'none';
+            if (fabMyRequests) fabMyRequests.style.display = show && canWithdrawInventory(boardData) ? 'flex' : 'none';
+            if (fabPendingRequests) fabPendingRequests.style.display = show && canApproveRequests(boardData) ? 'flex' : 'none';
+            if (fabAdminReturns) fabAdminReturns.style.display = show && canApproveReturns(boardData) ? 'flex' : 'none';
+            if (fabReports) fabReports.style.display = show && canViewReports(boardData) ? 'flex' : 'none';
+        }
+
+        // Criação dos FABs
+        ensureFabBtn('openInventoryBtn', 'fas fa-boxes', 'bg-emerald-600 text-white bottom-24 right-6', 'Estoque', () => {
+            document.getElementById('inventoryModal').classList.remove('hidden');
+        });
+
+        ensureFabBtn('requestStockBtn', 'fas fa-box-open', 'bg-emerald-500 text-white bottom-40 right-6', 'Solicitar Item do Estoque', () => {
+            const modal = document.getElementById('requestStockModal');
+            if (modal) modal.classList.remove('hidden');
+        });
+
+        ensureFabBtn('openInventoryPermissionsBtn', 'fas fa-user-shield', 'bg-yellow-500 text-white bottom-56 right-6', 'Permissões de Estoque', () => {
+            const modal = document.getElementById('inventoryPermissionsModal');
+            if (modal) modal.classList.remove('hidden');
+        });
+
+        ensureFabBtn('myItemsFabBtn', 'fas fa-box', 'bg-blue-600 text-white bottom-24 right-24', 'Meus Itens', () => {
+            loadAndShowMyItems();
+        });
+
+        ensureFabBtn('adminReturnsBtn', 'fas fa-undo', 'bg-yellow-600 text-white bottom-24 right-44', 'Aprovar devoluções de itens', () => {
+            loadAndShowAdminReturns();
+        });
+
+        // Centralizar listeners de entrada/saída do quadro
+        const _oldSetActiveBoard = typeof window._oldSetActiveBoardBackup === 'function' ? window._oldSetActiveBoardBackup : setActiveBoard;
+        setActiveBoard = async function(boardId, boardData) {
+            if (_oldSetActiveBoard) await _oldSetActiveBoard(boardId, boardData);
+            toggleFabs(true, boardData);
+            adjustMyItemsFabBtnPosition();
+        };
+        backToBoardsButton?.addEventListener('click', () => {
+            toggleFabs(false);
+        });
+        
+        // [FIM: CENTRALIZAÇÃO E CORREÇÃO DOS BOTÕES FLUTUANTES]
+        // ... existing code ...
+        // Remover todas as duplicidades, redefinições e listeners antigos relacionados aos FABs
+        // ... existing code ...
+
+        // Placeholder para manter a estrutura do código
+        // A função loadProductsIntoRequestSelect foi movida para baixo
+
+        // Função para validar solicitação (atualizada para permitir pedidos com estoque zerado)
+        function validateStockRequest() {
+            const select = document.getElementById('requestProductSelect');
+            const qtyInput = document.getElementById('requestQtyInput');
+            const reasonInput = document.getElementById('requestReasonInput');
+            
+            if (!select.value) {
+                showToast('Selecione um produto.', 'info');
+                select.focus();
+                return false;
+            }
+            
+            const qty = parseFloat(qtyInput.value);
+            if (isNaN(qty) || qty <= 0) {
+                showToast('Quantidade inválida.', 'info');
+                qtyInput.focus();
+                return false;
+            }
+            
+            const selectedOption = select.options[select.selectedIndex];
+            const availableQty = parseFloat(selectedOption.dataset.qty || 0);
+            
+            // Se o estoque estiver zerado ou a quantidade solicitada for maior que o disponível,
+            // adiciona um aviso no motivo da solicitação
+            if (availableQty <= 0 || qty > availableQty) {
+                const currentReason = reasonInput.value.trim();
+                const warningPrefix = '[ATENÇÃO: Solicitação acima do estoque disponível] ';
+                
+                if (!currentReason.startsWith(warningPrefix)) {
+                    reasonInput.value = warningPrefix + currentReason;
+                }
+                
+                // Não bloqueia a solicitação, mas exige um motivo
+                if (!reasonInput.value.trim()) {
+                    showToast('Por favor, informe o motivo da solicitação.', 'info');
+                    reasonInput.focus();
+                    return false;
+                }
+            } else if (!reasonInput.value.trim()) {
+                showToast('Informe o motivo da solicitação.', 'info');
+                reasonInput.focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Função para carregar produtos no select de solicitação
+async function loadProductsIntoRequestSelect() {
+    const select = document.getElementById('requestProductSelect');
+    const unitInput = document.getElementById('requestUnitInput');
+    if (!select || !unitInput) return;
+    
+    select.innerHTML = '<option value="">Selecione um produto...</option>';
+    if (!currentInventoryProducts) return;
+    
+    currentInventoryProducts.forEach(prod => {
+        const option = document.createElement('option');
+        option.value = prod.id;
+        const stockStatus = prod.qty <= 0 ? '(Sem estoque)' : `(Disponível: ${prod.qty} ${prod.unit || ''})`;
+        option.textContent = `${prod.name} ${stockStatus}`;
+        option.dataset.unit = prod.unit || '';
+        option.dataset.qty = prod.qty || 0;
+        select.appendChild(option);
+    });
+
+    // Atualizar unidade ao selecionar produto
+    select.removeEventListener('change', updateUnitAndQuantity);
+    select.addEventListener('change', updateUnitAndQuantity);
+}
+
+// Função auxiliar para atualizar unidade e quantidade
+function updateUnitAndQuantity() {
+    const select = document.getElementById('requestProductSelect');
+    const unitInput = document.getElementById('requestUnitInput');
+    const selectedOption = select.options[select.selectedIndex];
+    unitInput.value = selectedOption.dataset.unit || '';
+    
+    // Atualizar máximo permitido no input de quantidade, mas não limitar
+    const qtyInput = document.getElementById('requestQtyInput');
+    if (qtyInput) {
+        const availableQty = parseFloat(selectedOption.dataset.qty) || 0;
+        qtyInput.placeholder = availableQty <= 0 ? 'Sem estoque' : `Disponível: ${availableQty}`;
+        // Removido o max para permitir solicitar mais que o disponível
+        qtyInput.min = "1";
+    }
+}
+
+        // Atualizar a validação em tempo real do input de quantidade
+        document.getElementById('requestQtyInput')?.addEventListener('input', (e) => {
+            const input = e.target;
+            const qty = parseFloat(input.value);
+            const select = document.getElementById('requestProductSelect');
+            const selectedOption = select.options[select.selectedIndex];
+            const availableQty = parseFloat(selectedOption.dataset.qty || 0);
+            
+            if (qty > availableQty) {
+                input.classList.add('border-yellow-500'); // Mudado de red para yellow
+                input.title = `Atenção: Quantidade maior que disponível (${availableQty})`;
+            } else {
+                input.classList.remove('border-yellow-500');
+                input.title = '';
+            }
+        });
+
+        // ... existing code ...
+
+        // Variáveis para controle de listeners em tempo real
+        let unsubscribeRequestsSnapshot = null;
+        let unsubscribeMyRequestsSnapshot = null;
+
+        // Função para configurar listener em tempo real de solicitações pendentes
+        function setupPendingRequestsListener() {
+            if (!activeBoardId || !canManageInventory(activeBoardData)) return;
+            if (unsubscribeRequestsSnapshot) unsubscribeRequestsSnapshot();
+            
+            const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+            const q = query(userWithdrawalsRef, where('status', '==', 'pendente'));
+            
+            unsubscribeRequestsSnapshot = onSnapshot(q, (snapshot) => {
+                const modal = document.getElementById('pendingRequestsModal');
+                const list = document.getElementById('pendingRequestsList');
+                if (!modal || !list || modal.classList.contains('hidden')) return;
+                
+                if (snapshot.empty) {
+                    list.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhuma solicitação pendente.</div>';
+                    return;
+                }
+                
+                list.innerHTML = '';
+                snapshot.forEach(docSnap => {
+                    const item = docSnap.data();
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between py-3 px-2 hover:bg-emerald-50 rounded transition';
+                    div.innerHTML = `
+                        <div>
+                            <div class="font-semibold text-emerald-800 text-base">${item.prodName || ''}</div>
+                            <div class="text-xs text-gray-500">Qtd: <b>${item.qty}</b> ${item.unit || ''}</div>
+                            <div class="text-xs text-gray-400">${item.date ? new Date(item.date.seconds*1000).toLocaleString('pt-BR') : ''}</div>
+                            <div class="text-xs text-gray-600">Solicitante: <b>${item.displayName || item.userId}</b></div>
+                            <div class="text-xs text-gray-400">Motivo: ${item.reason || ''}</div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button class="approve-request-btn bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-xs font-medium" data-id="${docSnap.id}">Aprovar</button>
+                            <button class="reject-request-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-medium" data-id="${docSnap.id}">Recusar</button>
+                        </div>
+                    `;
+                    
+                    div.querySelector('.approve-request-btn').addEventListener('click', () => handleRequestApproval(docSnap.id, true));
+                    div.querySelector('.reject-request-btn').addEventListener('click', () => handleRequestApproval(docSnap.id, false));
+                    
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        // Função para configurar listener em tempo real das minhas solicitações
+        function setupMyRequestsListener() {
+            if (!activeBoardId || !currentUserId) return;
+            if (unsubscribeMyRequestsSnapshot) unsubscribeMyRequestsSnapshot();
+            
+            const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+            const q = query(userWithdrawalsRef, 
+                where('userId', '==', currentUserId),
+                orderBy('date', 'desc')
+            );
+            
+            unsubscribeMyRequestsSnapshot = onSnapshot(q, (snapshot) => {
+                const modal = document.getElementById('myRequestsModal');
+                const list = document.getElementById('myRequestsList');
+                if (!modal || !list || modal.classList.contains('hidden')) return;
+                
+                if (snapshot.empty) {
+                    list.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhuma solicitação encontrada.</div>';
+                    return;
+                }
+                
+                list.innerHTML = '';
+                snapshot.forEach(docSnap => {
+                    const item = docSnap.data();
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded transition';
+                    
+                    let statusColor, statusText;
+                    switch(item.status) {
+                        case 'pendente':
+                            statusColor = 'bg-yellow-100 text-yellow-800';
+                            statusText = 'Pendente';
+                            break;
+                        case 'aprovado':
+                            statusColor = 'bg-green-100 text-green-800';
+                            statusText = 'Aprovado';
+                            break;
+                        case 'rejeitado':
+                            statusColor = 'bg-red-100 text-red-800';
+                            statusText = 'Rejeitado';
+                            break;
+                        default:
+                            statusColor = 'bg-gray-100 text-gray-800';
+                            statusText = item.status;
+                    }
+                    
+                    div.innerHTML = `
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-800 text-base">${item.prodName || ''}</div>
+                            <div class="text-xs text-gray-500">Qtd: <b>${item.qty}</b> ${item.unit || ''}</div>
+                            <div class="text-xs text-gray-400">${item.date ? new Date(item.date.seconds*1000).toLocaleString('pt-BR') : ''}</div>
+                            <div class="text-xs text-gray-600">Motivo: ${item.reason || ''}</div>
+                            ${item.approvedByDisplayName ? `<div class="text-xs text-green-600">Aprovado por: ${item.approvedByDisplayName}</div>` : ''}
+                            ${item.rejectedByDisplayName ? `<div class="text-xs text-red-600">Rejeitado por: ${item.rejectedByDisplayName}</div>` : ''}
+                        </div>
+                        <div class="ml-4">
+                            <span class="px-2 py-1 rounded text-xs font-medium ${statusColor}">${statusText}</span>
+                        </div>
+                    `;
+                    
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        // Atualizar funções existentes para usar os listeners em tempo real
+        function loadAndShowPendingRequests() {
+            if (!activeBoardId || !canManageInventory(activeBoardData)) return;
+            document.getElementById('pendingRequestsModal').classList.remove('hidden');
+            setupPendingRequestsListener();
+        }
+
+        function loadAndShowMyRequests() {
+            if (!activeBoardId || !currentUserId) return;
+            document.getElementById('myRequestsModal').classList.remove('hidden');
+            setupMyRequestsListener();
+        }
+
+        // Limpar listeners ao sair do quadro
+        const oldBackToBoardsHandler = backToBoardsButton.onclick;
+        backToBoardsButton.onclick = () => {
+            if (oldBackToBoardsHandler) oldBackToBoardsHandler();
+            if (unsubscribeRequestsSnapshot) unsubscribeRequestsSnapshot();
+            if (unsubscribeMyRequestsSnapshot) unsubscribeMyRequestsSnapshot();
+        };
+
+        // ... existing code ...
+
+        // Função para processar solicitação
+        async function processStockRequest() {
+            if (!validateStockRequest()) return;
+            
+            const select = document.getElementById('requestProductSelect');
+            const qtyInput = document.getElementById('requestQtyInput');
+            const reasonInput = document.getElementById('requestReasonInput');
+            const unitInput = document.getElementById('requestUnitInput');
+            
+            const prodId = select.value;
+            const qty = parseFloat(qtyInput.value);
+            const reason = reasonInput.value.trim();
+            const selectedProduct = currentInventoryProducts.find(p => p.id === prodId);
+            
+            if (!selectedProduct) {
+                showToast('Produto não encontrado.', 'error');
+                return;
+            }
+            
+            showLoading();
+            try {
+                // Criar solicitação no Firestore
+                const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                const withdrawalData = {
+                    prodId,
+                    prodName: selectedProduct.name,
+                    qty,
+                    unit: unitInput.value,
+                    reason,
+                    userId: currentUserId,
+                    displayName: currentUserDisplayName,
+                    date: serverTimestamp(),
+                    status: 'pendente',
+                    boardId: activeBoardId
+                };
+
+                // Adicionar solicitação
+                const withdrawalRef = await addDoc(userWithdrawalsRef, withdrawalData);
+                
+                // Criar tarefa associada
+                if (tasksCollectionRef) {
+                    const firstColumn = userColumns.sort((a,b) => (a.order || 0) - (b.order || 0))[0];
+                    if (firstColumn) {
+                        await addDoc(tasksCollectionRef, {
+                            title: `Solicitação de Estoque: ${selectedProduct.name}`,
+                            description: `Quantidade: ${qty} ${unitInput.value}\nMotivo: ${reason}\nSolicitante: ${currentUserDisplayName}`,
+                            priority: 'medium',
+                            status: firstColumn.id,
+                            createdAt: serverTimestamp(),
+                            boardId: activeBoardId,
+                            withdrawalId: withdrawalRef.id,
+                            assignedTo: null,
+                            assignedToDisplayName: null,
+                            assignedAt: null,
+                            completedAt: null,
+                            isBlocked: false
+                        });
+                    }
+                }
+                
+                showToast('Solicitação enviada com sucesso!', 'success');
+                document.getElementById('requestStockModal').classList.add('hidden');
+                
+                // Limpar campos
+                select.value = '';
+                qtyInput.value = '';
+                reasonInput.value = '';
+                unitInput.value = '';
+                
+            } catch (error) {
+                console.error('Erro ao processar solicitação:', error);
+                showToast('Erro ao processar solicitação.', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('requestStockBtn')?.addEventListener('click', () => {
+            loadProductsIntoRequestSelect();
+            document.getElementById('requestStockModal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancelRequestStockBtn')?.addEventListener('click', () => {
+            document.getElementById('requestStockModal').classList.add('hidden');
+        });
+
+        document.getElementById('confirmRequestStockBtn')?.addEventListener('click', processStockRequest);
+
+        // ... existing code ...
+
+        // Placeholder para manter a estrutura do código
+// As funções de permissão foram movidas para cima
+
+        // Atualizar painel de permissões
+        function updateInventoryPermissionsPanel() {
+            const panel = document.getElementById('inventoryPermissionsPanel');
+            if (panel && typeof activeBoardData !== 'undefined' && activeBoardData) {
+                // Lista completa de permissões de estoque
+                const estoquePerms = [
+                    { 
+                        key: 'canManageInventory', 
+                        label: 'Gerenciar Estoque', 
+                        tip: 'Controle total do estoque. Inclui todas as outras permissões.' 
+                    },
+                    { 
+                        key: 'canWithdrawInventory', 
+                        label: 'Retirar Itens', 
+                        tip: 'Permite solicitar e retirar itens do estoque.' 
+                    },
+                    { 
+                        key: 'canApproveRequests', 
+                        label: 'Aprovar Solicitações', 
+                        tip: 'Permite aprovar ou rejeitar pedidos de retirada.' 
+                    },
+                    { 
+                        key: 'canViewReports', 
+                        label: 'Visualizar Relatórios', 
+                        tip: 'Acesso a relatórios, estatísticas e histórico do estoque.' 
+                    },
+                    { 
+                        key: 'canManageCategories', 
+                        label: 'Gerenciar Categorias', 
+                        tip: 'Permite criar e editar categorias de produtos.' 
+                    },
+                    { 
+                        key: 'canApproveReturns', 
+                        label: 'Aprovar Devoluções', 
+                        tip: 'Permite aprovar ou rejeitar devoluções de itens.' 
+                    }
+                ];
+
+                // Pega cargos/tags únicos
+                const tags = Array.from(new Set(Object.values(activeBoardData.memberTags||{}).concat(['Proprietário'])));
+                const rolePerms = activeBoardData.rolePermissions || {};
+                
+                let html = `
+                <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                    <h3 class="text-blue-800 font-semibold mb-2">Níveis de Acesso ao Estoque</h3>
+                    <p class="text-sm text-blue-600">Configure as permissões para cada cargo no sistema de estoque.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                `;
+                
+                tags.forEach(tag => {
+                    html += `
+                    <div class="rounded-lg border border-gray-200 shadow p-5 bg-gray-50 hover:bg-white transition-colors duration-200">
+                        <div class="font-semibold text-base text-gray-800 mb-3 pb-2 border-b border-gray-200">${tag}</div>
+                        <div class="space-y-2">
+                    `;
+                    
+                    estoquePerms.forEach(p => {
+                        const checked = rolePerms[tag] && rolePerms[tag][p.key] ? 'checked' : '';
+                        const isDisabled = tag === 'Proprietário' ? 'disabled' : ''; // Proprietário tem todas as permissões
+                        
+                        html += `
+                        <label class="flex items-start gap-2 text-sm text-gray-700 cursor-pointer p-1 rounded hover:bg-gray-100 transition-colors duration-200" title="${p.tip}">
+                            <div class="flex-shrink-0 mt-0.5">
+                                <input type="checkbox" class="perm-checkbox" data-role="${tag}" data-perm="${p.key}" ${checked} ${isDisabled}>
+                            </div>
+                            <div>
+                                <div class="font-medium">${p.label}</div>
+                                <div class="text-xs text-gray-500">${p.tip}</div>
+                            </div>
+                        </label>
+                        `;
+                    });
+                    
+                    html += `
+                        </div>
+                    </div>
+                    `;
+                });
+                
+                html += '</div>';
+                panel.innerHTML = html;
+
+                // Adicionar listeners para os checkboxes
+                panel.querySelectorAll('.perm-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', async (e) => {
+                        const role = e.target.dataset.role;
+                        const perm = e.target.dataset.perm;
+                        const checked = e.target.checked;
+
+                        if (role === 'Proprietário') {
+                            e.target.checked = true; // Força manter marcado para Proprietário
+                            return;
+                        }
+
+                        try {
+                            const newRolePerms = {...(activeBoardData.rolePermissions || {})};
+                            if (!newRolePerms[role]) newRolePerms[role] = {};
+                            newRolePerms[role][perm] = checked;
+
+                            const boardRef = doc(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}`);
+                            await updateDoc(boardRef, {
+                                rolePermissions: newRolePerms
+                            });
+
+                            showToast('Permissões atualizadas!', 'success');
+                        } catch (error) {
+                            console.error('Erro ao atualizar permissões:', error);
+                            showToast('Erro ao atualizar permissões.', 'error');
+                            e.target.checked = !checked; // Reverte a mudança em caso de erro
+                        }
+                    });
+                });
+            }
+        }
+
+        // Atualizar a chamada da função no evento de abrir o modal
+        document.getElementById('openInventoryPermissionsBtn')?.addEventListener('click', () => {
+            const modal = document.getElementById('inventoryPermissionsModal');
+            if (modal) {
+                updateInventoryPermissionsPanel();
+                modal.classList.remove('hidden');
+            }
+        });
+
+        // ... existing code ...
+
+        // Adicionar botão de relatórios aos FABs
+        const fabContainer = document.querySelector('.fab-container');
+        if (fabContainer) {
+            const reportsBtn = document.createElement('button');
+            reportsBtn.id = 'inventoryReportsBtn';
+            reportsBtn.className = 'fab-button bg-purple-600 hover:bg-purple-700 hidden';
+            reportsBtn.innerHTML = '<i class="fas fa-chart-bar"></i>';
+            reportsBtn.title = 'Relatórios do Estoque';
+            fabContainer.appendChild(reportsBtn);
+        }
+
+        // Adicionar modal de relatórios
+        if (!document.getElementById('inventoryReportsModal')) {
+            const modal = document.createElement('div');
+            modal.id = 'inventoryReportsModal';
+            modal.className = 'fixed inset-0 modal-overlay flex items-center justify-center z-[100] hidden';
+            modal.innerHTML = `
+                <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl modal-content">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-purple-700 flex items-center">
+                            <i class="fas fa-chart-bar mr-2"></i>Relatórios do Estoque
+                        </h3>
+                        <button id="closeReportsModalBtn" class="text-gray-400 hover:text-red-500 text-2xl p-1 rounded-full transition">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Cards de Resumo -->
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="text-blue-800 font-semibold mb-2">Resumo Geral</h4>
+                            <div id="inventorySummary" class="space-y-2">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Total de Produtos:</span>
+                                    <span class="font-semibold" id="totalProducts">-</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Produtos com Estoque Baixo:</span>
+                                    <span class="font-semibold text-yellow-600" id="lowStockProducts">-</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Produtos sem Estoque:</span>
+                                    <span class="font-semibold text-red-600" id="outOfStockProducts">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h4 class="text-green-800 font-semibold mb-2">Movimentações</h4>
+                            <div id="movementsSummary" class="space-y-2">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Retiradas (Mês):</span>
+                                    <span class="font-semibold" id="monthlyWithdrawals">-</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Devoluções (Mês):</span>
+                                    <span class="font-semibold" id="monthlyReturns">-</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Solicitações Pendentes:</span>
+                                    <span class="font-semibold text-yellow-600" id="pendingRequests">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Abas de Relatórios -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <div class="flex space-x-4" role="tablist">
+                            <button class="report-tab-btn active px-4 py-2 text-sm font-medium border-b-2 border-purple-500" data-tab="movements">
+                                Movimentações
+                            </button>
+                            <button class="report-tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent" data-tab="products">
+                                Produtos
+                            </button>
+                            <button class="report-tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent" data-tab="categories">
+                                Categorias
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Conteúdo das Abas -->
+                    <div id="reportsContent" class="min-h-[300px] max-h-[500px] overflow-y-auto">
+                        <!-- O conteúdo será preenchido dinamicamente -->
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Funções para relatórios
+        async function loadInventoryReport() {
+            if (!activeBoardId || !canViewReports(activeBoardData)) {
+                showToast('Você não tem permissão para visualizar relatórios.', 'error');
+                return;
+            }
+
+            const modal = document.getElementById('inventoryReportsModal');
+            if (!modal) return;
+
+            showLoading();
+            try {
+                // Carregar dados do resumo
+                const inventorySnapshot = await getDocs(inventoryCollectionRef);
+                const products = inventorySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                
+                // Atualizar cards de resumo
+                document.getElementById('totalProducts').textContent = products.length;
+                document.getElementById('lowStockProducts').textContent = products.filter(p => p.qty > 0 && p.qty <= 5).length;
+                document.getElementById('outOfStockProducts').textContent = products.filter(p => p.qty <= 0).length;
+
+                // Carregar movimentações do mês atual
+                const startOfMonth = new Date();
+                startOfMonth.setDate(1);
+                startOfMonth.setHours(0, 0, 0, 0);
+
+                const withdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                const withdrawalsQuery = query(
+                    withdrawalsRef,
+                    where('date', '>=', startOfMonth)
+                );
+                const withdrawalsSnapshot = await getDocs(withdrawalsQuery);
+                const withdrawals = withdrawalsSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+
+                document.getElementById('monthlyWithdrawals').textContent = withdrawals.filter(w => w.status === 'retirado').length;
+                document.getElementById('monthlyReturns').textContent = withdrawals.filter(w => w.status === 'devolvido').length;
+                document.getElementById('pendingRequests').textContent = withdrawals.filter(w => w.status === 'pendente').length;
+
+                // Mostrar aba inicial
+                showReportTab('movements');
+
+            } catch (error) {
+                console.error('Erro ao carregar relatórios:', error);
+                showToast('Erro ao carregar relatórios.', 'error');
+            } finally {
+                hideLoading();
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function showReportTab(tabName) {
+            // Atualizar botões
+            document.querySelectorAll('.report-tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('text-purple-600', 'border-purple-500');
+                    btn.classList.remove('text-gray-500', 'border-transparent');
+                } else {
+                    btn.classList.remove('text-purple-600', 'border-purple-500');
+                    btn.classList.add('text-gray-500', 'border-transparent');
+                }
+            });
+
+            // Carregar conteúdo da aba
+            const contentDiv = document.getElementById('reportsContent');
+            if (!contentDiv) return;
+
+            switch (tabName) {
+                case 'movements':
+                    loadMovementsReport(contentDiv);
+                    break;
+                case 'products':
+                    loadProductsReport(contentDiv);
+                    break;
+                case 'categories':
+                    loadCategoriesReport(contentDiv);
+                    break;
+            }
+        }
+
+        async function loadMovementsReport(container) {
+            container.innerHTML = '<div class="text-center text-gray-400 py-8">Carregando...</div>';
+            
+            try {
+                const withdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                const q = query(withdrawalsRef, orderBy('date', 'desc'), limit(50));
+                const snap = await getDocs(q);
+
+                if (snap.empty) {
+                    container.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhuma movimentação encontrada.</div>';
+                    return;
+                }
+
+                let html = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qtd</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuário</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+        `;
+
+                snap.forEach(doc => {
+                    const item = doc.data();
+                    const date = item.date ? new Date(item.date.seconds * 1000).toLocaleString('pt-BR') : '-';
+                    const statusColors = {
+                        'pendente': 'text-yellow-600',
+                        'aprovado': 'text-green-600',
+                        'rejeitado': 'text-red-600',
+                        'retirado': 'text-blue-600',
+                        'devolvido': 'text-purple-600',
+                        'devolucao_pendente': 'text-orange-600'
+                    };
+                    const statusLabels = {
+                        'pendente': 'Pendente',
+                        'aprovado': 'Aprovado',
+                        'rejeitado': 'Rejeitado',
+                        'retirado': 'Retirado',
+                        'devolvido': 'Devolvido',
+                        'devolucao_pendente': 'Devolução Pendente'
+                    };
+
+                    html += `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${date}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.prodName || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.qty} ${item.unit || ''}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.displayName || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm ${statusColors[item.status] || 'text-gray-500'}">
+                                    ${statusLabels[item.status] || item.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Erro ao carregar relatório de movimentações:', error);
+                container.innerHTML = '<div class="text-center text-red-500 py-8">Erro ao carregar relatório.</div>';
+            }
+        }
+
+        async function loadProductsReport(container) {
+            container.innerHTML = '<div class="text-center text-gray-400 py-8">Carregando...</div>';
+            
+            try {
+                const snap = await getDocs(inventoryCollectionRef);
+                if (snap.empty) {
+                    container.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhum produto encontrado.</div>';
+                    return;
+                }
+
+                const products = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                
+                let html = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoria</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estoque</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+        `;
+
+                products.forEach(prod => {
+                    let statusClass = 'text-green-600';
+                    let statusText = 'Normal';
+                    
+                    if (prod.qty <= 0) {
+                        statusClass = 'text-red-600';
+                        statusText = 'Sem Estoque';
+                    } else if (prod.qty <= 5) {
+                        statusClass = 'text-yellow-600';
+                        statusText = 'Estoque Baixo';
+                    }
+
+                    html += `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${prod.name || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${prod.code || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${prod.category || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${prod.qty} ${prod.unit || ''}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm ${statusClass}">${statusText}</span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Erro ao carregar relatório de produtos:', error);
+                container.innerHTML = '<div class="text-center text-red-500 py-8">Erro ao carregar relatório.</div>';
+            }
+        }
+
+        async function loadCategoriesReport(container) {
+            container.innerHTML = '<div class="text-center text-gray-400 py-8">Carregando...</div>';
+            
+            try {
+                const snap = await getDocs(inventoryCollectionRef);
+                if (snap.empty) {
+                    container.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhum produto encontrado.</div>';
+                    return;
+                }
+
+                const products = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                const categories = {};
+
+                // Agrupar produtos por categoria
+                products.forEach(prod => {
+                    const category = prod.category || 'Sem Categoria';
+                    if (!categories[category]) {
+                        categories[category] = {
+                            totalProducts: 0,
+                            totalItems: 0,
+                            lowStock: 0,
+                            outOfStock: 0
+                        };
+                    }
+                    categories[category].totalProducts++;
+                    categories[category].totalItems += prod.qty || 0;
+                    if (prod.qty <= 0) categories[category].outOfStock++;
+                    else if (prod.qty <= 5) categories[category].lowStock++;
+                });
+
+                let html = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                `;
+
+                Object.entries(categories).forEach(([category, stats]) => {
+                    html += `
+                    <div class="bg-white rounded-lg border border-gray-200 p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">${category}</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Total de Produtos:</span>
+                                <span class="font-semibold">${stats.totalProducts}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Total de Itens:</span>
+                                <span class="font-semibold">${stats.totalItems}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Estoque Baixo:</span>
+                                <span class="font-semibold text-yellow-600">${stats.lowStock}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Sem Estoque:</span>
+                                <span class="font-semibold text-red-600">${stats.outOfStock}</span>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                html += `</div>`;
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Erro ao carregar relatório de categorias:', error);
+                container.innerHTML = '<div class="text-center text-red-500 py-8">Erro ao carregar relatório.</div>';
+            }
+        }
+
+        // Event Listeners para relatórios
+        document.getElementById('inventoryReportsBtn')?.addEventListener('click', loadInventoryReport);
+        document.getElementById('closeReportsModalBtn')?.addEventListener('click', () => {
+            document.getElementById('inventoryReportsModal').classList.add('hidden');
+        });
+
+        // Event Listeners para as abas
+        document.querySelectorAll('.report-tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tabName = e.target.dataset.tab;
+                if (tabName) showReportTab(tabName);
+            });
+        });
+
+        // ... existing code ...
     </script>
+    <!-- Botão Estoque no menu principal (aparece só dentro do quadro) -->
+    <button id="openInventoryBtn" class="fixed bottom-24 right-6 z-40 bg-emerald-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-emerald-700 transition-all" style="display:none;"><i class="fas fa-boxes"></i></button>
+    <!-- Botão Solicitar Item flutuante -->
+    <button id="requestStockBtn" class="fixed bottom-40 right-6 z-40 bg-emerald-500 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-emerald-700 transition-all" style="display:none;" title="Solicitar Item do Estoque"><i class="fas fa-box-open"></i></button>
+    <!-- Botão Permissões de Estoque flutuante -->
+    <button id="openInventoryPermissionsBtn" class="fixed bottom-56 right-6 z-40 bg-yellow-500 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-yellow-600 transition-all" style="display:none;" title="Permissões de Estoque"><i class="fas fa-user-shield"></i></button>
+
+    <!-- Modal de Estoque -->
+    <div id="inventoryModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[80] hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl modal-content flex flex-col h-[80vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-emerald-700 flex items-center"><i class="fas fa-boxes mr-2"></i>Estoque</h3>
+                <button id="closeInventoryModalBtn" class="text-gray-400 hover:text-red-500 text-2xl p-1 rounded-full transition duration-150 ease-in-out flex items-center justify-center w-10 h-10 focus:outline-none focus:ring-2 focus:ring-red-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="flex justify-between items-center mb-3">
+                <input id="inventorySearchInput" type="text" placeholder="Buscar produto..." class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-sm w-1/2" />
+                <button id="addProductBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-emerald-700 font-semibold text-base ml-2 hidden"><i class="fas fa-plus mr-1"></i>Adicionar Produto</button>
+            </div>
+            <div id="inventoryList" class="flex-1 overflow-y-auto divide-y divide-gray-100 mb-2"></div>
+        </div>
+    </div>
+    <!-- Modal de Adicionar Produto -->
+    <div id="addProductModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[90] hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content">
+            <h3 class="text-xl font-bold text-emerald-700 mb-6">Adicionar Produto</h3>
+            <div class="space-y-4">
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Nome</label><input id="productNameInput" type="text" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Nome do produto"></div>
+                <div class="flex gap-2"><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Código</label><input id="productCodeInput" type="text" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Código"></div><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label><input id="productCategoryInput" type="text" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Categoria"></div></div>
+                <div class="flex gap-2"><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Quantidade Inicial</label><input id="productQtyInput" type="number" min="0" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="0"></div><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Unidade</label><input id="productUnitInput" type="text" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="un, kg, l..."></div></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label><textarea id="productDescInput" rows="2" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Descrição..."></textarea></div>
+            </div>
+            <div class="flex justify-end space-x-4 pt-4"><button id="cancelAddProductBtn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmAddProductBtn" class="bg-emerald-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-emerald-700 font-medium">Adicionar</button></div>
+        </div>
+    </div>
+
+    <!-- Modal de Editar Produto -->
+    <div id="editProductModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[90] hidden">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content">
+      <h3 class="text-xl font-bold text-emerald-700 mb-6">Editar Produto</h3>
+      <input type="hidden" id="editProductIdInput">
+      <div class="space-y-4">
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Nome</label><input id="editProductNameInput" type="text" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"></div>
+        <div class="flex gap-2"><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Código</label><input id="editProductCodeInput" type="text" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"></div><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label><input id="editProductCategoryInput" type="text" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"></div></div>
+        <div class="flex gap-2"><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Quantidade</label><input id="editProductQtyInput" type="number" min="0" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"></div><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Unidade</label><input id="editProductUnitInput" type="text" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"></div></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label><textarea id="editProductDescInput" rows="2" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"></textarea></div>
+      </div>
+      <div class="flex justify-end space-x-4 pt-4">
+        <button id="cancelEditProductBtn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button>
+        <button id="saveEditProductBtn" class="bg-emerald-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-emerald-700 font-medium">Salvar Alterações</button>
+        <button id="deleteProductBtn" class="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-700 font-medium">Excluir</button>
+      </div>
+    </div>
+    </div>
+
+    <!-- Modal de Retirada -->
+    <div id="withdrawProductModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[90] hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content">
+            <h3 class="text-xl font-bold text-emerald-700 mb-6">Retirar Produto</h3>
+            <input type="hidden" id="withdrawProductIdInput">
+            <div class="space-y-4">
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Produto</label><input id="withdrawProductNameInput" type="text" class="block w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg sm:text-sm" disabled></div>
+                <div class="flex gap-2"><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Quantidade</label><input id="withdrawQtyInput" type="number" min="1" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="0"></div><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Unidade</label><input id="withdrawUnitInput" type="text" class="block w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg sm:text-sm" disabled></div></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Motivo/Observação</label><textarea id="withdrawReasonInput" rows="2" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Motivo ou observação..."></textarea></div>
+            </div>
+            <div class="flex justify-end space-x-4 pt-4"><button id="cancelWithdrawBtn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmWithdrawBtn" class="bg-emerald-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-emerald-700 font-medium">Confirmar Retirada</button></div>
+        </div>
+    </div>
+
+    <!-- Modal de Solicitação de Item de Estoque -->
+    <div id="requestStockModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[95] hidden">
+      <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md modal-content">
+        <h3 class="text-xl font-bold text-emerald-700 mb-6 flex items-center"><i class="fas fa-box-open mr-2"></i>Solicitar Item do Estoque</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Produto</label>
+            <select id="requestProductSelect" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"></select>
+          </div>
+          <div class="flex gap-2">
+            <div class="flex-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Quantidade</label>
+              <input id="requestQtyInput" type="number" min="1" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="0">
+            </div>
+            <div class="flex-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Unidade</label>
+              <input id="requestUnitInput" type="text" class="block w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg sm:text-sm" disabled>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Motivo</label>
+            <textarea id="requestReasonInput" rows="2" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Por que precisa deste item?"></textarea>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-4 pt-4">
+          <button id="cancelRequestStockBtn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button>
+          <button id="confirmRequestStockBtn" class="bg-emerald-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-emerald-700 font-medium">Solicitar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Permissões de Estoque (Painel ADM) -->
+    <div id="inventoryPermissionsModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[96] hidden">
+      <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl modal-content">
+        <h3 class="text-2xl font-bold text-emerald-700 mb-6 flex items-center"><i class="fas fa-user-shield mr-2"></i>Permissões de Estoque</h3>
+        <div id="inventoryPermissionsPanel" class="overflow-x-auto max-h-[60vh] mb-6"></div>
+        <div class="flex justify-end space-x-4">
+          <button id="cancelInventoryPermsBtn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button>
+          <button id="saveInventoryPermsBtn" class="bg-emerald-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-emerald-700 font-medium">Salvar Permissões</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campo de menção de produto no modal de tarefa (Adicionar/Editar) -->
+    <!-- Adicionar dentro do modal de tarefa, após prioridade e vencimento -->
+    
+    <!-- Modal de Meus Itens -->
+    <div id="myItemsModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[97] hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-blue-700 flex items-center"><i class="fas fa-box mr-2"></i>Meus Itens</h3>
+                <button id="closeMyItemsModalBtn" class="text-gray-400 hover:text-red-500 text-2xl p-1 rounded-full transition"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="myItemsList" class="flex-1 overflow-y-auto divide-y divide-gray-100 mb-2 max-h-[60vh]"></div>
+        </div>
+    </div>
+
+    <!-- Modal de Solicitações Pendentes -->
+    <div id="pendingRequestsModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[98] hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-yellow-700 flex items-center"><i class="fas fa-clipboard-list mr-2"></i>Solicitações Pendentes</h3>
+                <button id="closePendingRequestsModalBtn" class="text-gray-400 hover:text-red-500 text-2xl p-1 rounded-full transition"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="pendingRequestsList" class="flex-1 overflow-y-auto divide-y divide-gray-100 mb-2 max-h-[60vh]"></div>
+        </div>
+    </div>
+
+    <!-- Modal de Histórico de Solicitações -->
+    <div id="myRequestsModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[99] hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-blue-700 flex items-center"><i class="fas fa-history mr-2"></i>Histórico de Solicitações</h3>
+                <button id="closeMyRequestsModalBtn" class="text-gray-400 hover:text-red-500 text-2xl p-1 rounded-full transition"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="myRequestsList" class="flex-1 overflow-y-auto divide-y divide-gray-100 mb-2 max-h-[60vh]"></div>
+        </div>
+    </div>
 </body>
 </html>
