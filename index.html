@@ -60,7 +60,7 @@
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             border: 1px solid var(--color-border);
-            background-color: #2a3649;
+            background-color: var(--color-background);
             color: var(--color-text-primary);
             border-radius: 8px;
             margin: 8px;
@@ -71,7 +71,7 @@
         .kanban-card:hover {
             box-shadow: var(--shadow-md);
             transform: translateY(-2px);
-            background-color: #2f3b4e;
+            background-color: var(--color-surface);
         }
         .kanban-card:hover {
             box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3), 0 6px 12px -8px rgba(0, 0, 0, 0.22);
@@ -159,12 +159,12 @@
         }
         /* Ajustes adicionais para elementos de interface */
         input, select, textarea {
-            background-color: #2d2e32 !important;
-            color: #e2e8f0 !important;
-            border-color: #3f3f46 !important;
+            background-color: var(--color-background) !important;
+            color: var(--color-text-primary) !important;
+            border-color: var(--color-border) !important;
         }
         input::placeholder, textarea::placeholder {
-            color: #6b7280 !important;
+            color: var(--color-text-secondary) !important;
         }
         /* Estilos modernos para elementos da interface */
         .bg-white,
@@ -337,6 +337,225 @@
         .task-completed { border-left-color: #22c55e !important; background-color: #1a2f1d; opacity: 0.8; }
         .task-completed .task-title-text { text-decoration: line-through; color: #94a3b8; }
         .task-completed .task-title-text::before { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 6px; color: #22c55e; }
+        /* Ajustes para o chat */
+        #kanbanChatSidebar {
+            background-color: var(--color-surface) !important;
+            border-left: 1px solid var(--color-border) !important;
+        }
+
+        #kanbanChatMessages {
+            background-color: var(--color-background) !important;
+            padding: 0.75rem;
+            max-height: 250px;
+            min-height: 120px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-primary) var(--color-background);
+        }
+
+        #kanbanChatMessages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #kanbanChatMessages::-webkit-scrollbar-track {
+            background: var(--color-background);
+        }
+
+        #kanbanChatMessages::-webkit-scrollbar-thumb {
+            background-color: var(--color-primary);
+            border-radius: 3px;
+        }
+
+        #kanbanChatForm {
+            background-color: var(--color-surface) !important;
+            border-top: 1px solid var(--color-border) !important;
+            padding: 1rem;
+        }
+
+        #kanbanChatInput {
+            background-color: var(--color-background) !important;
+            color: var(--color-text-primary) !important;
+            border: 1px solid var(--color-border) !important;
+        }
+
+        /* Estilo das mensagens */
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            margin-bottom: 0.25rem;
+            background-color: var(--color-surface) !important;
+            border: 1px solid var(--color-border) !important;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .message:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-mine {
+            background-color: var(--color-primary) !important;
+            border-color: var(--color-primary) !important;
+        }
+
+        .message .sender {
+            color: var(--color-primary) !important;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .message-mine .sender {
+            color: var(--color-text-primary) !important;
+        }
+
+        .message .timestamp {
+            color: var(--color-text-secondary) !important;
+            font-size: 0.75rem;
+        }
+
+        .message .content {
+            color: var(--color-text-primary) !important;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            white-space: pre-line;
+            word-break: break-word;
+        }
+
+        .message-mine .content {
+            color: var(--color-text-primary) !important;
+        }
+
+        /* Ajustes para o avatar na mensagem */
+        .message .flex-shrink-0 {
+            background-color: var(--color-surface) !important;
+            color: var(--color-primary) !important;
+        }
+
+        .message-mine .flex-shrink-0 {
+            background-color: var(--color-background) !important;
+            color: var(--color-text-primary) !important;
+        }
+
+        /* Remove estilos conflitantes */
+        .bg-white.message,
+        div[class*="bg-white"].message {
+            background-color: var(--color-surface) !important;
+        }
+
+        .text-white.message,
+        .text-white .message {
+            color: var(--color-text-primary) !important;
+        }
+
+        /* Ajustes para o cabeçalho */
+        header.bg-white {
+            background-color: var(--color-surface) !important;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        /* Ajustes para modais */
+        .modal-content {
+            background-color: var(--color-surface) !important;
+            color: var(--color-text-primary) !important;
+        }
+
+        /* Ajustes adicionais para consistência de cores */
+        .kanban-column {
+            background-color: var(--color-surface) !important;
+            border-color: var(--color-border) !important;
+        }
+
+        .kanban-card {
+            background-color: var(--color-background) !important;
+            border-color: var(--color-border) !important;
+            color: var(--color-text-primary) !important;
+        }
+
+        .kanban-card:hover {
+            background-color: var(--color-surface) !important;
+        }
+
+        #kanbanChatSidebar {
+            border-left-color: var(--color-border) !important;
+        }
+
+        #openChatSidebarBtn {
+            background-color: var(--color-primary) !important;
+        }
+
+        #openChatSidebarBtn:hover {
+            background-color: var(--color-accent) !important;
+        }
+
+        /* Ajustes para inputs e botões */
+        input, select, textarea {
+            background-color: var(--color-background) !important;
+            color: var(--color-text-primary) !important;
+            border-color: var(--color-border) !important;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--color-text-secondary) !important;
+        }
+
+        button.bg-gray-200 {
+            background-color: var(--color-surface) !important;
+            color: var(--color-text-primary) !important;
+        }
+
+        button.bg-gray-200:hover {
+            background-color: var(--color-secondary) !important;
+        }
+
+        /* Estilos do botão de apagar mensagem */
+        .delete-chat-msg-btn {
+            color: var(--color-danger) !important;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--color-background);
+            border: 1px solid var(--color-border);
+            position: absolute;
+            right: 8px;
+            top: 8px;
+        }
+
+        .message:hover .delete-chat-msg-btn {
+            opacity: 1;
+        }
+
+        .delete-chat-msg-btn:hover {
+            background: var(--color-surface);
+        }
+
+        .message {
+            position: relative;
+        }
+
+        /* Ajuste para mensagens próprias */
+        .message-mine .delete-chat-msg-btn {
+            background: var(--color-background);
+            border-color: var(--color-border);
+        }
+
+        .message-mine .delete-chat-msg-btn:hover {
+            background: var(--color-surface);
+        }
+
+        /* Estado inicial do botão limpar chat */
+        #clearChatBtn {
+            display: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+        
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -437,20 +656,25 @@
                 </main>
             </div>
             <!-- Chat lateral -->
-            <aside id="kanbanChatSidebar" class="w-full sm:w-96 max-w-full sm:max-w-xs bg-white border-l border-gray-200 flex flex-col h-full shadow-lg z-30 transition-all duration-300 fixed sm:static right-0 top-0 sm:top-auto sm:right-auto" style="min-width:320px; max-width:400px; display:none;">
-                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
-                    <h3 class="text-lg font-bold text-indigo-700 flex items-center"><i class="fas fa-comments mr-2"></i>Chat do Quadro</h3>
-                    <button id="closeChatSidebarBtn" class="text-gray-400 hover:text-red-500 text-xl p-1 rounded transition"><i class="fas fa-times"></i></button>
+            <aside id="kanbanChatSidebar" class="w-full sm:w-80 max-w-full sm:max-w-xs bg-white border-l border-gray-200 flex flex-col shadow-lg z-30 transition-all duration-300 fixed sm:static right-0 top-0 sm:top-auto sm:right-auto" style="min-width:280px; max-width:320px; display:none; max-height:450px;">
+                <div class="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50">
+                    <h3 class="text-base font-bold text-indigo-700 flex items-center"><i class="fas fa-comments mr-1"></i>Chat do Quadro</h3>
+                    <button id="closeChatSidebarBtn" class="text-gray-400 hover:text-red-500 text-lg p-1 rounded transition"><i class="fas fa-times"></i></button>
                 </div>
-                <div id="kanbanChatMessages" class="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-white">
-                    <!-- Mensagens do chat -->
+                <div id="kanbanChatMessages" class="flex-1 px-3 py-2 space-y-2 bg-white overflow-y-auto" style="max-height:250px;">
+                    <div class="flex flex-col gap-2">
+                        <!-- Mensagens do chat -->
+                    </div>
                 </div>
-                <form id="kanbanChatForm" class="flex items-center gap-2 px-4 py-3 border-t border-gray-100 bg-gray-50">
-                    <input id="kanbanChatInput" type="text" maxlength="500" placeholder="Digite sua mensagem..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" autocomplete="off" />
-                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-indigo-700 font-semibold text-base"><i class="fas fa-paper-plane"></i></button>
+                <form id="kanbanChatForm" class="flex items-center gap-2 px-3 py-2 border-t border-gray-100 bg-gray-50">
+                    <input id="kanbanChatInput" type="text" maxlength="500" placeholder="Digite sua mensagem..." class="flex-1 px-2 py-1 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" autocomplete="off" />
+                    <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded-lg shadow-md hover:bg-indigo-700 font-semibold text-sm"><i class="fas fa-paper-plane"></i></button>
                 </form>
-                <div class="flex justify-end px-4 pb-2">
-                    <button id="clearChatBtn" class="hidden text-xs bg-red-100 text-red-700 px-3 py-1.5 rounded shadow hover:bg-red-200 font-medium flex items-center"><i class="fas fa-trash-alt mr-1"></i>Limpar Chat</button>
+                <div class="flex justify-end p-2 border-t border-gray-200 bg-gray-50">
+                    <button type="button" id="clearChatBtn" class="hidden items-center gap-1 px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition-all duration-200 ease-in-out text-xs">
+                        <i class="fas fa-trash-alt"></i>
+                        <span class="font-medium">Limpar Chat</span>
+                    </button>
                 </div>
             </aside>
             <button id="openChatSidebarBtn" class="fixed sm:absolute bottom-6 right-6 sm:top-5 sm:right-5 z-40 bg-indigo-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-indigo-700 transition-all"><i class="fas fa-comments"></i></button>
@@ -479,10 +703,12 @@
                 </div>
                 <p class="text-xs text-gray-500 mt-1">Peça ao usuário o "ID do Usuário" (visível no cabeçalho do LUMO).</p>
             </div>
-            <!-- Seção de Criar Novo Usuário (Admin) foi REMOVIDA -->
-            <div>
-                <h4 class="text-lg font-medium text-gray-700 mb-2 pt-4 border-t border-gray-200">Membros Atuais:</h4>
-                <ul id="memberListContainer" class="space-y-2 max-h-48 overflow-y-auto bg-gray-50 p-3 rounded-md">
+            <div id="membersSectionContainer">
+                <h4 class="text-lg font-medium text-gray-700 mb-3 pt-4 border-t border-gray-200 flex items-center">
+                    <i class="fas fa-users mr-2 text-indigo-500"></i>
+                    Membros Atuais:
+                </h4>
+                <ul id="memberListContainer" class="space-y-3 max-h-[50vh] sm:max-h-64 overflow-y-auto bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <!-- Lista de membros será populada aqui -->
                 </ul>
             </div>
@@ -666,36 +892,88 @@
         // Mapeamento de permissões por cargo/tag (pode ser customizado)
         const ROLE_PERMISSIONS = {
             'Administrador': {
+                // Permissões de quadro e tarefas
                 canEditColumn: true,
                 canDeleteColumn: true,
                 canRemoveMember: true,
                 canEditTag: true,
                 canBlockTask: true,
                 canEditTask: true,
+                canDeleteChat: true,
+                
+                // Permissões de gerenciamento
+                canManageRolePermissions: true,
+                
+                // Permissões de estoque
+                canManageInventory: true,
+                canWithdrawInventory: true,
+                canApproveRequests: true,
+                canViewReports: true,
+                canManageCategories: true,
+                canApproveReturns: true
             },
             'Supervisor': {
+                // Permissões de quadro e tarefas
                 canEditColumn: false,
                 canDeleteColumn: false,
                 canRemoveMember: false,
                 canEditTag: false,
                 canBlockTask: true,
                 canEditTask: true,
+                canDeleteChat: false,
+                
+                // Permissões de gerenciamento
+                canManageRolePermissions: false,
+                
+                // Permissões de estoque
+                canManageInventory: false,
+                canWithdrawInventory: true,
+                canApproveRequests: true,
+                canViewReports: true,
+                canManageCategories: false,
+                canApproveReturns: true
             },
             'Membro': {
+                // Permissões de quadro e tarefas
                 canEditColumn: false,
                 canDeleteColumn: false,
                 canRemoveMember: false,
                 canEditTag: false,
                 canBlockTask: false,
                 canEditTask: true,
+                canDeleteChat: false,
+                
+                // Permissões de gerenciamento
+                canManageRolePermissions: false,
+                
+                // Permissões de estoque
+                canManageInventory: false,
+                canWithdrawInventory: true,
+                canApproveRequests: false,
+                canViewReports: false,
+                canManageCategories: false,
+                canApproveReturns: false
             },
             'Proprietário': {
+                // Permissões de quadro e tarefas
                 canEditColumn: true,
                 canDeleteColumn: true,
                 canRemoveMember: true,
                 canEditTag: true,
                 canBlockTask: true,
                 canEditTask: true,
+                canDeleteChat: true,
+                
+                // Permissões de gerenciamento
+                canManageRolePermissions: true,
+                
+                // Permissões de estoque
+                canManageInventory: true,
+                canWithdrawInventory: true,
+                canApproveRequests: true,
+                canViewReports: true,
+                canManageCategories: true,
+                canApproveReturns: true
             },
         };
 
@@ -1200,11 +1478,223 @@
         async function openManageMembersModal(boardId, boardName, ownerId, members) {
             if (!manageMembersModal || !manageMembersBoardIdInput || !memberListContainer || !newMemberIdInput) return;
             manageMembersBoardIdInput.value = boardId;
-            manageMembersModal.querySelector('h3').textContent = `Membros de: ${boardName}`;
+            
+            console.log("Abrindo modal de gerenciamento de membros para o quadro:", boardId, boardName);
+            
+            // Verifica se estamos dentro de um quadro ativo ou fora dele
+            const isInsideBoard = kanbanSection && !kanbanSection.classList.contains('hidden');
+            console.log("Estado do quadro:", isInsideBoard ? "Dentro do quadro" : "Fora do quadro", kanbanSection?.classList.contains('hidden'));
+            
+            // Ajusta o título do modal
+            if (isInsideBoard) {
+                manageMembersModal.querySelector('h3').textContent = `Membros de: ${boardName}`;
+            } else {
+                const titleElement = manageMembersModal.querySelector('h3');
+                titleElement.innerHTML = `Adicionar Membro<br><span class="text-lg text-indigo-600">Quadro: ${boardName}</span>`;
+            }
+            
             newMemberIdInput.value = '';
-            memberListContainer.innerHTML = '<li class="text-center text-gray-500 p-2">Carregando membros...</li>';
             const isCurrentUserOwnerOfBoard = ownerId === currentUserId;
+            
+            // Configura o campo de adicionar membro
+            newMemberIdInput.disabled = !isCurrentUserOwnerOfBoard;
+            addMemberButton.disabled = !isCurrentUserOwnerOfBoard;
+            if (!isCurrentUserOwnerOfBoard) {
+                newMemberIdInput.placeholder = "Apenas o proprietário do quadro pode adicionar membros";
+                addMemberButton.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                newMemberIdInput.placeholder = "UID do novo membro";
+                addMemberButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            // Remove avisos anteriores
+            document.getElementById('membersPermNotice')?.remove();
+            document.getElementById('ownerInstructions')?.remove();
+            document.getElementById('nonOwnerPermissionsBtn')?.remove();
+            document.getElementById('outsideBoardNotice')?.remove();
+            
+            // Adiciona aviso quando acessado fora do quadro
+            if (!isInsideBoard) {
+                const outsideBoardNotice = document.createElement('div');
+                outsideBoardNotice.id = 'outsideBoardNotice';
+                outsideBoardNotice.className = 'mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 text-sm';
+                outsideBoardNotice.innerHTML = `
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-info-circle text-yellow-600 mr-2 text-lg"></i>
+                        <span class="font-semibold">Modo de adição rápida</span>
+                    </div>
+                    <p class="mb-2">Você está adicionando membros fora do quadro. Para acessar todas as funcionalidades de gerenciamento de membros, entre no quadro.</p>
+                    <p class="text-xs font-medium">Para configurar permissões e gerenciar cargos, acesse o quadro e clique em "Gerenciar Membros".</p>
+                `;
+                const addMemberSection = document.querySelector('#manageMembersModal .mb-6');
+                if (addMemberSection) {
+                    addMemberSection.appendChild(outsideBoardNotice);
+                }
+                
+                // Quando fora do quadro, mostra uma versão simplificada dos membros
+                const membersSectionContainer = document.getElementById('membersSectionContainer');
+                if (membersSectionContainer) {
+                    membersSectionContainer.style.display = 'none';
+                }
+                
+                // Remover visualização anterior se existir
+                const existingView = document.getElementById('simpleMembersView');
+                if (existingView) {
+                    existingView.remove();
+                }
+                
+                // Criar uma seção para mostrar os membros de forma intuitiva
+                const simpleMembersView = document.createElement('div');
+                simpleMembersView.id = 'simpleMembersView';
+                simpleMembersView.className = 'mt-4 pt-4 border-t border-gray-200';
+                
+                // Título da seção
+                const membersTitle = document.createElement('div');
+                membersTitle.className = 'flex items-center mb-3';
+                membersTitle.innerHTML = `
+                    <i class="fas fa-users text-indigo-500 mr-2"></i>
+                    <h4 class="text-base font-medium text-gray-700">Membros do Quadro</h4>
+                    <span class="ml-2 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">${members.length}</span>
+                `;
+                simpleMembersView.appendChild(membersTitle);
+                
+                // Container para os cards de membros
+                const membersGrid = document.createElement('div');
+                membersGrid.className = 'bg-gray-50 rounded-lg p-3 max-h-[200px] overflow-y-auto';
+                simpleMembersView.appendChild(membersGrid);
+                
+                // Buscar os dados atualizados do quadro para garantir os cargos mais recentes
+                let currentBoardData;
+                try {
+                    // Buscar dados atualizados diretamente do Firestore para garantir os cargos mais recentes
+                    const boardDocRef = doc(boardsCollectionRef, boardId); // Usar boardId em vez de activeBoardId
+                    const boardDoc = await getDoc(boardDocRef);
+                    if (boardDoc.exists()) {
+                        currentBoardData = boardDoc.data();
+                        // Atualizar a variável activeBoardData para uso nas funções subsequentes
+                        activeBoardData = currentBoardData;
+                        console.log("Dados do quadro atualizados:", currentBoardData);
+                        // Verificar se há tags de membros
+                        if (currentBoardData.memberTags) {
+                            console.log("Tags de membros encontradas:", currentBoardData.memberTags);
+                        } else {
+                            console.log("Nenhuma tag de membro encontrada no quadro");
+                        }
+                    } else {
+                        console.warn("Documento do quadro não encontrado");
+                    }
+                } catch (e) {
+                    console.error("Erro ao buscar dados do quadro:", e);
+                }
+                
+                // Se não houver membros, mostrar mensagem
+                if (members.length === 0) {
+                    membersGrid.innerHTML = '<p class="text-center text-gray-500 py-3">Nenhum membro neste quadro.</p>';
+                } else {
+                    // Criar um grid para os membros
+                    const membersContainer = document.createElement('div');
+                    membersContainer.className = 'grid grid-cols-1 gap-2';
+                    membersGrid.appendChild(membersContainer);
+                    
+                    // Carregar os dados dos membros
+                    showLoading();
+                    Promise.all(members.map(async (memberId) => {
+                        let displayName = memberId.substring(0, 8) + '...';
+                        let isProfileOwnerOfBoard = memberId === ownerId;
+                        let memberAvatar = '';
+                        
+                        try {
+                            const profileDocRef = doc(userProfilesCollectionRef, memberId);
+                            const profileDoc = await getDoc(profileDocRef);
+                            if (profileDoc.exists()) {
+                                const profileData = profileDoc.data();
+                                displayName = profileData.displayName || profileData.email || displayName;
+                                // Primeira letra para o avatar
+                                memberAvatar = (displayName.charAt(0) || '?').toUpperCase();
+                            }
+                        } catch (e) {
+                            console.warn("Erro ao buscar perfil:", memberId, e);
+                        }
+                        
+                                                 // Buscar o cargo/tag mais recente do banco de dados
+                        let tag = '';
+                        
+                        // Verificar se temos dados do quadro e tags de membros
+                        if (currentBoardData && currentBoardData.memberTags && memberId in currentBoardData.memberTags) {
+                            tag = currentBoardData.memberTags[memberId];
+                            console.log(`Tag encontrada para membro ${memberId}: "${tag}"`);
+                        } else {
+                            console.log(`Nenhuma tag encontrada para membro ${memberId}`);
+                            // Tentar buscar no activeBoardData como fallback
+                            if (activeBoardData && activeBoardData.memberTags && memberId in activeBoardData.memberTags) {
+                                tag = activeBoardData.memberTags[memberId];
+                                console.log(`Tag encontrada no fallback para membro ${memberId}: "${tag}"`);
+                            }
+                        }
+                        
+                        // Criar o card do membro
+                        const memberCard = document.createElement('div');
+                        memberCard.className = 'flex items-center bg-white p-2 rounded-lg shadow-sm border border-gray-100';
+                        
+                        // Gerar cor de fundo para o avatar baseada no ID
+                        const avatarColors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100', 'bg-indigo-100', 'bg-red-100'];
+                        const colorIndex = Math.abs(memberId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % avatarColors.length;
+                        const avatarBgColor = avatarColors[colorIndex];
+                        const avatarTextColor = avatarBgColor.replace('100', '700');
+                        
+                        memberCard.innerHTML = `
+                            <div class="flex-shrink-0 w-8 h-8 ${avatarBgColor} ${avatarTextColor} rounded-full flex items-center justify-center font-bold text-sm mr-2">
+                                ${memberAvatar}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate" title="${displayName}">
+                                    ${displayName} ${isProfileOwnerOfBoard ? '<span class="text-xs text-green-600 ml-1">(Proprietário)</span>' : ''}
+                                </p>
+                                ${tag ? `
+                                <p class="text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-tag text-xs mr-1 text-indigo-400"></i>
+                                    <span class="truncate">${tag}</span>
+                                </p>` : 
+                                `<p class="text-xs text-gray-400 italic">Sem cargo</p>`}
+                            </div>
+                        `;
+                        
+                        return memberCard;
+                    })).then(memberCards => {
+                        hideLoading();
+                        memberCards.forEach(card => membersContainer.appendChild(card));
+                    }).catch(err => {
+                        hideLoading();
+                        console.error("Erro ao carregar membros:", err);
+                        membersGrid.innerHTML = '<p class="text-center text-red-500 py-3">Erro ao carregar membros.</p>';
+                    });
+                }
+                
+                // Adicionar a visualização ao modal
+                const addMemberSectionElement = document.querySelector('#manageMembersModal .mb-6');
+                if (addMemberSectionElement && addMemberSectionElement.parentNode) {
+                    addMemberSectionElement.parentNode.insertBefore(simpleMembersView, addMemberSectionElement.nextSibling);
+                }
+                
+                manageMembersModal.classList.remove('hidden');
+                return; // Retorna aqui para não carregar a lista de membros
+            }
+            
+            // Continua com o comportamento normal quando dentro do quadro
+            const membersSectionContainer = document.getElementById('membersSectionContainer');
+            if (membersSectionContainer) {
+                membersSectionContainer.style.display = 'block';
+            }
+            
+            // Remover a visualização simplificada se existir
+            const existingView = document.getElementById('simpleMembersView');
+            if (existingView) {
+                existingView.remove();
+            }
+            
+            memberListContainer.innerHTML = '<li class="text-center text-gray-500 p-2">Carregando membros...</li>';
             const memberTags = (activeBoardData && activeBoardData.memberTags) ? activeBoardData.memberTags : {};
+            
             const memberItemsPromises = members.map(async (memberId) => {
                 let displayName = memberId.substring(0, 12) + '...';
                 let memberEmail = 'Email não disponível';
@@ -1222,44 +1712,37 @@
                 }
                 const tag = memberTags[memberId] || '';
                 const li = document.createElement('li');
-                li.className = 'flex flex-col sm:flex-row sm:justify-between sm:items-center p-2.5 bg-white rounded-lg shadow-sm border border-gray-200';
-                let memberDisplayHtml = `<span class="text-sm text-gray-700 truncate" title="UID: ${memberId}\nEmail: ${memberEmail}">${displayName}</span>`;
-                if (isProfileOwnerOfBoard) memberDisplayHtml += '<span class="ml-2 text-xs text-green-600 font-semibold">(Proprietário do Quadro)</span>';
-                // Campo de cargo/tag visual melhorado
-                let tagBadgeHtml = tag ? `<span class='ml-2 inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded align-middle'>${tag}</span>` : '';
-                // Campo de edição
-                let tagHtml = '';
-                if (isCurrentUserOwnerOfBoard) {
-                    tagHtml = `<label class="ml-0 sm:ml-4 text-xs text-gray-500 font-medium whitespace-nowrap">Cargo:</label>` +
-                        `<input type="text" class="member-tag-input ml-2 px-2 py-1 border border-gray-300 rounded text-xs w-28 focus:ring-2 focus:ring-blue-400" placeholder="Cargo/Tag" value="${tag}" data-member-id="${memberId}" style="margin-right:4px;" />` +
-                        `<button class="save-tag-btn bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded transition-colors" data-member-id="${memberId}" style="margin-left:2px;">Salvar</button>`;
-                } else {
-                    tagHtml = tag ? `<span class="ml-2 text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded">${tag}</span>` : '';
-                }
+                li.className = 'bg-white rounded-lg shadow-sm';
+                const tagBadgeHtml = tag ? `<span class='ml-2 inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded align-middle'>${tag}</span>` : '';
                 // Layout: badge ao lado do nome/email, campo de edição abaixo
                 li.innerHTML = `
-                    <div class="relative bg-white rounded-xl shadow border border-gray-200 p-4 mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 transition hover:shadow-lg">
-                        <div class="flex flex-col flex-grow">
-                            <div class="flex items-center mb-1">
-                                <span class="font-semibold text-gray-800 text-base truncate" title="${displayName}">${displayName}</span>
+                    <div class="relative bg-white rounded-xl shadow border border-gray-200 p-4 mb-3 flex flex-col gap-2 transition hover:shadow-lg">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="flex items-center flex-wrap">
+                                <span class="font-semibold text-gray-800 text-base truncate max-w-[180px] sm:max-w-xs" title="${displayName}">${displayName}</span>
+                                ${isProfileOwnerOfBoard ? '<span class="ml-2 text-xs text-green-600 font-semibold whitespace-nowrap">(Proprietário do Quadro)</span>' : ''}
                                 ${tagBadgeHtml}
-                                ${isProfileOwnerOfBoard ? '<span class="ml-2 text-xs text-green-600 font-semibold">(Proprietário do Quadro)</span>' : ''}
                             </div>
-                            <div class="flex items-center mt-1">
-                                <label class="text-xs text-gray-500 font-medium mr-2">Cargo:</label>
-                                ${isCurrentUserOwnerOfBoard
-                                    ? `<input type="text" class="member-tag-input px-2 py-1 border border-gray-300 rounded text-xs w-32 focus:ring-2 focus:ring-blue-400 transition" placeholder="Cargo/Tag" value="${tag}" data-member-id="${memberId}" style="margin-right:4px;" />
-                                       <button class="save-tag-btn bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded transition-colors flex items-center" data-member-id="${memberId}" style="margin-left:2px;">
-                                           <i class='fas fa-save mr-1'></i>Salvar
-                                       </button>`
-                                    : (tag ? `<span class="ml-2 text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded">${tag}</span>` : '<span class="ml-2 text-xs text-gray-400">Sem cargo</span>')
-                                }
-                            </div>
+                            ${isCurrentUserOwnerOfBoard && memberId !== ownerId ?
+                                `<button class="remove-member-button text-red-500 hover:text-red-700 text-sm p-1 rounded-full hover:bg-red-50 transition ml-2" data-member-id="${memberId}" title="Remover Membro">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>` : ''}
                         </div>
-                        ${isCurrentUserOwnerOfBoard && memberId !== ownerId ?
-                            `<button class="remove-member-button absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-medium p-1 rounded-full hover:bg-red-50 transition" data-member-id="${memberId}" title="Remover Membro">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>` : ''}
+                        <div class="flex items-center flex-wrap mt-1">
+                            <div class="flex items-center mr-2 ${isCurrentUserOwnerOfBoard ? 'mb-2 sm:mb-0' : ''}">
+                                <label class="text-xs text-gray-500 font-medium mr-1">Cargo:</label>
+                                ${!isCurrentUserOwnerOfBoard ? 
+                                    (tag ? `<span class="ml-1 text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded">${tag}</span>` : 
+                                    '<span class="ml-1 text-xs text-gray-400">Sem cargo</span>') : ''}
+                            </div>
+                            ${isCurrentUserOwnerOfBoard ?
+                                `<div class="flex items-center flex-grow">
+                                    <input type="text" class="member-tag-input px-2 py-1 border border-gray-300 rounded text-xs w-full sm:w-40 focus:ring-2 focus:ring-blue-400 transition" placeholder="Defina um cargo para este membro" value="${tag}" data-member-id="${memberId}" />
+                                    <button class="save-tag-btn bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded transition-colors flex items-center ml-2" data-member-id="${memberId}">
+                                        <i class='fas fa-save mr-1'></i>Salvar
+                                    </button>
+                                </div>` : ''}
+                        </div>
                     </div>
                 `;
                 if (isCurrentUserOwnerOfBoard) {
@@ -1297,24 +1780,64 @@
             } else {
                 memberListContainer.innerHTML = '<li class="text-center text-gray-500 p-2">Nenhum membro neste quadro ainda.</li>';
             }
-            newMemberIdInput.disabled = !isCurrentUserOwnerOfBoard;
-            addMemberButton.disabled = !isCurrentUserOwnerOfBoard;
-            if(!isCurrentUserOwnerOfBoard) {
-                 newMemberIdInput.placeholder = "Apenas o proprietário do quadro pode adicionar membros";
-                 addMemberButton.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                 newMemberIdInput.placeholder = "UID do novo membro";
-                 addMemberButton.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
+            
             manageMembersModal.classList.remove('hidden');
-            // Adiciona aviso visual no topo do modal
-            let permNotice = document.getElementById('membersPermNotice');
-            if (!permNotice) {
-                permNotice = document.createElement('div');
-                permNotice.id = 'membersPermNotice';
-                permNotice.className = 'mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs font-medium';
-                permNotice.innerHTML = `<i class='fas fa-info-circle mr-1'></i>As permissões e cargos valem <b>apenas para este quadro</b>.`;
-                memberListContainer.parentElement.insertBefore(permNotice, memberListContainer);
+            
+            // Adiciona avisos visuais úteis no modal
+            let permNotice = document.createElement('div');
+            permNotice.id = 'membersPermNotice';
+            permNotice.className = 'mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs font-medium';
+            permNotice.innerHTML = `<i class='fas fa-info-circle mr-1'></i>As permissões e cargos valem <b>apenas para este quadro</b>.`;
+            const membersSectionContainerForPermissions = document.getElementById('membersSectionContainer');
+            if (membersSectionContainerForPermissions) {
+                membersSectionContainerForPermissions.insertBefore(permNotice, memberListContainer);
+            }
+            
+            // Adiciona instruções para proprietários do quadro
+            if (isCurrentUserOwnerOfBoard) {
+                let ownerInstructions = document.createElement('div');
+                ownerInstructions.id = 'ownerInstructions';
+                ownerInstructions.className = 'mt-3 p-2 bg-indigo-50 border border-indigo-200 rounded text-indigo-700 text-xs';
+                ownerInstructions.innerHTML = `
+                    <p class="font-medium mb-1"><i class="fas fa-lightbulb mr-1"></i>Dicas para o proprietário:</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Digite um cargo (como "Supervisor", "Administrador") no campo e clique em "Salvar"</li>
+                        <li>Membros podem ser removidos clicando no ícone de lixeira</li>
+                        <li>O cargo define as permissões que o membro terá neste quadro</li>
+                    </ul>
+                    <button id="managePermissionsBtn" class="w-full mt-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded flex items-center justify-center transition-colors">
+                        <i class="fas fa-shield-alt mr-2"></i>Configurar Permissões dos Cargos
+                    </button>
+                `;
+                document.getElementById('membersSectionContainer')?.appendChild(ownerInstructions);
+                
+                // Adiciona função ao botão de permissões
+                document.getElementById('managePermissionsBtn')?.addEventListener('click', () => {
+                    manageMembersModal.classList.add('hidden'); // Esconde o modal de membros
+                    if (activeBoardData) {
+                        openPermissionsModal(activeBoardData); // Abre o modal de permissões
+                    }
+                });
+            }
+
+            // Verifica se o usuário atual tem permissão para gerenciar permissões
+            if (!isCurrentUserOwnerOfBoard && hasPermission(activeBoardData, currentUserId, 'canManageRolePermissions')) {
+                let permSettingsBtn = document.createElement('div');
+                permSettingsBtn.id = 'nonOwnerPermissionsBtn';
+                permSettingsBtn.className = 'mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800';
+                permSettingsBtn.innerHTML = `
+                    <p class="font-medium mb-2 text-xs"><i class="fas fa-user-shield mr-1"></i>Você tem permissão para configurar o acesso aos recursos:</p>
+                    <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded flex items-center justify-center transition-colors w-full text-xs">
+                        <i class="fas fa-cog mr-2"></i>Configurar Permissões dos Cargos
+                    </button>
+                `;
+                permSettingsBtn.querySelector('button').onclick = () => {
+                    manageMembersModal.classList.add('hidden'); // Esconde o modal de membros
+                    if (activeBoardData) {
+                        openPermissionsModal(activeBoardData); // Abre o modal de permissões
+                    }
+                };
+                document.getElementById('membersSectionContainer')?.appendChild(permSettingsBtn);
             }
         }
 
@@ -1919,13 +2442,25 @@
             const tags = Array.from(new Set(Object.values(boardData.memberTags||{}).concat(['Proprietário'])));
             // Permissões possíveis
             const allPerms = [
-                { key: 'canEditColumn', label: 'Editar Coluna', tip: 'Permite editar o título e cor das colunas.' },
-                { key: 'canDeleteColumn', label: 'Excluir Coluna', tip: 'Permite excluir colunas do quadro.' },
-                { key: 'canRemoveMember', label: 'Remover Membro', tip: 'Permite remover membros do quadro.' },
-                { key: 'canEditTag', label: 'Editar Cargo/Tag', tip: 'Permite editar o cargo/tag de outros membros.' },
-                { key: 'canBlockTask', label: 'Bloquear Tarefa', tip: 'Permite bloquear/desbloquear tarefas.' },
-                { key: 'canEditTask', label: 'Editar Tarefa', tip: 'Permite editar o conteúdo das tarefas.' },
-                { key: 'canDeleteChat', label: 'Apagar Chat', tip: 'Permite apagar mensagens do chat ou limpar o chat.' },
+                // Permissões de quadro
+                { key: 'canEditColumn', label: 'Editar Coluna', tip: 'Permite editar o título e cor das colunas.', category: 'board' },
+                { key: 'canDeleteColumn', label: 'Excluir Coluna', tip: 'Permite excluir colunas do quadro.', category: 'board' },
+                { key: 'canRemoveMember', label: 'Remover Membro', tip: 'Permite remover membros do quadro.', category: 'board' },
+                { key: 'canEditTag', label: 'Editar Cargo/Tag', tip: 'Permite editar o cargo/tag de outros membros.', category: 'board' },
+                { key: 'canBlockTask', label: 'Bloquear Tarefa', tip: 'Permite bloquear/desbloquear tarefas.', category: 'board' },
+                { key: 'canEditTask', label: 'Editar Tarefa', tip: 'Permite editar o conteúdo das tarefas.', category: 'board' },
+                { key: 'canDeleteChat', label: 'Apagar Chat', tip: 'Permite apagar mensagens do chat ou limpar o chat.', category: 'board' },
+                
+                // Permissões administrativas
+                { key: 'canManageRolePermissions', label: 'Gerenciar Permissões', tip: 'Permite acessar o painel de permissões e definir regras de acesso.', category: 'admin' },
+                
+                // Permissões de estoque
+                { key: 'canManageInventory', label: 'Gerenciar Estoque', tip: 'Permissão completa sobre o estoque (adicionar, editar, remover itens).', category: 'inventory' },
+                { key: 'canWithdrawInventory', label: 'Retirar do Estoque', tip: 'Permite solicitar e retirar itens do estoque.', category: 'inventory' },
+                { key: 'canApproveRequests', label: 'Aprovar Solicitações', tip: 'Permite aprovar solicitações de retirada de estoque.', category: 'inventory' },
+                { key: 'canViewReports', label: 'Ver Relatórios', tip: 'Permite visualizar relatórios de estoque e movimentações.', category: 'inventory' },
+                { key: 'canManageCategories', label: 'Gerenciar Categorias', tip: 'Permite criar e editar categorias do estoque.', category: 'inventory' },
+                { key: 'canApproveReturns', label: 'Aprovar Devoluções', tip: 'Permite aprovar devoluções de itens ao estoque.', category: 'inventory' },
             ];
             const rolePerms = boardData.rolePermissions || ROLE_PERMISSIONS;
             // Mapeia membros por cargo
@@ -1942,49 +2477,95 @@
                 'Supervisor': 'fa-user-tie text-green-600',
                 'Membro': 'fa-user text-gray-500',
             };
-            let html = `<div class='bg-white p-8 rounded-xl shadow-2xl w-full max-w-3xl modal-content'>
+            // Agrupando permissões por categoria
+            const permsByCategory = {
+                board: allPerms.filter(p => p.category === 'board'),
+                inventory: allPerms.filter(p => p.category === 'inventory'),
+                admin: allPerms.filter(p => p.category === 'admin')
+            };
+            
+            // Ícones e cores para categorias
+            const categoryIcons = {
+                board: { icon: 'fa-columns', color: 'text-blue-500' },
+                inventory: { icon: 'fa-boxes', color: 'text-emerald-600' },
+                admin: { icon: 'fa-shield-alt', color: 'text-yellow-600' }
+            };
+            
+            let html = `<div class='bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl modal-content overflow-y-auto max-h-[90vh]'>
                 <div class='flex justify-between items-center mb-6'>
-                    <h3 class='text-2xl font-bold text-gray-800'>Permissões por Cargo</h3>
+                    <h3 class='text-2xl font-bold text-gray-800'>Gerenciar Permissões</h3>
                     <button id='closePermissionsModalBtn' class='text-gray-500 hover:text-gray-700 text-2xl leading-none'>&times;</button>
                 </div>
-                <div class='mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs font-medium'>
-                    <i class='fas fa-info-circle mr-1'></i>As permissões configuradas aqui valem <b>apenas para este quadro</b>. Cada quadro tem regras e cargos independentes.
+                <div class='mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-blue-700 text-sm font-medium'>
+                    <i class='fas fa-info-circle mr-1'></i>As permissões configuradas aqui controlam quem pode acessar cada funcionalidade neste quadro. 
+                    <span class="block mt-1 text-xs">Marque ou desmarque as caixas para conceder ou remover permissões de cada cargo.</span>
                 </div>
-                <div class='grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6'>`;
+                
+                <div class='mb-6'>
+                    <div class='flex border-b border-gray-200 mb-3 pb-1'>
+                        <button class='tab-button active px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 border-indigo-500 text-indigo-600' data-tab="all">
+                            <i class='fas fa-th-list mr-1'></i>Todos os Cargos
+                        </button>
+                    </div>
+                    
+                    <div id='all-tab' class='tab-content'>
+                        <div class='grid grid-cols-1 gap-6'>`;
+                        
             tags.forEach(tag => {
                 const isOwner = tag === 'Proprietário';
                 const icon = tagIcons[tag] || 'fa-id-badge text-indigo-400';
                 const memberCount = membersByTag[tag]?.length || 0;
                 const memberList = (membersByTag[tag]||[]).map(uid => boardData.memberDisplayNames?.[uid] || uid).join(', ');
+                
                 html += `<div class='rounded-lg border border-gray-200 shadow p-5 bg-gray-50 relative group'>
-                    <div class='flex items-center mb-2'>
+                    <div class='flex items-center mb-3'>
                         <i class='fas ${icon} fa-lg mr-2'></i>
-                        <span class='font-semibold text-base text-gray-800'>${tag}</span>
+                        <span class='font-semibold text-lg text-gray-800'>${tag}</span>
                         <span class='ml-2 text-xs text-gray-500' title='${memberList}'>${memberCount} membro${memberCount===1?'':'s'}</span>
-                        ${isOwner ? `<span class='ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded font-semibold'>Fixo</span>` : ''}
+                        ${isOwner ? `<span class='ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded font-semibold'>Cargo Fixo</span>` : ''}
                     </div>
-                    <div class='flex flex-col gap-2'>`;
-                allPerms.forEach(p => {
-                    if (isOwner) {
-                        html += `<label class='flex items-center gap-2 text-xs text-gray-700 cursor-not-allowed' title='${p.tip}'>
-                            <input type='checkbox' class='perm-checkbox' data-role='${tag}' data-perm='${p.key}' checked disabled>
-                            <span>${p.label}</span>
-                            <i class='fas fa-info-circle text-gray-400 ml-1' title='${p.tip}'></i>
-                        </label>`;
-                    } else {
-                        const checked = rolePerms[tag] && rolePerms[tag][p.key] ? 'checked' : '';
-                        html += `<label class='flex items-center gap-2 text-xs text-gray-700 cursor-pointer' title='${p.tip}'>
-                            <input type='checkbox' class='perm-checkbox' data-role='${tag}' data-perm='${p.key}' ${checked}>
-                            <span>${p.label}</span>
-                            <i class='fas fa-info-circle text-gray-400 ml-1' title='${p.tip}'></i>
-                        </label>`;
-                    }
+                    
+                    <div class='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-2'>`;
+                
+                // Para cada categoria
+                Object.entries(permsByCategory).forEach(([category, perms]) => {
+                    const catInfo = categoryIcons[category];
+                    html += `<div class='col-span-1 mb-4'>
+                        <div class='flex items-center mb-2 pb-1 border-b border-gray-200'>
+                            <i class='fas ${catInfo.icon} ${catInfo.color} mr-2'></i>
+                            <span class='font-medium text-sm ${catInfo.color}'>
+                                ${category === 'board' ? 'Quadro' : 
+                                  category === 'inventory' ? 'Estoque' : 
+                                  'Administração'}
+                            </span>
+                        </div>
+                        <div class='flex flex-col gap-2 pl-1'>`;
+                    
+                    perms.forEach(p => {
+                        if (isOwner) {
+                            html += `<label class='flex items-center gap-2 text-xs text-gray-700 cursor-not-allowed' title='${p.tip}'>
+                                <input type='checkbox' class='perm-checkbox' data-role='${tag}' data-perm='${p.key}' checked disabled>
+                                <span>${p.label}</span>
+                                <i class='fas fa-info-circle text-gray-400 ml-1' title='${p.tip}'></i>
+                            </label>`;
+                        } else {
+                            const checked = rolePerms[tag] && rolePerms[tag][p.key] ? 'checked' : '';
+                            html += `<label class='flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded' title='${p.tip}'>
+                                <input type='checkbox' class='perm-checkbox' data-role='${tag}' data-perm='${p.key}' ${checked}>
+                                <span>${p.label}</span>
+                                <i class='fas fa-info-circle text-gray-400 ml-1' title='${p.tip}'></i>
+                            </label>`;
+                        }
+                    });
+                    
+                    html += `</div></div>`;
                 });
-                html += `</div>
-                </div>`;
+                
+                html += `</div></div>`; // Fim do card do cargo
             });
-            html += `</div>
-                <div class='flex justify-between items-center mt-6'>
+            
+            html += `</div></div> <!-- Fim da tab -->
+                <div class='flex justify-between items-center mt-6 pt-4 border-t border-gray-200'>
                     <button id='restoreDefaultPermsBtn' class='bg-gray-100 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-200 font-medium'><i class='fas fa-undo mr-1'></i>Restaurar padrão</button>
                     <div class='flex space-x-4'>
                         <button id='cancelPermissionsBtn' class='bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium'>Cancelar</button>
@@ -2072,9 +2653,40 @@
             let hash = 0; for (let i = 0; i < uid.length; i++) hash = uid.charCodeAt(i) + ((hash << 5) - hash);
             return colors[Math.abs(hash) % colors.length];
         }
+        // Função para ajustar a altura do chat
+        function adjustChatHeight() {
+            const windowHeight = window.innerHeight;
+            const maxChatHeight = Math.min(windowHeight * 0.6, 450); // Máximo de 60% da altura da janela ou 450px
+            kanbanChatSidebar.style.maxHeight = `${maxChatHeight}px`;
+            
+            // Ajusta a altura da área de mensagens
+            setTimeout(() => {
+                const headerHeight = kanbanChatSidebar.querySelector('.flex.items-center.justify-between')?.offsetHeight || 40;
+                const formHeight = kanbanChatForm?.offsetHeight || 50;
+                const clearBtnHeight = clearChatBtn?.parentElement?.offsetHeight || 40;
+                const messagesHeight = maxChatHeight - headerHeight - formHeight - clearBtnHeight - 10; // 10px de margem
+                kanbanChatMessages.style.maxHeight = `${messagesHeight}px`;
+            }, 50);
+        }
+        
         // Abre/fecha chat
-        openChatSidebarBtn?.addEventListener('click', () => { kanbanChatSidebar.style.display = 'flex'; openChatSidebarBtn.style.display = 'none'; });
-        closeChatSidebarBtn?.addEventListener('click', () => { kanbanChatSidebar.style.display = 'none'; openChatSidebarBtn.style.display = 'flex'; });
+        openChatSidebarBtn?.addEventListener('click', () => { 
+            kanbanChatSidebar.style.display = 'flex'; 
+            openChatSidebarBtn.style.display = 'none';
+            adjustChatHeight();
+        });
+        
+        closeChatSidebarBtn?.addEventListener('click', () => { 
+            kanbanChatSidebar.style.display = 'none'; 
+            openChatSidebarBtn.style.display = 'flex'; 
+        });
+        
+        // Ajustar altura quando a janela for redimensionada
+        window.addEventListener('resize', () => {
+            if (kanbanChatSidebar.style.display === 'flex') {
+                adjustChatHeight();
+            }
+        });
         // Desabilita botão enviar se vazio
         kanbanChatInput?.addEventListener('input', () => {
             kanbanChatForm.querySelector('button[type="submit"]').disabled = !kanbanChatInput.value.trim();
@@ -2111,24 +2723,24 @@
                     const msgDate = createdAt ? createdAt.toLocaleDateString('pt-BR') : '';
                     if (msgDate && msgDate !== lastDate) {
                         const sep = document.createElement('div');
-                        sep.className = 'flex items-center justify-center my-2';
-                        sep.innerHTML = `<span class="px-3 py-1 bg-gray-100 text-gray-400 text-xs rounded-full shadow">${msgDate}</span>`;
+                        sep.className = 'flex items-center justify-center my-1';
+                        sep.innerHTML = `<span class="px-2 py-0.5 bg-gray-100 text-gray-400 text-xs rounded-full">${msgDate}</span>`;
                         kanbanChatMessages.appendChild(sep);
                         lastDate = msgDate;
                     }
                     const isMine = msg.userId === currentUserId;
                     const canDelete = canDeleteChat || isMine;
                     const msgDiv = document.createElement('div');
-                    msgDiv.className = `flex items-start gap-2 group transition-opacity duration-300 ${isMine ? 'bg-indigo-50' : ''}`;
+                    msgDiv.className = `message ${isMine ? 'message-mine' : ''}`;
                     msgDiv.innerHTML = `
-                        <div class="flex-shrink-0 w-9 h-9 rounded-full ${avatarColor(msg.userId)} flex items-center justify-center font-bold text-indigo-700 text-lg">${sanitize((msg.displayName||'').substring(0,1).toUpperCase())}</div>
+                        <div class="flex-shrink-0 w-7 h-7 rounded-full ${avatarColor(msg.userId)} flex items-center justify-center font-bold text-indigo-700 text-sm">${sanitize((msg.displayName||'').substring(0,1).toUpperCase())}</div>
                         <div class="flex-1">
-                            <div class="flex items-center gap-2">
-                                <span class="font-semibold text-indigo-800 text-sm">${sanitize(msg.displayName||'Usuário')}</span>
-                                <span class="text-xs text-gray-400" title="${createdAt ? createdAt.toLocaleString('pt-BR') : ''}">${createdAt ? createdAt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : ''}</span>
-                                ${canDelete ? `<button class="delete-chat-msg-btn ml-2 text-xs text-red-400 hover:text-red-600 hidden group-hover:inline" data-msg-id="${msgId}" title="Apagar mensagem"><i class="fas fa-trash-alt"></i></button>` : ''}
+                            <div class="flex items-center gap-1">
+                                <span class="sender text-xs">${sanitize(msg.displayName||'Usuário')}</span>
+                                <span class="timestamp text-xs" title="${createdAt ? createdAt.toLocaleString('pt-BR') : ''}">${createdAt ? createdAt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : ''}</span>
+                                ${canDelete ? `<button class="delete-chat-msg-btn" data-msg-id="${msgId}" title="Apagar mensagem"><i class="fas fa-trash-alt text-xs"></i></button>` : ''}
                             </div>
-                            <div class="text-gray-700 text-sm break-words whitespace-pre-line">${sanitize(msg.text)}</div>
+                            <div class="content text-xs leading-tight">${sanitize(msg.text)}</div>
                         </div>
                     `;
                     kanbanChatMessages.appendChild(msgDiv);
@@ -2142,7 +2754,10 @@
                     }
                 });
                 if (hasOld) await batch.commit();
-                setTimeout(()=>{ kanbanChatMessages.scrollTo({top: kanbanChatMessages.scrollHeight, behavior:'smooth'}); }, 100);
+                setTimeout(()=>{ 
+                    adjustChatHeight();
+                    kanbanChatMessages.scrollTo({top: kanbanChatMessages.scrollHeight, behavior:'smooth'}); 
+                }, 100);
             }, (err) => {
                 kanbanChatMessages.innerHTML = '<div class="text-center text-red-500 mt-6">Erro ao carregar chat. Verifique sua conexão.</div>';
             });
@@ -2767,21 +3382,49 @@
             }
         }
         // --- CENTRALIZAÇÃO DOS BOTÕES FLUTUANTES ---
+        // Função temporária para lidar com chamadas antecipadas de toggleFabs
+        function safeToggleFabs(show, boardData) {
+            // Esta é uma versão simplificada que será substituída pela versão completa
+            const btnIds = ['openInventoryBtn', 'requestStockBtn', 'openInventoryPermissionsBtn', 
+                            'myItemsFabBtn', 'pendingRequestsBtn', 'myRequestsBtn', 
+                            'adminReturnsBtn', 'inventoryReportsBtn'];
+            
+            if (!show) {
+                btnIds.forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) btn.style.display = 'none';
+                });
+                return;
+            }
+            
+            // Versão simplificada para quando boardData estiver disponível
+            if (boardData && currentUserId) {
+                const isOwner = boardData.owner === currentUserId;
+                btnIds.forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) btn.style.display = isOwner ? 'flex' : 'none';
+                });
+            }
+        }
+        
+        // Usamos a função temporária como toggleFabs até que a real seja definida
+        window.toggleFabs = safeToggleFabs;
+        
         if (typeof window._oldSetActiveBoardBackup === 'undefined') {
             window._oldSetActiveBoardBackup = typeof setActiveBoard === 'function' ? setActiveBoard : undefined;
             setActiveBoard = async function(boardId, boardData) {
                 if (window._oldSetActiveBoardBackup) await window._oldSetActiveBoardBackup(boardId, boardData);
-                toggleFabs(true, activeBoardData);
+                window.toggleFabs(true, activeBoardData);
                 toggleInventoryBtn(true);
                 checkShowAdminReturnsBtn();
             };
             backToBoardsButton?.addEventListener('click', () => {
-                toggleFabs(false);
+                window.toggleFabs(false);
                 toggleInventoryBtn(false);
                 const adminReturnsBtn = document.getElementById('adminReturnsBtn');
                 if (adminReturnsBtn) adminReturnsBtn.style.display = 'none';
             });
-            toggleFabs(false);
+            window.toggleFabs(false);
             toggleInventoryBtn(false);
             const adminReturnsBtn = document.getElementById('adminReturnsBtn');
             if (adminReturnsBtn) adminReturnsBtn.style.display = 'none';
@@ -2898,6 +3541,22 @@
 
         // ... existing code ...
         // [INÍCIO: CENTRALIZAÇÃO E CORREÇÃO DOS BOTÕES FLUTUANTES]
+        
+        // Sistema centralizado de controle de visibilidade de botões administrativos
+        const ADMIN_BUTTONS = {
+            // Botões de estoque
+            'openInventoryBtn': { permission: 'canWithdrawInventory', description: 'Acesso ao Estoque' },
+            'requestStockBtn': { permission: 'canWithdrawInventory', description: 'Solicitar Itens do Estoque' },
+            'openInventoryPermissionsBtn': { permission: 'canManageRolePermissions', description: 'Gerenciar Permissões de Estoque' },
+            'myItemsFabBtn': { permission: 'canWithdrawInventory', description: 'Visualizar Meus Itens' },
+            'pendingRequestsBtn': { permission: 'canApproveRequests', description: 'Aprovar Solicitações Pendentes' },
+            'myRequestsBtn': { permission: 'canWithdrawInventory', description: 'Minhas Solicitações' },
+            'adminReturnsBtn': { permission: 'canApproveReturns', description: 'Aprovar Devoluções' },
+            'inventoryReportsBtn': { permission: 'canViewReports', description: 'Relatórios de Estoque' },
+            
+            // Adicionar aqui novos botões administrativos conforme necessário
+        };
+        
         // Função para garantir criação única de FABs
         function ensureFabBtn(id, iconClass, colorClass, title, onClick) {
             let btn = document.getElementById(id);
@@ -2918,27 +3577,36 @@
             }
             return btn;
         }
-
+        
         // Função central para mostrar/esconder FABs
         function toggleFabs(show, boardData) {
-            const fabInventory = document.getElementById('openInventoryBtn');
-            const fabRequest = document.getElementById('requestStockBtn');
-            const fabPerms = document.getElementById('openInventoryPermissionsBtn');
-            const fabMyItems = document.getElementById('myItemsFabBtn');
-            const fabPendingRequests = document.getElementById('pendingRequestsBtn');
-            const fabMyRequests = document.getElementById('myRequestsBtn');
-            const fabAdminReturns = document.getElementById('adminReturnsBtn');
-            const fabReports = document.getElementById('inventoryReportsBtn');
-
-            if (fabInventory) fabInventory.style.display = show && canManageInventory(boardData) ? 'flex' : 'none';
-            if (fabRequest) fabRequest.style.display = show && canWithdrawInventory(boardData) ? 'flex' : 'none';
-            if (fabPerms) fabPerms.style.display = show && canManageInventory(boardData) ? 'flex' : 'none';
-            if (fabMyItems) fabMyItems.style.display = show && canWithdrawInventory(boardData) ? 'flex' : 'none';
-            if (fabMyRequests) fabMyRequests.style.display = show && canWithdrawInventory(boardData) ? 'flex' : 'none';
-            if (fabPendingRequests) fabPendingRequests.style.display = show && canApproveRequests(boardData) ? 'flex' : 'none';
-            if (fabAdminReturns) fabAdminReturns.style.display = show && canApproveReturns(boardData) ? 'flex' : 'none';
-            if (fabReports) fabReports.style.display = show && canViewReports(boardData) ? 'flex' : 'none';
+            if (!show || !boardData) {
+                // Esconde todos os botões administrativos quando não houver quadro ativo
+                Object.keys(ADMIN_BUTTONS).forEach(btnId => {
+                    const btn = document.getElementById(btnId);
+                    if (btn) btn.style.display = 'none';
+                });
+                return;
+            }
+            
+            // Itera sobre cada botão administrativo e verifica permissões
+            Object.entries(ADMIN_BUTTONS).forEach(([btnId, config]) => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    // Verifica se o usuário tem a permissão necessária
+                    const canAccess = hasPermission(boardData, currentUserId, config.permission);
+                    btn.style.display = show && canAccess ? 'flex' : 'none';
+                    
+                    // Adiciona classe para identificação e dados para uso em interfaces de permissão
+                    btn.classList.add('admin-fab-btn');
+                    btn.dataset.permission = config.permission;
+                    btn.dataset.description = config.description;
+                }
+            });
         }
+        
+        // Substitui a função temporária pela versão completa
+        window.toggleFabs = toggleFabs;
 
         // Criação dos FABs
         ensureFabBtn('openInventoryBtn', 'fas fa-boxes', 'bg-emerald-600 text-white bottom-24 right-6', 'Estoque', () => {
@@ -2967,11 +3635,10 @@
         const _oldSetActiveBoard = typeof window._oldSetActiveBoardBackup === 'function' ? window._oldSetActiveBoardBackup : setActiveBoard;
         setActiveBoard = async function(boardId, boardData) {
             if (_oldSetActiveBoard) await _oldSetActiveBoard(boardId, boardData);
-            toggleFabs(true, boardData);
-            adjustMyItemsFabBtnPosition();
+            window.toggleFabs(true, boardData);
         };
         backToBoardsButton?.addEventListener('click', () => {
-            toggleFabs(false);
+            window.toggleFabs(false);
         });
         
         // [FIM: CENTRALIZAÇÃO E CORREÇÃO DOS BOTÕES FLUTUANTES]
