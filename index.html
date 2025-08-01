@@ -698,7 +698,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, serverTimestamp, orderBy, writeBatch, arrayUnion, arrayRemove, setLogLevel, getDoc, deleteField, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, serverTimestamp, orderBy, writeBatch, arrayUnion, arrayRemove, setLogLevel, getDoc, deleteField, increment, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Variáveis Globais & Configuração do Firebase ---
         let app;
@@ -1090,14 +1090,14 @@
         // manageInventoryCategoriesBtn (Gerenciar Categorias) - bottom-130 right-6
         // adminUserInventoryBtn (Inventário Usuários) - bottom-130 right-63
         // requestStockBtn (Solicitar Item) - bottom-70 right-6
-        // approveInventoryRequestsBtn (Aprovar Solicitações) - bottom-70 right-63
+
         // inventoryHistoryBtn (Histórico) - bottom-188 right-63
         // inventoryReportsBtn (Relatórios) - bottom-70 right-120
         // adminReturnsBtn (Aprovar Devoluções) - bottom-130 right-120
         // myItemsFabBtn (Meus Itens) - bottom-188 right-6
         // openInventoryBtn (Estoque) - bottom-11 right-6
-        // pendingRequestsBtn (Aprovar Solicitações Pendentes) - bottom-11 right-63
-        // myRequestsBtn (Minhas Solicitações) - bottom-11 right-120
+        // pendingRequestsBtn (Relatórios de Estoque) - bottom-11 right-63
+
         // 
         // NOTA: Editor de grid removido - posições organizadas pelo admin
         // AS POSIÇÕES SÃO FIXAS NO CÓDIGO E FUNCIONAM EM QUALQUER PC
@@ -1107,13 +1107,12 @@
             'requestStockBtn': { permission: 'canWithdrawInventory', description: 'Solicitar Itens do Estoque' },
 
             'myItemsFabBtn': { permission: 'canWithdrawInventory', description: 'Visualizar Meus Itens' },
-            'pendingRequestsBtn': { permission: 'canApproveRequests', description: 'Aprovar Solicitações Pendentes' },
-            'myRequestsBtn': { permission: 'canWithdrawInventory', description: 'Minhas Solicitações' },
+            'pendingRequestsBtn': { permission: 'canViewReports', description: 'Relatórios de Estoque' },
+
             'adminReturnsBtn': { permission: 'canApproveReturns', description: 'Aprovar Devoluções' },
-            'inventoryReportsBtn': { permission: 'canViewReports', description: 'Relatórios de Estoque' },
+
             
             // Botões restaurados e otimizados
-            'approveInventoryRequestsBtn': { permission: 'canApproveRequests', description: 'Aprovar Solicitações de Estoque' },
             'manageInventoryCategoriesBtn': { permission: 'canManageCategories', description: 'Gerenciar Categorias de Produtos' },
             
             // Novos botões para ciclo de vida de itens
@@ -1149,14 +1148,14 @@
             'manageInventoryCategoriesBtn': { bottom: '130', right: '6' },
             'adminUserInventoryBtn': { bottom: '130', right: '63' },
             'requestStockBtn': { bottom: '70', right: '6' },
-            'approveInventoryRequestsBtn': { bottom: '70', right: '63' },
+
             'inventoryHistoryBtn': { bottom: '188', right: '63' },
-            'inventoryReportsBtn': { bottom: '70', right: '120' },
+
             'adminReturnsBtn': { bottom: '130', right: '120' },
             'myItemsFabBtn': { bottom: '188', right: '6' },
             'openInventoryBtn': { bottom: '11', right: '6' },
             'pendingRequestsBtn': { bottom: '11', right: '63' },
-            'myRequestsBtn': { bottom: '11', right: '120' }
+
         };
 
         // Função para aplicar posições finais dos botões (FIXAS NO CÓDIGO)
@@ -1233,25 +1232,16 @@
             if (modal) modal.classList.remove('hidden');
         });
 
-        // [2,1] = Aprovar Solicitações (verde)
-        window.ensureFabBtn('approveInventoryRequestsBtn', 'fas fa-check-circle', 'bg-green-600 text-white', 'Aprovar Solicitações de Estoque', () => {
-            if (window.activeBoardData) {
-                window.openInventoryRequestsApprovalModal(window.activeBoardData);
-            } else {
-                showToast('Erro: Dados do quadro não encontrados.', 'error');
-            }
-        });
+
 
         // [2,2] = Histórico de Estoque (azul)
         window.ensureFabBtn('inventoryHistoryBtn', 'fas fa-history', 'bg-blue-600 text-white', 'Histórico de Estoque', () => {
             loadAndShowInventoryHistory();
         });
 
-        // [2,3] = Relatórios de Estoque (azul escuro)
-        window.ensureFabBtn('inventoryReportsBtn', 'fas fa-chart-bar', 'bg-blue-800 text-white', 'Relatórios de Estoque', () => {
-            // Função temporária - implementar quando necessário
-            showToast('Relatórios de Estoque - Funcionalidade em desenvolvimento', 'info');
-        });
+
+
+
 
         // [3,1] = Aprovar Devoluções (laranja)
         window.ensureFabBtn('adminReturnsBtn', 'fas fa-undo', 'bg-yellow-600 text-white', 'Aprovar devoluções de itens', () => {
@@ -1268,15 +1258,13 @@
             document.getElementById('inventoryModal').classList.remove('hidden');
         });
 
-        // [4,1] = Aprovar Solicitações Pendentes (verde claro)
-        window.ensureFabBtn('pendingRequestsBtn', 'fas fa-clock', 'bg-green-400 text-white', 'Aprovar Solicitações Pendentes', () => {
-            loadAndShowPendingRequests();
+        // [4,1] = Relatórios de Estoque (azul escuro)
+        window.ensureFabBtn('pendingRequestsBtn', 'fas fa-chart-bar', 'bg-blue-800 text-white', 'Relatórios de Estoque', () => {
+            // Função temporária - implementar quando necessário
+            showToast('Relatórios de Estoque - Funcionalidade em desenvolvimento', 'info');
         });
 
-        // [4,2] = Minhas Solicitações (azul claro)
-        window.ensureFabBtn('myRequestsBtn', 'fas fa-list', 'bg-blue-400 text-white', 'Minhas Solicitações', () => {
-            loadAndShowMyRequests();
-        });
+
 
         // DEBUG: Para verificar se os botões estão aparecendo, abra o console e digite:
         // document.querySelectorAll('.admin-fab-btn').forEach(btn => console.log(btn.id, btn.style.display, btn.dataset.permission));
@@ -1339,7 +1327,7 @@
                     currentUserDisplayName = currentUserEmail; 
                     dataToSet.displayName = currentUserDisplayName;
                     dataToSet.isAdmin = false; 
-                    isCurrentUserAdmin = false;
+                    isCurrentUserAdmin = false; 
                     needsUpdate = true; 
                 }
                 
@@ -3203,9 +3191,8 @@
             
             // Buscar solicitações pendentes no Firestore
             const requestsQuery = query(
-                collection(db, 'inventoryRequests'),
-                where('boardId', '==', activeBoardId),
-                where('status', '==', 'pending')
+                collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`),
+                where('status', '==', 'pendente')
             );
             
             getDocs(requestsQuery).then((snapshot) => {
@@ -3224,14 +3211,14 @@
                 let requestsHtml = '<div class="space-y-3 max-h-96 overflow-y-auto">';
                 
                 requests.forEach(request => {
-                    const requestDate = request.createdAt?.toDate ? request.createdAt.toDate().toLocaleString('pt-BR') : 'Data não disponível';
+                    const requestDate = request.date?.toDate ? request.date.toDate().toLocaleString('pt-BR') : 'Data não disponível';
                     requestsHtml += `
                         <div class="border border-gray-200 rounded-lg p-3 bg-gray-50">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-medium text-gray-800">${request.productName || 'Produto não especificado'}</h4>
-                                    <p class="text-sm text-gray-600">Quantidade: ${request.quantity} ${request.unit || ''}</p>
-                                    <p class="text-sm text-gray-600">Solicitante: ${request.requesterName || 'N/A'}</p>
+                                    <h4 class="font-medium text-gray-800">${request.prodName || 'Produto não especificado'}</h4>
+                                    <p class="text-sm text-gray-600">Quantidade: ${request.qty} ${request.unit || ''}</p>
+                                    <p class="text-sm text-gray-600">Solicitante: ${request.displayName || 'N/A'}</p>
                                     <p class="text-sm text-gray-500">Data: ${requestDate}</p>
                                     ${request.reason ? `<p class="text-sm text-gray-600 mt-1"><strong>Motivo:</strong> ${request.reason}</p>` : ''}
                                 </div>
@@ -3249,7 +3236,9 @@
                 showMessageModal(
                     'Aprovar Solicitações de Estoque',
                     requestsHtml,
-                    'info'
+                    'info',
+                    null,
+                    'Fechar'
                 );
             }).catch((error) => {
                 hideLoading();
@@ -3280,8 +3269,7 @@
             
             // Buscar categorias existentes no Firestore
             const categoriesQuery = query(
-                collection(db, 'inventoryCategories'),
-                where('boardId', '==', activeBoardId)
+                collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/inventoryCategories`)
             );
             
             getDocs(categoriesQuery).then((snapshot) => {
@@ -3313,7 +3301,9 @@
                 showMessageModal(
                     'Gerenciar Categorias de Produtos',
                     categoriesHtml,
-                    'info'
+                    'info',
+                    null,
+                    'Fechar'
                 );
             }).catch((error) => {
                 hideLoading();
@@ -3334,17 +3324,12 @@
             }
             
             showLoading();
-            const requestRef = doc(db, 'inventoryRequests', requestId);
-            
-            // ---> ADIÇÃO DA LÓGICA DE PRAZO <---
-            const deadlineDate = new Date();
-            deadlineDate.setDate(deadlineDate.getDate() + 8); // Adiciona 8 dias
+            const requestRef = doc(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`, requestId);
             
             updateDoc(requestRef, { 
-                status: 'approved', 
+                status: 'aprovado', 
                 approvedAt: serverTimestamp(), 
-                approvedBy: currentUserId,
-                deadline: deadlineDate // Salva o prazo final
+                approvedBy: currentUserId
             })
                 .then(() => {
                     hideLoading();
@@ -3366,8 +3351,8 @@
             }
             
             showLoading();
-            const requestRef = doc(db, 'inventoryRequests', requestId);
-            updateDoc(requestRef, { status: 'rejected', rejectedAt: serverTimestamp(), rejectedBy: currentUserId })
+            const requestRef = doc(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`, requestId);
+            updateDoc(requestRef, { status: 'rejeitado', rejectedAt: serverTimestamp(), rejectedBy: currentUserId })
                 .then(() => {
                     hideLoading();
                     showToast('Solicitação rejeitada!', 'success');
@@ -3394,9 +3379,8 @@
             }
             
             showLoading();
-            addDoc(collection(db, 'inventoryCategories'), {
+            addDoc(collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/inventoryCategories`), {
                 name: categoryName,
-                boardId: activeBoardId,
                 createdAt: serverTimestamp(),
                 createdBy: currentUserId
             })
@@ -3425,7 +3409,7 @@
                 'warning',
                 () => {
                     showLoading();
-                    deleteDoc(doc(db, 'inventoryCategories', categoryId))
+                    deleteDoc(doc(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/inventoryCategories`, categoryId))
                         .then(() => {
                             hideLoading();
                             showToast('Categoria excluída!', 'success');
@@ -4037,7 +4021,7 @@
             // ⚠️ ATENÇÃO: Esta é uma versão simplificada apenas para compatibilidade
             // NÃO adicione novos botões aqui - use a função toggleFabs real acima
             const btnIds = ['openInventoryBtn', 'requestStockBtn', 
-                            'myItemsFabBtn', 'pendingRequestsBtn', 'myRequestsBtn', 
+                            'myItemsFabBtn', 'pendingRequestsBtn', 
                             'adminReturnsBtn', 'inventoryReportsBtn'];
             
             if (!show) {
@@ -4190,7 +4174,7 @@
         }
  
         
-
+        
         // ... existing code ...
 
         // ... existing code ...
