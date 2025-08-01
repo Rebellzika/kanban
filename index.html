@@ -861,6 +861,7 @@
                 canEditTag: true,
                 canBlockTask: true,
                 canEditTask: true,
+                canReopenTask: true,
                 canDeleteChat: true,
                 
                 // Permissões de gerenciamento
@@ -882,6 +883,7 @@
                 canEditTag: false,
                 canBlockTask: true,
                 canEditTask: true,
+                canReopenTask: false,
                 canDeleteChat: false,
                 
                 // Permissões de gerenciamento
@@ -903,6 +905,7 @@
                 canEditTag: false,
                 canBlockTask: false,
                 canEditTask: true,
+                canReopenTask: false,
                 canDeleteChat: false,
                 
                 // Permissões de gerenciamento
@@ -924,6 +927,7 @@
                 canEditTag: true,
                 canBlockTask: true,
                 canEditTask: true,
+                canReopenTask: true,
                 canDeleteChat: true,
                 
                 // Permissões de gerenciamento
@@ -955,6 +959,7 @@
                     'canEditTask': 'Editar qualquer tarefa',
                     'canDeleteTask': 'Excluir qualquer tarefa',
                     'canBlockTask': 'Bloquear e desbloquear tarefas',
+                    'canReopenTask': 'Reabrir tarefas concluídas', // ---> PERMISSÃO NOVA ADICIONADA AQUI <---
                 }
             },
             'Estoque': {
@@ -1081,7 +1086,6 @@
             });
         }
 
-        // ESTOU COM DOR DE CABEÇA DE TANDO FICAR CODIFICANDO :D ALGUEM ME EJUDAAAA TO SOZINHOOOO
         // [INÍCIO: CENTRALIZAÇÃO E CORREÇÃO DOS BOTÕES FLUTUANTES]
         
         // Sistema centralizado de controle de visibilidade de botões administrativos
@@ -2428,14 +2432,29 @@
             // Só mostra botões de ação se a tarefa NÃO estiver bloqueada
             if (!task.isBlocked) {
                 if (task.completedAt) {
-                    // Permissão para reabrir tarefa será verificada na própria função
-                    actionButtonsHtml += `<button class="reopen-task-btn text-xs bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-1 px-2 rounded-md transition-colors" data-task-id="${task.id}" title="Reabrir Tarefa"><i class="fas fa-undo mr-1"></i>Reabrir</button>`;
+                    // Verifica permissão para reabrir tarefa
+                    if (hasPermission(activeBoardData, currentUserId, 'canReopenTask')) {
+                        actionButtonsHtml += `<button class="reopen-task-btn text-xs bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-1 px-2 rounded-md transition-colors" data-task-id="${task.id}" title="Reabrir Tarefa"><i class="fas fa-undo mr-1"></i>Reabrir</button>`;
+                    }
                 } else {
+                    console.log('DEBUG - Renderizando botões para tarefa não concluída:', task.id, 'AssignedTo:', task.assignedTo, 'CurrentUser:', currentUserId);
                     if (!task.assignedTo) {
+                        console.log('DEBUG - Tarefa não atribuída, mostrando botão "Assumir"');
                         actionButtonsHtml += `<button class="assign-task-btn text-xs bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-2 rounded-md transition-colors" data-task-id="${task.id}" title="Assumir tarefa"><i class="fas fa-user-plus mr-1"></i>Assumir</button>`;
                     } else if (task.assignedTo === currentUserId) {
+                        console.log('DEBUG - Tarefa atribuída ao usuário atual, mostrando botões "Concluir" e "Liberar"');
                         actionButtonsHtml += `<button class="complete-task-btn text-xs bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-2 rounded-md transition-colors" data-task-id="${task.id}" title="Concluir tarefa"><i class="fas fa-check mr-1"></i>Concluir</button>`;
                         actionButtonsHtml += `<button class="unassign-task-btn text-xs bg-gray-400 hover:bg-gray-500 text-white font-medium py-1 px-2 rounded-md transition-colors ml-1" data-task-id="${task.id}" title="Liberar tarefa"><i class="fas fa-user-minus mr-1"></i>Liberar</button>`;
+                    } else {
+                        console.log('DEBUG - Tarefa atribuída a outro usuário, verificando permissões para "Forçar Liberar"');
+                        // Administradores podem forçar a liberação de tarefas de outros usuários
+                        console.log('DEBUG - Task:', task.id, 'AssignedTo:', task.assignedTo, 'CurrentUser:', currentUserId, 'HasPermission:', hasPermission(activeBoardData, currentUserId, 'canEditTask'));
+                        if (hasPermission(activeBoardData, currentUserId, 'canEditTask')) {
+                            actionButtonsHtml += `<button class="force-unassign-task-btn text-xs bg-orange-500 hover:bg-orange-600 text-white font-medium py-1 px-2 rounded-md transition-colors" data-task-id="${task.id}" title="Forçar liberação da tarefa (Admin)"><i class="fas fa-user-slash mr-1"></i>Forçar Liberar</button>`;
+                            console.log('DEBUG - Botão "Forçar Liberar" adicionado para task:', task.id);
+                        } else {
+                            console.log('DEBUG - Sem permissão para forçar liberação. Task:', task.id);
+                        }
                     }
                 }
             }
@@ -2482,6 +2501,20 @@
 
             const blockBtn = card.querySelector('.toggle-block-task-btn');
             if(blockBtn) blockBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleBlockTask(e.currentTarget.dataset.taskId); });
+
+            const forceUnassignBtn = card.querySelector('.force-unassign-task-btn');
+            if(forceUnassignBtn) forceUnassignBtn.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                const taskId = e.currentTarget.dataset.taskId;
+                showMessageModal('Confirmar Forçar Liberação', 
+                    'Você está prestes a forçar a liberação de uma tarefa que não foi assumida por você.\n\nIsso é uma ação administrativa. Deseja continuar?', 
+                    'warning', 
+                    () => forceUnassignTask(taskId), 
+                    'Sim, Forçar Liberação', 
+                    true, 
+                    'Cancelar'
+                );
+            });
 
 
             card.addEventListener('dragstart', handleDragStart);
@@ -2533,6 +2566,31 @@
             }
         }
 
+        async function forceUnassignTask(taskId) {
+            // Verificação de permissão administrativa
+            if (!hasPermission(activeBoardData, currentUserId, 'canEditTask')) {
+                showToast('Você não tem permissão para forçar a liberação de tarefas.', 'error');
+                return;
+            }
+            
+            if (!tasksCollectionRef) return;
+            showLoading();
+            const taskRef = doc(tasksCollectionRef, taskId);
+            try {
+                await updateDoc(taskRef, {
+                    assignedTo: null,
+                    assignedToDisplayName: null,
+                    assignedAt: null
+                });
+                showToast('Tarefa forçadamente liberada por administrador!', 'warning');
+            } catch (error) {
+                console.error("Erro ao forçar liberação da tarefa:", error);
+                showMessageModal('Erro', `Não foi possível forçar a liberação da tarefa: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
         async function completeTask(taskId) {
             if (!tasksCollectionRef) return;
             showLoading();
@@ -2553,8 +2611,8 @@
         
         async function reopenTask(taskId) {
             // ---> INÍCIO DA VERIFICAÇÃO DE SEGURANÇA
-            if (!hasPermission(activeBoardData, currentUserId, 'canEditTask')) {
-                showToast('Você não tem permissão para reabrir tarefas.', 'error');
+            if (!hasPermission(activeBoardData, currentUserId, 'canReopenTask')) {
+                showToast('Você não tem permissão para reabrir tarefas. Apenas administradores podem reabrir tarefas concluídas.', 'error');
                 return;
             }
             // ---> FIM DA VERIFICAÇÃO
@@ -2777,8 +2835,9 @@
                     else if (permKey === 'canManageCategories') tip = 'Permite criar e editar categorias do estoque.';
                     else if (permKey === 'canEditColumn') tip = 'Permite editar o título e cor das colunas.';
                     else if (permKey === 'canDeleteColumn') tip = 'Permite excluir colunas do quadro.';
-                    else if (permKey === 'canEditTask') tip = 'Permite editar o conteúdo das tarefas.';
-                    else if (permKey === 'canBlockTask') tip = 'Permite bloquear/desbloquear tarefas.';
+                            else if (permKey === 'canEditTask') tip = 'Permite editar o conteúdo das tarefas.';
+        else if (permKey === 'canBlockTask') tip = 'Permite bloquear/desbloquear tarefas.';
+        else if (permKey === 'canReopenTask') tip = 'Permite reabrir tarefas que foram concluídas.';
                     else if (permKey === 'canManageInventory') tip = 'Permissão completa sobre o estoque (adicionar, editar, remover itens).';
                     else if (permKey === 'canWithdrawInventory') tip = 'Permite solicitar e retirar itens do estoque.';
                     else if (permKey === 'canApproveRequests') tip = 'Permite aprovar solicitações de retirada de estoque.';
@@ -3818,13 +3877,13 @@
                 hideLoading();
             }
         });
-
+        // ... existing code ...
         // Dentro de renderInventoryList, após inventoryList.appendChild(div):
         if (canManageInventory(activeBoardData)) {
             div.querySelector('.edit-btn')?.addEventListener('click', () => openEditProductModal(prod));
             div.querySelector('.delete-btn')?.addEventListener('click', () => confirmDeleteProduct(prod));
         }
-
+        // ... existing code ...
 
         // [REMOVER botão antigo 'Meus Itens']
         const oldBtn = document.getElementById('myItemsBtn');
@@ -4205,8 +4264,14 @@
                 list.innerHTML = '<div class="text-center text-red-500 py-8">Erro ao carregar devoluções.</div>';
             }
         }
-//Havok-SSJ :D
+ 
+        
+        
+        // ... existing code ...
+
+        // ... existing code ...
         // Remover todas as duplicidades, redefinições e listeners antigos relacionados aos FABs
+        // ... existing code ...
 
         // Placeholder para manter a estrutura do código
         // A função loadProductsIntoRequestSelect foi movida para baixo
@@ -4316,6 +4381,7 @@ function updateUnitAndQuantity() {
             }
         });
 
+        // ... existing code ...
 
         // Variáveis para controle de listeners em tempo real
         let unsubscribeRequestsSnapshot = null;
@@ -4452,6 +4518,7 @@ function updateUnitAndQuantity() {
             if (unsubscribeMyRequestsSnapshot) unsubscribeMyRequestsSnapshot();
         };
 
+        // ... existing code ...
 
         // Função para processar solicitação
         async function processStockRequest() {
@@ -4542,6 +4609,7 @@ function updateUnitAndQuantity() {
 
         document.getElementById('confirmRequestStockBtn')?.addEventListener('click', processStockRequest);
 
+        // ... existing code ...
 
         // Placeholder para manter a estrutura do código
 // As funções de permissão foram movidas para cima
@@ -4661,6 +4729,10 @@ function updateUnitAndQuantity() {
                 });
             }
         }
+
+
+
+        // ... existing code ...
 
 
 
@@ -4823,7 +4895,33 @@ function updateUnitAndQuantity() {
         }
 
 
+        // =====================================================================
+        // 🎯 FUNÇÃO: showReportTab - CONTROLE DAS ABAS DE RELATÓRIOS
+        // =====================================================================
+        /*
+        FUNÇÃO PRINCIPAL PARA CONTROLAR AS ABAS DE RELATÓRIOS DO ESTOQUE
         
+        COMO FUNCIONA:
+        1. Recebe o nome da aba (tabName) como parâmetro
+        2. Atualiza a aparência visual dos botões (ativa/desativa)
+        3. Carrega o conteúdo específico da aba selecionada
+        
+        PARA ADICIONAR NOVAS ABAS:
+        1. Adicione o botão na SEÇÃO PRINCIPAL (linha ~4770) com data-tab="novo_nome"
+        2. Adicione um novo case neste switch com a função correspondente
+        3. Crie a função de carregamento (ex: loadNovoNomeReport)
+        
+        EXEMPLO DE NOVA ABA:
+        case 'novo_nome':
+            loadNovoNomeReport(contentDiv);
+            break;
+        
+        ABAS ATUAIS:
+        - 'movements' → loadMovementsReport() - Histórico de movimentações
+        - 'products' → loadProductsReport() - Lista de produtos
+        - 'categories' → loadCategoriesReport() - Relatório por categorias  
+        - 'alerts' → loadAlertsReport() - Sistema de alertas de devolução
+        */
         function showReportTab(tabName) {
             // Atualizar botões
             document.querySelectorAll('.report-tab-btn').forEach(btn => {
@@ -5881,7 +5979,34 @@ function updateUnitAndQuantity() {
                     </div>
                 </div>
             </div>
+
+            <!-- ===================================================================== -->
+            <!-- 🎯 SEÇÃO 1: ABAS DE RELATÓRIOS DO ESTOQUE (PRINCIPAL) -->
+            <!-- ===================================================================== -->
+            <!-- 
+            ⚠️ ATENÇÃO DESENVOLVEDORES: ESTA É A SEÇÃO PRINCIPAL
+            - Localização: Modal "inventoryReportsModal" (linha ~4770)
+            - Função: Exibe relatórios de movimentações, produtos, categorias e alertas
+            - IMPORTANTE: Esta seção é carregada dinamicamente via JavaScript
+            - PARA ADICIONAR NOVAS ABAS: Adicione aqui E na SEÇÃO 2 (linha ~5840)
             
+            ⚠️ PROBLEMA ENCONTRADO: Existe uma SEÇÃO 2 duplicada no final do arquivo
+            - A SEÇÃO 2 (linha ~5840) estava sobrescrevendo esta seção
+            - SEMPRE edite AMBAS as seções para evitar conflitos
+            - Se houver diferenças, a SEÇÃO 2 sobrescreverá a SEÇÃO 1
+            
+            ESTRUTURA DAS ABAS:
+            1. Movimentações (data-tab="movements") - Histórico de entradas/saídas
+            2. Produtos (data-tab="products") - Lista de produtos no estoque
+            3. Categorias (data-tab="categories") - Relatório por categorias
+            4. Alertas (data-tab="alerts") - Sistema de alertas de devolução
+            
+            FUNÇÕES ASSOCIADAS:
+            - loadMovementsReport() - Carrega histórico de movimentações
+            - loadProductsReport() - Carrega lista de produtos
+            - loadCategoriesReport() - Carrega relatório por categorias
+            - loadAlertsReport() - Carrega alertas de devolução
+            -->
             <div class="border-b border-gray-200 mb-6">
                 <div class="flex space-x-4" role="tablist">
                     <button class="report-tab-btn active px-4 py-2 text-sm font-medium border-b-2 border-purple-500" data-tab="movements">
@@ -5905,6 +6030,35 @@ function updateUnitAndQuantity() {
             </div>
         </div>
     </div>
+
+    <!-- ===================================================================== -->
+    <!-- 📝 NOTA PARA DESENVOLVEDORES FUTUROS -->
+    <!-- ===================================================================== -->
+    <!-- 
+    PROBLEMA ENCONTRADO E RESOLVIDO (2025):
+    - A função toggleFabs estava sendo sobrescrita por safeToggleFabs
+    - Isso impedia a verificação correta de permissões
+    - SOLUÇÃO: Remover a linha "window.toggleFabs = safeToggleFabs;"
     
+    PARA ADICIONAR NOVOS BOTÕES:
+    1. Adicione o botão no objeto ADMIN_BUTTONS (linha ~1080)
+    2. Defina a permissão necessária
+    3. NÃO use a função safeToggleFabs - ela é apenas para compatibilidade
+    4. Use sempre a função toggleFabs real que verifica permissões
+    
+    ESTRUTURA DO CÓDIGO:
+    - ADMIN_BUTTONS: Define todos os botões e suas permissões
+    - toggleFabs(): Função principal que controla visibilidade dos botões
+    - hasPermission(): Verifica se usuário tem permissão específica
+    - ROLE_PERMISSIONS: Permissões padrão por cargo
+    - safeToggleFabs(): Versão simplificada (NÃO USAR PARA NOVOS BOTÕES)
+    
+    POR QUE DEMOREI PARA ENCONTRAR:
+    - O código tinha múltiplas versões da função toggleFabs
+    - A função estava sendo sobrescrita silenciosamente
+    - Não havia comentários claros sobre qual função usar
+    - O debug não mostrava que a função estava sendo sobrescrita
+    -->
+    <!-- ===================================================================== -->
 </body>
 </html>
