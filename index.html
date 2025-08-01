@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -887,7 +888,7 @@
                 canManageRolePermissions: false,
                 
                 // Permissões de estoque
-                canManageInventory: false,
+                canManageInventory: true, // CORRIGIDO: Supervisor pode aprovar solicitações, então deve poder gerenciar inventário
                 canWithdrawInventory: true,
                 canApproveRequests: true,
                 canViewReports: true,
@@ -1049,7 +1050,7 @@
                 buttonsHtml = `<button id="cancelBtn-${modalId}" class="bg-gray-200 text-gray-700 py-2 px-5 rounded-lg shadow-sm hover:bg-gray-300 font-medium transition-colors">${cancelText}</button> ${buttonsHtml}`;
             }
             const modalHtml = `
-                <div id="${modalId}" class="fixed inset-0 modal-overlay flex items-center justify-center z-[70] p-4">
+                <div id="${modalId}" class="fixed inset-0 modal-overlay flex items-center justify-center z-[110] p-4">
                     <div class="bg-white p-7 rounded-xl shadow-2xl w-full max-w-md modal-content">
                         <h3 class="text-xl font-semibold text-gray-800 mb-4">${title}</h3>
                         <p class="text-gray-600 mb-7 text-sm whitespace-pre-wrap">${message}</p>
@@ -1080,24 +1081,27 @@
             });
         }
 
+        // ESTOU COM DOR DE CABEÇA DE TANDO FICAR CODIFICANDO :D ALGUEM ME EJUDAAAA TO SOZINHOOOO
         // [INÍCIO: CENTRALIZAÇÃO E CORREÇÃO DOS BOTÕES FLUTUANTES]
         
         // Sistema centralizado de controle de visibilidade de botões administrativos
         // 
         // LAYOUT FINAL DOS BOTÕES FAB (POSIÇÕES ORGANIZADAS PELO ADMIN):
         // 
-        // POSIÇÕES FINAIS APLICADAS:
-        // manageInventoryCategoriesBtn (Gerenciar Categorias) - bottom-130 right-6
-        // adminUserInventoryBtn (Inventário Usuários) - bottom-130 right-63
-        // requestStockBtn (Solicitar Item) - bottom-70 right-6
-
-        // inventoryHistoryBtn (Histórico) - bottom-188 right-63
-        // inventoryReportsBtn (Relatórios) - bottom-70 right-120
-        // adminReturnsBtn (Aprovar Devoluções) - bottom-130 right-120
-        // myItemsFabBtn (Meus Itens) - bottom-188 right-6
+        // POSIÇÕES FINAIS APLICADAS (REORGANIZADAS):
+        // 
+        // Linha 1 (superior):
         // openInventoryBtn (Estoque) - bottom-11 right-6
-        // pendingRequestsBtn (Relatórios de Estoque) - bottom-11 right-63
-
+        // inventoryReportsBtn (Relatórios de Estoque) - bottom-11 right-63
+        // 
+        // Linha 2 (meio):
+        // requestStockBtn (Solicitar Item) - bottom-70 right-6
+        // adminUserInventoryBtn (Inventário Usuários) - bottom-70 right-63
+        // adminReturnsBtn (Aprovar Devoluções) - bottom-70 right-120
+        // 
+        // Linha 3 (inferior):
+        // myItemsFabBtn (Meus Itens) - bottom-130 right-6
+        // inventoryHistoryBtn (Histórico) - bottom-130 right-63
         // 
         // NOTA: Editor de grid removido - posições organizadas pelo admin
         // AS POSIÇÕES SÃO FIXAS NO CÓDIGO E FUNCIONAM EM QUALQUER PC
@@ -1107,13 +1111,12 @@
             'requestStockBtn': { permission: 'canWithdrawInventory', description: 'Solicitar Itens do Estoque' },
 
             'myItemsFabBtn': { permission: 'canWithdrawInventory', description: 'Visualizar Meus Itens' },
-            'pendingRequestsBtn': { permission: 'canViewReports', description: 'Relatórios de Estoque' },
+            'inventoryReportsBtn': { permission: 'canViewReports', description: 'Relatórios de Estoque' },
 
             'adminReturnsBtn': { permission: 'canApproveReturns', description: 'Aprovar Devoluções' },
 
             
             // Botões restaurados e otimizados
-            'manageInventoryCategoriesBtn': { permission: 'canManageCategories', description: 'Gerenciar Categorias de Produtos' },
             
             // Novos botões para ciclo de vida de itens
             'inventoryHistoryBtn': { permission: 'canViewReports', description: 'Histórico Completo de Estoque' },
@@ -1145,17 +1148,18 @@
 
         // Posições finais dos botões (organizadas pelo admin)
         let buttonPositions = {
-            'manageInventoryCategoriesBtn': { bottom: '130', right: '6' },
-            'adminUserInventoryBtn': { bottom: '130', right: '63' },
-            'requestStockBtn': { bottom: '70', right: '6' },
-
-            'inventoryHistoryBtn': { bottom: '188', right: '63' },
-
-            'adminReturnsBtn': { bottom: '130', right: '120' },
-            'myItemsFabBtn': { bottom: '188', right: '6' },
-            'openInventoryBtn': { bottom: '11', right: '6' },
-            'pendingRequestsBtn': { bottom: '11', right: '63' },
-
+            // Linha 1 (superior)
+            'openInventoryBtn': { bottom: '11', right: '6' },           // Estoque
+            'inventoryReportsBtn': { bottom: '11', right: '63' },       // Relatórios de Estoque
+            
+            // Linha 2 (meio)
+            'requestStockBtn': { bottom: '70', right: '6' },            // Solicitar Item
+            'adminUserInventoryBtn': { bottom: '70', right: '63' },     // Inventário dos Usuários
+            'adminReturnsBtn': { bottom: '70', right: '120' },          // Aprovar Devoluções
+            
+            // Linha 3 (inferior)
+            'myItemsFabBtn': { bottom: '130', right: '6' },             // Meus Itens
+            'inventoryHistoryBtn': { bottom: '130', right: '63' },      // Histórico de Estoque
         };
 
         // Função para aplicar posições finais dos botões (FIXAS NO CÓDIGO)
@@ -1212,14 +1216,7 @@
 
         // Criação dos FABs - SISTEMA DINÂMICO DE POSIÇÕES
         // 
-        // [1,1] = Gerenciar Categorias (roxo)
-        window.ensureFabBtn('manageInventoryCategoriesBtn', 'fas fa-tags', 'bg-purple-600 text-white', 'Gerenciar Categorias de Produtos', () => {
-            if (window.activeBoardData) {
-                window.openInventoryCategoriesManagementModal(window.activeBoardData);
-            } else {
-                showToast('Erro: Dados do quadro não encontrados.', 'error');
-            }
-        });
+
 
         // [1,2] = Inventário de Usuários (cinza)
         window.ensureFabBtn('adminUserInventoryBtn', 'fas fa-users-cog', 'bg-gray-600 text-white', 'Inventário dos Usuários', () => {
@@ -1259,9 +1256,8 @@
         });
 
         // [4,1] = Relatórios de Estoque (azul escuro)
-        window.ensureFabBtn('pendingRequestsBtn', 'fas fa-chart-bar', 'bg-blue-800 text-white', 'Relatórios de Estoque', () => {
-            // Função temporária - implementar quando necessário
-            showToast('Relatórios de Estoque - Funcionalidade em desenvolvimento', 'info');
+        window.ensureFabBtn('inventoryReportsBtn', 'fas fa-chart-bar', 'bg-purple-600 text-white', 'Relatórios de Estoque', () => {
+            loadInventoryReport();
         });
 
 
@@ -1516,7 +1512,8 @@
                     ownerDisplayName: currentUserDisplayName, 
                     members: [currentUserId], 
                     memberTags: { [currentUserId]: 'Proprietário' },
-                    createdAt: serverTimestamp()
+                    createdAt: serverTimestamp(),
+                    rolePermissions: ROLE_PERMISSIONS
                 });
                 createBoardModal?.classList.add('hidden');
                 showToast(`Quadro "${boardName}" criado com sucesso!`, 'success');
@@ -3557,9 +3554,18 @@
             const prodId = document.getElementById('withdrawProductIdInput').value;
             const qty = parseFloat(document.getElementById('withdrawQtyInput').value);
             const reason = document.getElementById('withdrawReasonInput').value.trim();
+            const days = parseInt(document.getElementById('withdrawDaysInput').value);
+            
             if (!prodId || isNaN(qty) || qty <= 0) { showToast('Quantidade inválida.', 'info'); return; }
+            if (isNaN(days) || days < 1 || days > 8) { showToast('Prazo de devolução inválido.', 'info'); return; }
+            
             const prod = currentInventoryProducts.find(p => p.id === prodId);
             if (!prod || prod.qty < qty) { showToast('Estoque insuficiente.', 'error'); return; }
+            
+            // Calcular prazo de devolução
+            const deadline = new Date();
+            deadline.setDate(deadline.getDate() + days);
+            
             const prodRef = doc(inventoryCollectionRef, prodId);
             const movementsRef = collection(prodRef, 'movements');
             showLoading();
@@ -3573,7 +3579,23 @@
                     date: serverTimestamp(),
                     reason
                 });
-                showToast('Retirada registrada!', 'success');
+                
+                // Registrar em userWithdrawals com prazo
+                const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                await addDoc(userWithdrawalsRef, {
+                    userId: currentUserId,
+                    displayName: currentUserDisplayName,
+                    prodId: prod.id,
+                    prodName: prod.name,
+                    qty,
+                    unit: prod.unit || '',
+                    date: serverTimestamp(),
+                    deadline: deadline,
+                    status: 'retirado',
+                    reason
+                });
+                
+                showToast(`Retirada registrada! Prazo de devolução: ${deadline.toLocaleDateString('pt-BR')}`, 'success');
                 document.getElementById('withdrawProductModal').classList.add('hidden');
             } catch (e) {
                 showToast('Erro ao registrar retirada.', 'error');
@@ -3796,13 +3818,13 @@
                 hideLoading();
             }
         });
-        // ... existing code ...
+
         // Dentro de renderInventoryList, após inventoryList.appendChild(div):
         if (canManageInventory(activeBoardData)) {
             div.querySelector('.edit-btn')?.addEventListener('click', () => openEditProductModal(prod));
             div.querySelector('.delete-btn')?.addEventListener('click', () => confirmDeleteProduct(prod));
         }
-        // ... existing code ...
+
 
         // [REMOVER botão antigo 'Meus Itens']
         const oldBtn = document.getElementById('myItemsBtn');
@@ -3881,6 +3903,12 @@
                             <button class='used-item-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium' data-id='${docSnap.id}'>Marcar como Usado</button>
                             <button class='return-item-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded text-xs font-medium ml-2' data-id='${docSnap.id}'>Devolver</button>
                         `;
+                    } else if (item.status === 'retirado' && isOverdue) {
+                        buttonsHtml = `
+                            <button class='used-item-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium' data-id='${docSnap.id}'>Marcar como Usado</button>
+                            <button class='return-item-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded text-xs font-medium ml-2' data-id='${docSnap.id}'>Devolver</button>
+                            <button class='justify-overdue-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-medium ml-2' data-id='${docSnap.id}'>Justificar Atraso</button>
+                        `;
                     } else if (isOverdue) {
                         buttonsHtml = `<button class='justify-overdue-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-medium' data-id='${docSnap.id}'>Justificar Atraso</button>`;
                     }
@@ -3939,7 +3967,7 @@
 
             showMessageModal(
                 'Confirmar Uso do Item',
-                'Esta ação removerá o item do seu inventário. Deseja continuar?',
+                'Esta ação removerá o item do seu inventário e encerrará o prazo de devolução. Deseja continuar?',
                 'info',
                 async () => {
                     showLoading();
@@ -3949,7 +3977,7 @@
                             status: 'usado',
                             usedAt: serverTimestamp()
                         });
-                        showToast('Item marcado como usado!', 'success');
+                        showToast('Item marcado como usado! Alerta removido.', 'success');
                         loadAndShowMyItems(); // Recarrega a lista
                     } catch (err) {
                         showToast('Erro ao marcar item como usado.', 'error');
@@ -3959,6 +3987,35 @@
                     }
                 },
                 'Confirmar', true, 'Cancelar'
+            );
+        }
+
+        // Função para processar devolução de item (RESTAURADA - envia para aprovação)
+        async function handleReturnItem(withdrawalId) {
+            if (!withdrawalId) return;
+
+            showMessageModal(
+                'Solicitar Devolução',
+                'Esta ação enviará uma solicitação de devolução para aprovação do administrador. Deseja continuar?',
+                'info',
+                async () => {
+                    showLoading();
+                    try {
+                        const withdrawalRef = doc(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`, withdrawalId);
+                        await updateDoc(withdrawalRef, {
+                            status: 'devolucao_pendente',
+                            returnRequestDate: serverTimestamp()
+                        });
+                        showToast('Solicitação de devolução enviada para o administrador!', 'success');
+                        loadAndShowMyItems(); // Recarrega a lista
+                    } catch (err) {
+                        showToast('Erro ao solicitar devolução.', 'error');
+                        console.error(err);
+                    } finally {
+                        hideLoading();
+                    }
+                },
+                'Solicitar Devolução', true, 'Cancelar'
             );
         }
 
@@ -3975,31 +4032,7 @@
         // [4] Ao retirar produto, registrar também em userWithdrawals
         const oldConfirmWithdrawBtn = document.getElementById('confirmWithdrawBtn')?.onclick;
         document.getElementById('confirmWithdrawBtn')?.addEventListener('click', async () => {
-            // ...código original de retirada...
-            // Após registrar a retirada no produto, registrar em userWithdrawals:
-            try {
-                const prodId = document.getElementById('withdrawProductIdInput').value;
-                const qty = parseFloat(document.getElementById('withdrawQtyInput').value);
-                const reason = document.getElementById('withdrawReasonInput').value.trim();
-                const prod = currentInventoryProducts.find(p => p.id === prodId);
-                if (!prod || isNaN(qty) || qty <= 0) return;
-                const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
-                await addDoc(userWithdrawalsRef, {
-                    userId: currentUserId,
-                    displayName: currentUserDisplayName,
-                    prodId: prod.id,
-                    prodName: prod.name,
-                    qty,
-                    unit: prod.unit || '',
-                    date: serverTimestamp(),
-                    status: 'retirado',
-                    reason
-                });
-            } catch (err) {
-                // Não impede a retirada, mas loga erro
-                console.warn('Erro ao registrar retirada em userWithdrawals:', err);
-            }
-            // ...continua código original...
+
         });
 
         // [5] Botão flutuante para admin ver devoluções pendentes
@@ -4021,8 +4054,8 @@
             // ⚠️ ATENÇÃO: Esta é uma versão simplificada apenas para compatibilidade
             // NÃO adicione novos botões aqui - use a função toggleFabs real acima
             const btnIds = ['openInventoryBtn', 'requestStockBtn', 
-                            'myItemsFabBtn', 'pendingRequestsBtn', 
-                            'adminReturnsBtn', 'inventoryReportsBtn'];
+                            'myItemsFabBtn', 'adminReturnsBtn', 
+                            'inventoryReportsBtn'];
             
             if (!show) {
                 btnIds.forEach(id => {
@@ -4172,14 +4205,8 @@
                 list.innerHTML = '<div class="text-center text-red-500 py-8">Erro ao carregar devoluções.</div>';
             }
         }
- 
-        
-        
-        // ... existing code ...
-
-        // ... existing code ...
+//Havok-SSJ :D
         // Remover todas as duplicidades, redefinições e listeners antigos relacionados aos FABs
-        // ... existing code ...
 
         // Placeholder para manter a estrutura do código
         // A função loadProductsIntoRequestSelect foi movida para baixo
@@ -4289,7 +4316,6 @@ function updateUnitAndQuantity() {
             }
         });
 
-        // ... existing code ...
 
         // Variáveis para controle de listeners em tempo real
         let unsubscribeRequestsSnapshot = null;
@@ -4426,7 +4452,6 @@ function updateUnitAndQuantity() {
             if (unsubscribeMyRequestsSnapshot) unsubscribeMyRequestsSnapshot();
         };
 
-        // ... existing code ...
 
         // Função para processar solicitação
         async function processStockRequest() {
@@ -4517,7 +4542,6 @@ function updateUnitAndQuantity() {
 
         document.getElementById('confirmRequestStockBtn')?.addEventListener('click', processStockRequest);
 
-        // ... existing code ...
 
         // Placeholder para manter a estrutura do código
 // As funções de permissão foram movidas para cima
@@ -4640,19 +4664,6 @@ function updateUnitAndQuantity() {
 
 
 
-        // ... existing code ...
-
-        // Adicionar botão de relatórios aos FABs
-        const fabContainer = document.querySelector('.fab-container');
-        if (fabContainer) {
-            const reportsBtn = document.createElement('button');
-            reportsBtn.id = 'inventoryReportsBtn';
-            reportsBtn.className = 'fab-button bg-purple-600 hover:bg-purple-700 hidden';
-            reportsBtn.innerHTML = '<i class="fas fa-chart-bar"></i>';
-            reportsBtn.title = 'Relatórios do Estoque';
-            fabContainer.appendChild(reportsBtn);
-        }
-
         // Adicionar modal de relatórios
         if (!document.getElementById('inventoryReportsModal')) {
             const modal = document.createElement('div');
@@ -4708,7 +4719,33 @@ function updateUnitAndQuantity() {
                         </div>
                     </div>
 
-                    <!-- Abas de Relatórios -->
+                    <!-- ===================================================================== -->
+                    <!-- 🎯 SEÇÃO 1: ABAS DE RELATÓRIOS DO ESTOQUE (PRINCIPAL) -->
+                    <!-- ===================================================================== -->
+                    <!-- 
+                    ⚠️ ATENÇÃO DESENVOLVEDORES: ESTA É A SEÇÃO PRINCIPAL
+                    - Localização: Modal "inventoryReportsModal" (linha ~4770)
+                    - Função: Exibe relatórios de movimentações, produtos, categorias e alertas
+                    - IMPORTANTE: Esta seção é carregada dinamicamente via JavaScript
+                    - PARA ADICIONAR NOVAS ABAS: Adicione aqui E na função showReportTab()
+                    
+                    ✅ PROBLEMA RESOLVIDO: A SEÇÃO 2 duplicada foi removida
+                    - Agora existe apenas esta seção principal
+                    - Não há mais conflitos de sobrescrita
+                    - Para adicionar novas abas: Edite aqui E na função showReportTab()
+                    
+                    ESTRUTURA DAS ABAS:
+                    1. Movimentações (data-tab="movements") - Histórico de entradas/saídas
+                    2. Produtos (data-tab="products") - Lista de produtos no estoque
+                    3. Categorias (data-tab="categories") - Relatório por categorias
+                    4. Alertas (data-tab="alerts") - Sistema de alertas de devolução
+                    
+                    FUNÇÕES ASSOCIADAS:
+                    - loadMovementsReport() - Carrega histórico de movimentações
+                    - loadProductsReport() - Carrega lista de produtos
+                    - loadCategoriesReport() - Carrega relatório por categorias
+                    - loadAlertsReport() - Carrega alertas de devolução
+                    -->
                     <div class="border-b border-gray-200 mb-6">
                         <div class="flex space-x-4" role="tablist">
                             <button class="report-tab-btn active px-4 py-2 text-sm font-medium border-b-2 border-purple-500" data-tab="movements">
@@ -4719,6 +4756,9 @@ function updateUnitAndQuantity() {
                             </button>
                             <button class="report-tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent" data-tab="categories">
                                 Categorias
+                            </button>
+                            <button class="report-tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent" data-tab="alerts">
+                                Alertas
                             </button>
                         </div>
                     </div>
@@ -4782,6 +4822,8 @@ function updateUnitAndQuantity() {
             }
         }
 
+
+        
         function showReportTab(tabName) {
             // Atualizar botões
             document.querySelectorAll('.report-tab-btn').forEach(btn => {
@@ -4808,6 +4850,9 @@ function updateUnitAndQuantity() {
                 case 'categories':
                     loadCategoriesReport(contentDiv);
                     break;
+                case 'alerts':
+                    loadAlertsReport(contentDiv);
+                    break;
             }
         }
 
@@ -4825,15 +4870,15 @@ function updateUnitAndQuantity() {
                 }
 
                 let html = `
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-gray-50 sticky top-0">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qtd</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuário</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Produto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Qtd</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Usuário</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Status</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -4901,15 +4946,15 @@ function updateUnitAndQuantity() {
                 const products = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
                 
                 let html = `
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-gray-50 sticky top-0">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoria</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estoque</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Produto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Código</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Categoria</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Estoque</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Status</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -4958,68 +5003,399 @@ function updateUnitAndQuantity() {
             container.innerHTML = '<div class="text-center text-gray-400 py-8">Carregando...</div>';
             
             try {
-                const snap = await getDocs(inventoryCollectionRef);
-                if (snap.empty) {
+                // Buscar produtos do estoque
+                const inventorySnap = await getDocs(inventoryCollectionRef);
+                
+                // Buscar itens retirados pelos usuários
+                const withdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                const withdrawalsSnap = await getDocs(withdrawalsRef);
+                
+                if (inventorySnap.empty && withdrawalsSnap.empty) {
                     container.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhum produto encontrado.</div>';
                     return;
                 }
 
-                const products = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                const products = inventorySnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                const withdrawals = withdrawalsSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
                 const categories = {};
 
-                // Agrupar produtos por categoria
+                // Agrupar produtos do estoque por categoria
                 products.forEach(prod => {
                     const category = prod.category || 'Sem Categoria';
                     if (!categories[category]) {
                         categories[category] = {
                             totalProducts: 0,
+                            stockItems: 0,
+                            withUsers: 0,
                             totalItems: 0,
                             lowStock: 0,
                             outOfStock: 0
                         };
                     }
                     categories[category].totalProducts++;
+                    categories[category].stockItems += prod.qty || 0;
                     categories[category].totalItems += prod.qty || 0;
-                    if (prod.qty <= 0) categories[category].outOfStock++;
-                    else if (prod.qty <= 5) categories[category].lowStock++;
+                    
+                    // Contar produtos com estoque baixo ou sem estoque (baseado no estoque geral)
+                    if (prod.qty <= 0) {
+                        categories[category].outOfStock++;
+                    } else if (prod.qty <= 5) {
+                        categories[category].lowStock++;
+                    }
+                });
+
+                // Adicionar itens que estão com usuários
+                withdrawals.forEach(withdrawal => {
+                    if (withdrawal.status === 'retirado' || withdrawal.status === 'usado') {
+                        const category = withdrawal.category || 'Sem Categoria';
+                        if (!categories[category]) {
+                            categories[category] = {
+                                totalProducts: 0,
+                                stockItems: 0,
+                                withUsers: 0,
+                                totalItems: 0,
+                                lowStock: 0,
+                                outOfStock: 0
+                            };
+                        }
+                        categories[category].withUsers += withdrawal.qty || 0;
+                        categories[category].totalItems += withdrawal.qty || 0;
+                    }
                 });
 
                 let html = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-800">
+                        <strong>Legenda:</strong> 
+                        <span class="text-blue-600">Estoque</span> = Itens disponíveis no estoque geral | 
+                        <span class="text-purple-600">Com Usuários</span> = Itens retirados pelos usuários | 
+                        <span class="text-yellow-600">Estoque Baixo</span> = Produtos com 5 ou menos itens no estoque | 
+                        <span class="text-red-600">Sem Estoque</span> = Produtos com 0 itens no estoque
+                    </p>
+                </div>
+                <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Categoria</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Total Produtos</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Estoque</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Com Usuários</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Total Geral</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Estoque Baixo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Sem Estoque</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
                 `;
 
                 Object.entries(categories).forEach(([category, stats]) => {
+                    // Determinar status da categoria
+                    let statusClass = 'text-green-600';
+                    let statusText = 'Normal';
+                    
+                    if (stats.outOfStock > 0) {
+                        statusClass = 'text-red-600';
+                        statusText = 'Crítico';
+                    } else if (stats.lowStock > 0) {
+                        statusClass = 'text-yellow-600';
+                        statusText = 'Atenção';
+                    }
+
                     html += `
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">${category}</h3>
-                        <div class="space-y-2">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-600">Total de Produtos:</span>
-                                <span class="font-semibold">${stats.totalProducts}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-600">Total de Itens:</span>
-                                <span class="font-semibold">${stats.totalItems}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-600">Estoque Baixo:</span>
-                                <span class="font-semibold text-yellow-600">${stats.lowStock}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-600">Sem Estoque:</span>
-                                <span class="font-semibold text-red-600">${stats.outOfStock}</span>
-                            </div>
-                        </div>
-                    </div>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${category}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${stats.totalProducts}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600">${stats.stockItems}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-purple-600">${stats.withUsers}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${stats.totalItems}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-600">${stats.lowStock}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">${stats.outOfStock}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm ${statusClass}">${statusText}</span>
+                            </td>
+                        </tr>
                     `;
                 });
 
-                html += `</div>`;
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
                 container.innerHTML = html;
 
             } catch (error) {
                 console.error('Erro ao carregar relatório de categorias:', error);
                 container.innerHTML = '<div class="text-center text-red-500 py-8">Erro ao carregar relatório.</div>';
+            }
+        }
+
+        // Função para carregar relatório de alertas
+        async function loadAlertsReport(container) {
+            try {
+                const withdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                const q = query(withdrawalsRef, where('status', '==', 'retirado'));
+                const snap = await getDocs(q);
+                
+                const now = new Date();
+                const alerts = [];
+                
+                snap.forEach(docSnap => {
+                    const item = docSnap.data();
+                    const deadline = item.deadline?.toDate();
+                    const daysRemaining = deadline ? Math.ceil((deadline - now) / (1000 * 60 * 60 * 24)) : 0;
+                    
+                    if (deadline && deadline > now) {
+                        alerts.push({
+                            id: docSnap.id,
+                            ...item,
+                            daysRemaining,
+                            deadline
+                        });
+                    }
+                });
+
+                // Ordenar por prazo mais próximo
+                alerts.sort((a, b) => a.daysRemaining - b.daysRemaining);
+
+                if (alerts.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="text-green-600 text-lg font-semibold mb-2">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Nenhum alerta ativo
+                            </div>
+                            <p class="text-gray-500">Todos os produtos estão dentro do prazo de devolução.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="space-y-4">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-exclamation-triangle text-yellow-600 mr-3"></i>
+                                <div>
+                                    <h3 class="text-yellow-800 font-semibold">Alertas de Devolução</h3>
+                                    <p class="text-yellow-700 text-sm">${alerts.length} produto(s) com prazo de devolução próximo</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                `;
+
+                alerts.forEach(alert => {
+                    const urgencyClass = alert.daysRemaining <= 1 ? 'border-red-300 bg-red-50' : 
+                                       alert.daysRemaining <= 3 ? 'border-orange-300 bg-orange-50' : 
+                                       'border-yellow-300 bg-yellow-50';
+                    
+                    const urgencyText = alert.daysRemaining <= 1 ? 'URGENTE' : 
+                                      alert.daysRemaining <= 3 ? 'ATENÇÃO' : 'NORMAL';
+                    
+                    const urgencyIcon = alert.daysRemaining <= 1 ? 'fas fa-exclamation-circle text-red-600' : 
+                                      alert.daysRemaining <= 3 ? 'fas fa-exclamation-triangle text-orange-600' : 
+                                      'fas fa-info-circle text-yellow-600';
+
+                    html += `
+                        <div class="border rounded-lg p-4 ${urgencyClass} cursor-pointer hover:shadow-md transition-shadow user-history-trigger" 
+                             data-user-id="${alert.userId}" 
+                             data-display-name="${alert.displayName}" 
+                             data-product-name="${alert.prodName}">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-2">
+                                        <i class="${urgencyIcon} mr-2"></i>
+                                        <span class="font-semibold text-gray-800">${alert.displayName}</span>
+                                        <span class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">${urgencyText}</span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 mb-1">
+                                        <strong>Produto:</strong> ${alert.prodName} (Qtd: ${alert.qty})
+                                    </div>
+                                    <div class="text-sm text-gray-600">
+                                        <strong>Prazo:</strong> ${alert.deadline.toLocaleDateString('pt-BR')} 
+                                        <span class="font-semibold ${alert.daysRemaining <= 1 ? 'text-red-600' : alert.daysRemaining <= 3 ? 'text-orange-600' : 'text-yellow-600'}">
+                                            (${alert.daysRemaining} dia${alert.daysRemaining !== 1 ? 's' : ''} restante${alert.daysRemaining !== 1 ? 's' : ''})
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+
+                // Adicionar event listeners para os triggers de histórico
+                container.querySelectorAll('.user-history-trigger').forEach(trigger => {
+                    trigger.addEventListener('click', () => {
+                        const userId = trigger.dataset.userId;
+                        const displayName = trigger.dataset.displayName;
+                        const productName = trigger.dataset.productName;
+                        showUserHistory(userId, displayName, productName);
+                    });
+                });
+
+            } catch (error) {
+                console.error('Erro ao carregar relatório de alertas:', error);
+                container.innerHTML = '<div class="text-center text-red-500 py-8">Erro ao carregar alertas.</div>';
+            }
+        }
+
+        // Função para mostrar histórico do usuário
+        async function showUserHistory(userId, displayName, productName) {
+            try {
+                const withdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                const q = query(withdrawalsRef);
+                const snap = await getDocs(q);
+                
+                // Filtrar por usuário e produto no lado do cliente para evitar necessidade de índice composto
+                const filteredDocs = snap.docs.filter(doc => {
+                    const data = doc.data();
+                    return data.userId === userId && data.prodName === productName;
+                }).sort((a, b) => b.data().date.seconds - a.data().date.seconds);
+                
+                const history = [];
+                filteredDocs.forEach(docSnap => {
+                    history.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                // Criar modal de histórico
+                const modalHtml = `
+                    <div id="userHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[110]">
+                        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
+                            <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h2 class="text-xl font-semibold">Histórico do Usuário</h2>
+                                        <p class="text-purple-100">${displayName} - ${productName}</p>
+                                    </div>
+                                    <button class="close-user-history-modal text-white hover:text-purple-200">
+                                        <i class="fas fa-times text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6 max-h-[60vh] overflow-y-auto">
+                                ${history.length === 0 ? `
+                                    <div class="text-center text-gray-500 py-8">
+                                        <i class="fas fa-info-circle text-4xl mb-4"></i>
+                                        <p>Nenhum histórico encontrado.</p>
+                                    </div>
+                                ` : `
+                                    <div class="space-y-4">
+                                        ${history.map(item => {
+                                            const statusMap = {
+                                                'retirado': { text: 'Retirado', class: 'bg-blue-100 text-blue-800' },
+                                                'usado': { text: 'Usado', class: 'bg-green-100 text-green-800' },
+                                                'devolvido': { text: 'Devolvido', class: 'bg-gray-100 text-gray-800' },
+                                                'devolucao_pendente': { text: 'Devolução Pendente', class: 'bg-yellow-100 text-yellow-800' },
+                                            };
+                                            const statusInfo = statusMap[item.status] || { text: item.status, class: 'bg-gray-100 text-gray-800' };
+                                            
+                                            const now = new Date();
+                                            const deadline = item.deadline?.toDate();
+                                            const daysRemaining = deadline ? Math.ceil((deadline - now) / (1000 * 60 * 60 * 24)) : 0;
+                                            const isOverdue = item.status === 'retirado' && deadline && deadline < now;
+                                            
+                                            return `
+                                                <div class="border rounded-lg p-4 ${isOverdue ? 'border-red-300 bg-red-50' : 'border-gray-200'}">
+                                                    <div class="flex items-center justify-between mb-3">
+                                                        <div class="flex items-center">
+                                                            <span class="px-2 py-1 text-xs font-medium rounded-full ${statusInfo.class}">${statusInfo.text}</span>
+                                                            ${isOverdue ? '<span class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">ATRASADO</span>' : ''}
+                                                        </div>
+                                                        <div class="text-sm text-gray-500">
+                                                            ${item.date ? new Date(item.date.seconds*1000).toLocaleString('pt-BR') : 'N/A'}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                                        <div>
+                                                            <strong>Quantidade:</strong> ${item.qty}
+                                                        </div>
+                                                        <div>
+                                                            <strong>Data de Retirada:</strong> ${item.date ? new Date(item.date.seconds*1000).toLocaleDateString('pt-BR') : 'N/A'}
+                                                        </div>
+                                                        ${deadline ? `
+                                                            <div>
+                                                                <strong>Prazo de Devolução:</strong> ${deadline.toLocaleDateString('pt-BR')}
+                                                            </div>
+                                                            <div>
+                                                                <strong>Dias Restantes:</strong> 
+                                                                <span class="${daysRemaining <= 1 ? 'text-red-600' : daysRemaining <= 3 ? 'text-orange-600' : 'text-green-600'} font-semibold">
+                                                                    ${daysRemaining} dia${daysRemaining !== 1 ? 's' : ''}
+                                                                </span>
+                                                            </div>
+                                                        ` : ''}
+                                                    </div>
+                                                    
+                                                    ${item.notes ? `
+                                                        <div class="mt-3 pt-3 border-t border-gray-200">
+                                                            <strong>Observações:</strong> ${item.notes}
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                `}
+                            </div>
+                            
+                            <div class="bg-gray-50 px-6 py-4 border-t">
+                                <div class="flex justify-between items-center">
+                                    <div class="text-sm text-gray-600">
+                                        Total de registros: ${history.length}
+                                    </div>
+                                                                    <button class="close-user-history-modal px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                                    Fechar
+                                </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Remover modal anterior se existir
+                const existingModal = document.getElementById('userHistoryModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                // Adicionar event listeners para fechar o modal
+                document.querySelectorAll('.close-user-history-modal').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        closeUserHistoryModal();
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar histórico do usuário:', error);
+                showToast('Erro ao carregar histórico do usuário.', 'error');
+            }
+        }
+
+        // Função para fechar modal de histórico
+        function closeUserHistoryModal() {
+            const modal = document.getElementById('userHistoryModal');
+            if (modal) {
+                modal.remove();
             }
         }
 
@@ -5029,12 +5405,12 @@ function updateUnitAndQuantity() {
             document.getElementById('inventoryReportsModal').classList.add('hidden');
         });
 
-        // Event Listeners para as abas
-        document.querySelectorAll('.report-tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+        // Event Listeners para as abas (usando event delegation)
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('report-tab-btn')) {
                 const tabName = e.target.dataset.tab;
                 if (tabName) showReportTab(tabName);
-            });
+            }
         });
 
         // ... existing code ...
@@ -5160,16 +5536,19 @@ function updateUnitAndQuantity() {
             const list = document.getElementById('userSpecificInventoryList');
             try {
                 const userWithdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
-                const q = query(userWithdrawalsRef, where('userId', '==', userId), where('status', '==', 'retirado'));
+                const q = query(userWithdrawalsRef, where('userId', '==', userId));
                 const snap = await getDocs(q);
+                
+                // Filtrar por status no lado do cliente para evitar necessidade de índice composto
+                const filteredDocs = snap.docs.filter(doc => doc.data().status === 'retirado');
 
-                if (snap.empty) {
+                if (filteredDocs.length === 0) {
                     list.innerHTML = '<div class="text-center text-gray-500 py-4">Este usuário não possui itens retirados.</div>';
                     return;
                 }
 
                 list.innerHTML = '';
-                snap.forEach(docSnap => {
+                filteredDocs.forEach(docSnap => {
                     const item = docSnap.data();
                     const div = document.createElement('div');
                     div.className = 'p-3 border rounded-lg flex justify-between items-center';
@@ -5236,6 +5615,60 @@ function updateUnitAndQuantity() {
         }
 
         document.getElementById('closeAdminUserInventoryModalBtn')?.addEventListener('click', () => document.getElementById('adminUserInventoryModal').classList.add('hidden'));
+
+        // Função para verificar alertas automaticamente
+        async function checkAlerts() {
+            if (!activeBoardId || !canViewReports(activeBoardData)) return;
+            
+            try {
+                const withdrawalsRef = collection(db, `artifacts/${appIdFromGlobal}/boards/${activeBoardId}/userWithdrawals`);
+                const q = query(withdrawalsRef, where('status', '==', 'retirado'));
+                const snap = await getDocs(q);
+                
+                const now = new Date();
+                const urgentAlerts = [];
+                const warningAlerts = [];
+                
+                snap.forEach(docSnap => {
+                    const item = docSnap.data();
+                    const deadline = item.deadline?.toDate();
+                    
+                    if (deadline && deadline > now) {
+                        const daysRemaining = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysRemaining <= 1) {
+                            urgentAlerts.push({
+                                id: docSnap.id,
+                                ...item,
+                                daysRemaining
+                            });
+                        } else if (daysRemaining <= 3) {
+                            warningAlerts.push({
+                                id: docSnap.id,
+                                ...item,
+                                daysRemaining
+                            });
+                        }
+                    }
+                });
+
+                // Mostrar notificação se houver alertas urgentes
+                if (urgentAlerts.length > 0) {
+                    showToast(`⚠️ ${urgentAlerts.length} item(s) com prazo URGENTE de devolução!`, 'warning');
+                } else if (warningAlerts.length > 0) {
+                    showToast(`⚠️ ${warningAlerts.length} item(s) com prazo próximo de devolução.`, 'info');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao verificar alertas:', error);
+            }
+        }
+
+        // Verificar alertas a cada 30 minutos
+        setInterval(checkAlerts, 30 * 60 * 1000);
+        
+        // Verificar alertas na primeira carga
+        setTimeout(checkAlerts, 5000);
     </script>
     <!-- Botão Estoque no menu principal (aparece só dentro do quadro) -->
     <button id="openInventoryBtn" class="fixed bottom-24 right-6 z-40 bg-emerald-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-emerald-700 transition-all" style="display:none;"><i class="fas fa-boxes"></i></button>
@@ -5299,6 +5732,7 @@ function updateUnitAndQuantity() {
                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Produto</label><input id="withdrawProductNameInput" type="text" class="block w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg sm:text-sm" disabled></div>
                 <div class="flex gap-2"><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Quantidade</label><input id="withdrawQtyInput" type="number" min="1" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="0"></div><div class="flex-1"><label class="block text-sm font-medium text-gray-700 mb-1">Unidade</label><input id="withdrawUnitInput" type="text" class="block w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg sm:text-sm" disabled></div></div>
                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Motivo/Observação</label><textarea id="withdrawReasonInput" rows="2" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Motivo ou observação..."></textarea></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Prazo de Devolução (dias)</label><select id="withdrawDaysInput" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"><option value="1">1 dia</option><option value="2">2 dias</option><option value="3">3 dias</option><option value="4">4 dias</option><option value="5">5 dias</option><option value="6">6 dias</option><option value="7">7 dias</option><option value="8" selected>8 dias</option></select></div>
             </div>
             <div class="flex justify-end space-x-4 pt-4"><button id="cancelWithdrawBtn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-300 font-medium">Cancelar</button><button id="confirmWithdrawBtn" class="bg-emerald-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-emerald-700 font-medium">Confirmar Retirada</button></div>
         </div>
@@ -5397,5 +5831,80 @@ function updateUnitAndQuantity() {
         </div>
     </div>
 
+    <!-- Modal de Relatórios de Estoque -->
+    <div id="inventoryReportsModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[100] hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-purple-700 flex items-center">
+                    <i class="fas fa-chart-bar mr-2"></i>Relatórios do Estoque
+                </h3>
+                <button id="closeReportsModalBtn" class="text-gray-400 hover:text-red-500 text-2xl p-1 rounded-full transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Cards de Resumo -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="text-blue-800 font-semibold mb-2">Resumo Geral</h4>
+                    <div id="inventorySummary" class="space-y-2">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Total de Produtos:</span>
+                            <span class="font-semibold" id="totalProducts">-</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Produtos com Estoque Baixo:</span>
+                            <span class="font-semibold text-yellow-600" id="lowStockProducts">-</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Produtos sem Estoque:</span>
+                            <span class="font-semibold text-red-600" id="outOfStockProducts">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="text-green-800 font-semibold mb-2">Movimentações</h4>
+                    <div id="movementsSummary" class="space-y-2">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Retiradas (Mês):</span>
+                            <span class="font-semibold" id="monthlyWithdrawals">-</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Devoluções (Mês):</span>
+                            <span class="font-semibold" id="monthlyReturns">-</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Solicitações Pendentes:</span>
+                            <span class="font-semibold text-yellow-600" id="pendingRequests">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-b border-gray-200 mb-6">
+                <div class="flex space-x-4" role="tablist">
+                    <button class="report-tab-btn active px-4 py-2 text-sm font-medium border-b-2 border-purple-500" data-tab="movements">
+                        Movimentações
+                    </button>
+                    <button class="report-tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent" data-tab="products">
+                        Produtos
+                    </button>
+                    <button class="report-tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent" data-tab="categories">
+                        Categorias
+                    </button>
+                    <button class="report-tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent" data-tab="alerts">
+                        Alertas
+                    </button>
+                </div>
+            </div>
+
+            <!-- Conteúdo das Abas -->
+            <div id="reportsContent" class="min-h-[400px] max-h-[600px] overflow-y-auto">
+                <!-- O conteúdo será preenchido dinamicamente -->
+            </div>
+        </div>
+    </div>
+    
 </body>
 </html>
